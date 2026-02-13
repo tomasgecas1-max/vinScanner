@@ -30,14 +30,14 @@ function isServiceHistorySkipped(): boolean {
   return v === "true" || v === "1";
 }
 
-/** EzyVIN Service History – asinchroninis: 202 Accepted, tada pollinti. Laukiama max ~18s (6×3s), po to – „istorija nerasta“. */
+/** EzyVIN Service History – asinchroninis: 202 Accepted, tada pollinti. Laukiama max ~30s (10×3s), po to – „istorija nerasta“. */
 async function fetchServiceHistory(
   vin: string,
   apiKey: string,
   baseUrl: string,
   options?: { returnDataInCallback?: boolean; maxPollAttempts?: number; pollIntervalMs?: number }
 ): Promise<{ success: boolean; result?: EzyVinServiceHistoryResult; error?: string }> {
-  const { maxPollAttempts = 6, pollIntervalMs = 3000 } = options ?? {};
+  const { maxPollAttempts = 10, pollIntervalMs = 3000 } = options ?? {};
   const url = new URL("/ezyvin/servicehistory/", baseUrl);
   url.searchParams.set("vehicle_identification_number", vin);
   url.searchParams.set("return_data_in_callback", "false");
@@ -69,14 +69,14 @@ async function fetchServiceHistory(
   };
 }
 
-/** EzyVIN VIN Lookup – OE duomenys iš VIN (gali būti 202). Laukiama max ~18s (6×3s). */
+/** EzyVIN VIN Lookup – OE duomenys iš VIN (gali būti 202). Laukiama max ~30s (10×3s). */
 async function fetchVinLookup(
   vin: string,
   apiKey: string,
   baseUrl: string,
   options?: { maxPollAttempts?: number; pollIntervalMs?: number }
 ): Promise<{ success: boolean; result?: EzyVinLookupResult; error?: string }> {
-  const { maxPollAttempts = 6, pollIntervalMs = 3000 } = options ?? {};
+  const { maxPollAttempts = 10, pollIntervalMs = 3000 } = options ?? {};
   const url = new URL("/ezyvin/vinlookup/", baseUrl);
   url.searchParams.set("vehicle_identification_number", vin);
 
@@ -457,7 +457,7 @@ function mapVinLookupToCarReportFields(result: EzyVinLookupResult | undefined): 
  */
 export async function fetchCarReportFromOneAuto(
   vin: string,
-  options?: { useSandbox?: boolean; maxPollAttempts?: number; pollIntervalMs?: number; vrm?: string }
+  options?: { useSandbox?: boolean; maxPollAttempts?: number; pollIntervalMs?: number; vrm?: string; useServiceHistory?: boolean; useVinLookup?: boolean }
 ): Promise<CarReport | null> {
   const apiKey = getApiKey();
   if (!apiKey) {
@@ -466,16 +466,21 @@ export async function fetchCarReportFromOneAuto(
   }
 
   const baseUrl = getBaseUrl(options?.useSandbox ? "sandbox" : "live");
-  const pollOpts = { maxPollAttempts: options?.maxPollAttempts ?? 6, pollIntervalMs: options?.pollIntervalMs ?? 3000 };
-  const skipServiceHistory = isServiceHistorySkipped();
+  const pollOpts = { maxPollAttempts: options?.maxPollAttempts ?? 10, pollIntervalMs: options?.pollIntervalMs ?? 3000 };
+  const skipServiceHistory = isServiceHistorySkipped() || options?.useServiceHistory === false;
+  const skipVinLookup = options?.useVinLookup === false;
 
   const serviceHistoryPromise = skipServiceHistory
-    ? Promise.resolve({ success: false, error: "Service History išjungtas (VIN_SKIP_SERVICE_HISTORY)." as string })
+    ? Promise.resolve({ success: false, error: "Service History išjungtas (pasirinkta)." as string })
     : fetchServiceHistory(vin, apiKey, baseUrl, pollOpts);
+
+  const vinLookupPromise = skipVinLookup
+    ? Promise.resolve({ success: false, error: "VIN Lookup išjungtas (pasirinkta)." as string })
+    : fetchVinLookup(vin, apiKey, baseUrl, pollOpts);
 
   const [historyRes, lookupRes] = await Promise.all([
     serviceHistoryPromise,
-    fetchVinLookup(vin, apiKey, baseUrl, pollOpts),
+    vinLookupPromise,
   ]);
 
   if (typeof console !== "undefined" && console.log) {

@@ -23,6 +23,8 @@ const App: React.FC = () => {
   const [loadingStep, setLoadingStep] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [showMyReports, setShowMyReports] = useState(false);
+  const [useServiceHistory, setUseServiceHistory] = useState(true);
+  const [useVinLookup, setUseVinLookup] = useState(true);
 
   const t = translations[lang];
 
@@ -73,7 +75,7 @@ const App: React.FC = () => {
       let data: CarReport | null = null;
       let apiError: string | null = null;
       try {
-        data = await fetchCarReportFromOneAuto(vin);
+        data = await fetchCarReportFromOneAuto(vin, { useServiceHistory, useVinLookup });
       } catch (e) {
         data = null;
         apiError = e instanceof Error ? e.message : String(e);
@@ -116,7 +118,15 @@ const App: React.FC = () => {
       <Navbar lang={lang} setLang={setLang} t={t} onMyReportsClick={() => setShowMyReports(true)} />
       
       <main className="overflow-x-hidden">
-        <Hero onSearch={handleSearch} loading={loading} t={t} />
+        <Hero
+          onSearch={handleSearch}
+          loading={loading}
+          t={t}
+          useServiceHistory={useServiceHistory}
+          useVinLookup={useVinLookup}
+          onUseServiceHistoryChange={setUseServiceHistory}
+          onUseVinLookupChange={setUseVinLookup}
+        />
 
         {loading && (
           <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-300">

@@ -6,6 +6,10 @@ interface HeroProps {
   onSearch: (vin: string) => void;
   loading: boolean;
   t: any;
+  useServiceHistory: boolean;
+  useVinLookup: boolean;
+  onUseServiceHistoryChange: (v: boolean) => void;
+  onUseVinLookupChange: (v: boolean) => void;
 }
 
 const mileageData = [
@@ -23,7 +27,7 @@ const valueData = [
   { year: '2026', val: 16000, status: 'high' },    // Atsigavusi kaina po remonto
 ];
 
-const Hero: React.FC<HeroProps> = ({ onSearch, loading, t }) => {
+const Hero: React.FC<HeroProps> = ({ onSearch, loading, t, useServiceHistory, useVinLookup, onUseServiceHistoryChange, onUseVinLookupChange }) => {
   const [vin, setVin] = useState('');
   const SAMPLE_VIN = "WBAUR51010CZ12345";
 
@@ -80,11 +84,22 @@ const Hero: React.FC<HeroProps> = ({ onSearch, loading, t }) => {
                   </button>
                 </div>
               </form>
-              <div className="mt-6 text-left pl-2">
+              <div className="mt-6 text-left pl-2 space-y-3">
                 <button onClick={handleSampleClick} className="text-xs text-indigo-600/80 hover:text-indigo-800 font-bold transition-colors flex items-center gap-2">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="m9 18 6-6-6-6"/></svg>
                   {t.hero.sample}: <span className="underline decoration-indigo-200 underline-offset-4 font-mono">{SAMPLE_VIN}</span>
                 </button>
+                <div className="flex flex-wrap items-center gap-4 text-[11px] text-slate-500 font-medium">
+                  <span className="text-slate-400 font-bold uppercase tracking-wide">API šaltiniai (laikinai):</span>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" checked={useServiceHistory} onChange={(e) => onUseServiceHistoryChange(e.target.checked)} className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
+                    EzyVIN Service History
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" checked={useVinLookup} onChange={(e) => onUseVinLookupChange(e.target.checked)} className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
+                    OE VIN Lookup (Europe)
+                  </label>
+                </div>
               </div>
             </div>
           </div>
