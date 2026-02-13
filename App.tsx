@@ -23,6 +23,7 @@ const App: React.FC = () => {
   const [loadingStep, setLoadingStep] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [showMyReports, setShowMyReports] = useState(false);
+  const [myReportsRefreshKey, setMyReportsRefreshKey] = useState(0);
   const [useServiceHistory, setUseServiceHistory] = useState(true);
   const [useVinLookup, setUseVinLookup] = useState(true);
 
@@ -95,7 +96,7 @@ const App: React.FC = () => {
       const reportData = { ...data, vin };
       setReport(reportData);
       if (user) {
-        saveReport(user.uid, reportData).catch(() => {});
+        saveReport(user.uid, reportData).then(() => setMyReportsRefreshKey((k) => k + 1)).catch(() => {});
       }
       await new Promise(resolve => setTimeout(resolve, 400));
       const reportElement = document.getElementById('car-report');
@@ -141,7 +142,7 @@ const App: React.FC = () => {
         merged.rawApiResponses = { ...(merged.rawApiResponses as object || {}), vinLookup: (partial.rawApiResponses as any)?.vinLookup };
       }
       setReport(merged);
-      if (user) saveReport(user.uid, merged).catch(() => {});
+      if (user) saveReport(user.uid, merged).then(() => setMyReportsRefreshKey((k) => k + 1)).catch(() => {});
     } catch (e) {
       if (typeof console !== 'undefined' && console.error) console.error('Papildymas:', e);
     } finally {
@@ -226,6 +227,8 @@ const App: React.FC = () => {
         {showMyReports && (
           <MyReports
             lang={lang}
+            isOpen={showMyReports}
+            refreshKey={myReportsRefreshKey}
             onSelectReport={(r) => { setReport(r); setShowMyReports(false); }}
             onClose={() => setShowMyReports(false)}
           />

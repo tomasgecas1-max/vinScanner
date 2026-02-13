@@ -5,25 +5,28 @@ import type { CarReport } from '../types';
 
 interface MyReportsProps {
   lang: 'lt' | 'en';
+  isOpen: boolean;
+  /** Padidėjimas po naujo ataskaitos išsaugojimo – sąrašas persikrauna */
+  refreshKey?: number;
   onSelectReport: (report: CarReport) => void;
   onClose: () => void;
 }
 
-const MyReports: React.FC<MyReportsProps> = ({ lang, onSelectReport, onClose }) => {
+const MyReports: React.FC<MyReportsProps> = ({ lang, isOpen, refreshKey = 0, onSelectReport, onClose }) => {
   const { user } = useAuth();
   const [list, setList] = useState<SavedReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !isOpen) return;
     setLoading(true);
     setError(null);
     getSavedReports(user.uid)
       .then(setList)
       .catch((e) => setError(e instanceof Error ? e.message : 'Error'))
       .finally(() => setLoading(false));
-  }, [user]);
+  }, [user, isOpen, refreshKey]);
 
   const formatDate = (ms: number) => {
     const d = new Date(ms);
