@@ -15,19 +15,18 @@ function getBaseUrl(env: OneAutoEnv = "live"): string {
   return env === "sandbox" ? SANDBOX_URL : BASE_URL;
 }
 
+// Vite define build metu pakeičia process.env.* į reikšmes – naudojame tiesiogiai, be typeof process
 function getApiKey(): string | undefined {
-  return (typeof process !== "undefined" && process.env?.VIN_API_KEY) || undefined;
+  return process.env.VIN_API_KEY || undefined;
 }
 
-/** Jei true – kviečiamas tik Vehicle Identity (ne Service History, ne VIN Lookup). */
 function isVehicleIdentityOnly(): boolean {
-  const v = typeof process !== "undefined" ? process.env?.VIN_VEHICLE_IDENTITY_ONLY : undefined;
+  const v = process.env.VIN_VEHICLE_IDENTITY_ONLY;
   return v === "true" || v === "1";
 }
 
-/** Jei true – Service History nekvietiname (ataskaita greitesnė, be serviso įrašų). */
 function isServiceHistorySkipped(): boolean {
-  const v = typeof process !== "undefined" ? process.env?.VIN_SKIP_SERVICE_HISTORY : undefined;
+  const v = process.env.VIN_SKIP_SERVICE_HISTORY;
   return v === "true" || v === "1";
 }
 
