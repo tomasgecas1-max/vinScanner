@@ -1,0 +1,409 @@
+import React, { useState, useRef } from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { CarReport } from '../types';
+// @ts-expect-error html2pdf.js neturi TypeScript tipų
+import html2pdf from 'html2pdf.js';
+
+interface ReportViewProps {
+  report: CarReport;
+}
+
+/** Pavadinimai API šaltiniams ir žinomų laukų etiketės (VIN Lookup, Cartell ir kt.) */
+const SOURCE_LABELS: Record<string, string> = {
+  serviceHistory: 'EzyVIN Service History',
+  vinLookup: 'OE VIN Lookup (Europe)',
+  vehicleIdentity: 'Experian Vehicle Identity',
+  cartellVindecoder: 'Cartell VIN Decoder',
+  experianAutoCheck: 'Experian AutoCheck',
+  valuation: 'Brego Vertė (Valuation from VIN)',
+  previousAdverts: 'Previous Adverts from VIN',
+};
+
+/** Žinomi laukai – lietuviškos etiketės. Kiti API laukai rodomi kaip techninis pavadinimas (pvz. co2_gkm). */
+const FIELD_LABELS: Record<string, string> = {
+  vehicle_identification_number: 'VIN',
+  oem_vehicle_desc: 'OE aprašymas',
+  vehicle_desc: 'Aprašymas',
+  manufacturer_desc: 'Gamintojas',
+  oem_model_range_desc: 'Serija / modelis',
+  oem_derivative_desc: 'Derivatyvas',
+  oem_model_year: 'Modelio metai',
+  manufactured_year: 'Gamybos metai',
+  oem_body_type_desc: 'Kėbulo tipas',
+  oem_fuel_type_desc: 'Kuras',
+  oem_engine_desc: 'Variklis',
+  oem_transmission_type_desc: 'Pavarų dėžė',
+  oem_drivetrain_desc: 'Pavara',
+  power_bhp: 'Galia (AG)',
+  power_kw: 'Galia (kW)',
+  oem_colour_desc: 'Spalva',
+  oem_interior_trim_desc: 'Interjero apdaila',
+  date_last_updated: 'Atnaujinta',
+  model_range_desc: 'Serija',
+  model_desc: 'Modelis',
+  derivative_desc: 'Derivatyvas',
+  body_type_desc: 'Kėbulo tipas',
+  fuel_type_desc: 'Kuras',
+  transmission_desc: 'Pavarų dėžė',
+  co2_gkm: 'CO₂ (g/km)',
+  engine_capacity_cc: 'Darbinis tūris (cm³)',
+  max_netpower_kw: 'Galia (kW)',
+  colour: 'Spalva',
+  registration_date: 'Registracijos data',
+  first_registration_date: 'Pirmoji registracija',
+  number_seats: 'Sėdimų vietų sk.',
+  ncap_rating: 'Euro NCAP',
+};
+
+function formatValue(val: unknown): string {
+  if (val == null) return '–';
+  if (typeof val === 'boolean') return val ? 'Taip' : 'Ne';
+  return String(val);
+}
+
+const ReportView: React.FC<ReportViewProps> = ({ report }) => {
+  const [showRawApi, setShowRawApi] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const reportPdfRef = useRef<HTMLDivElement>(null);
+
+  const raw = report.rawApiResponses != null && typeof report.rawApiResponses === 'object'
+    ? report.rawApiResponses as Record<string, { success?: boolean; result?: Record<string, unknown>; error?: string }>
+    : null;
+
+  const rawJson = report.rawApiResponses != null
+    ? JSON.stringify(report.rawApiResponses, null, 2)
+    : null;
+
+  const handleSaveRaw = () => {
+    if (!rawJson) return;
+    const blob = new Blob([rawJson], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `vinscanner-api-${report.vin}-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadPdf = async () => {
+    const el = reportPdfRef.current;
+    if (!el) return;
+    setPdfLoading(true);
+    try {
+      const filename = `vinscanner-ataskaita-${report.vin}-${new Date().toISOString().slice(0, 10)}.pdf`;
+      await html2pdf()
+        .set({
+          margin: 10,
+          filename,
+          image: { type: 'jpeg', quality: 0.95 },
+          html2canvas: { scale: 2, useCORS: true, logging: false },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        })
+        .from(el)
+        .save();
+    } catch (e) {
+      if (typeof console !== 'undefined' && console.error) console.error('PDF klaida:', e);
+    } finally {
+      setPdfLoading(false);
+    }
+  };
+
+  return (
+    <div className="max-w-5xl mx-auto px-4 pb-20 animate-in fade-in slide-in-from-bottom-8 duration-700">
+      <div ref={reportPdfRef} className="bg-white rounded-3xl border border-slate-200 shadow-2xl overflow-hidden">
+        {/* Ataskaitos antraštė */}
+        <div className="bg-slate-900 p-6 sm:p-8 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div className="w-full md:w-auto">
+            <div className="text-indigo-400 text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-1">Pilna Ataskaita</div>
+            <h2 className="text-2xl sm:text-3xl font-bold leading-tight">{report.year} {report.make} {report.model}</h2>
+            <div className="flex items-center gap-2 mt-2 opacity-70">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <span className="font-mono text-sm break-all">{report.vin}</span>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4 w-full md:w-auto">
+            <div
+              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider flex items-center gap-2 ${
+                report.theftStatus === 'clear'
+                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50'
+                  : report.theftStatus === 'flagged'
+                    ? 'bg-rose-500/20 text-rose-400 border border-rose-500/50'
+                    : 'bg-slate-200/80 text-slate-600 border border-slate-300/80'
+              }`}
+              title={report.theftStatus === 'unknown' ? 'Vagystės patikra atliekama tik su UK valst. nr. (Experian AutoCheck)' : undefined}
+            >
+              <div
+                className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${
+                  report.theftStatus === 'clear' ? 'bg-emerald-400' : report.theftStatus === 'flagged' ? 'bg-rose-400 animate-pulse' : 'bg-slate-500'
+                }`}
+              />
+              {report.theftStatus === 'clear'
+                ? 'Nevogtas'
+                : report.theftStatus === 'flagged'
+                  ? 'VOGTAS / IEŠKOMAS'
+                  : 'NEPATIKRINTA'}
+            </div>
+            <button
+              type="button"
+              onClick={handleDownloadPdf}
+              disabled={pdfLoading}
+              className="p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors ml-auto md:ml-0 disabled:opacity-60"
+              title="Parsisiųsti ataskaitą kaip PDF"
+            >
+              {pdfLoading ? (
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+              )}
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 lg:gap-8 p-0 lg:p-8 border-t border-slate-100 lg:border-t-0">
+          {/* Pagrindinė informacija */}
+          <div className="lg:col-span-2 space-y-10 p-6 sm:p-8 lg:p-0">
+            {/* Ridos sekcija */}
+            <div>
+              {raw?.serviceHistory?.success === false && (
+                <div className="mb-4 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-sm font-medium flex items-center gap-3">
+                  <span className="shrink-0 w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+                  </span>
+                  <span>Serviso istorija nerasta – atsakymas negaunamas per nustatytą laiką. Ridos grafikas gali būti tuščias.</span>
+                </div>
+              )}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
+                <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-600"><circle cx="12" cy="12" r="10"/><path d="m16 10-4 4-2-2"/></svg>
+                  Ridos Istorija (km)
+                </h3>
+                <span className="text-xs sm:text-sm text-slate-500 font-medium">Paskutinė rida: {report.mileageHistory[report.mileageHistory.length - 1].value.toLocaleString()} km</span>
+              </div>
+              <div className="h-48 sm:h-64 w-full bg-slate-50 rounded-2xl p-2 sm:p-4 border border-slate-100">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={report.mileageHistory}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                    <XAxis dataKey="date" stroke="#94a3b8" fontSize={10} tickLine={false} axisLine={false} />
+                    <YAxis stroke="#94a3b8" fontSize={10} tickLine={false} axisLine={false} tickFormatter={(val) => `${val/1000}k`} />
+                    <Tooltip 
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '12px' }}
+                      labelStyle={{ fontWeight: 'bold', marginBottom: '4px' }}
+                    />
+                    <Line type="monotone" dataKey="value" stroke="#4f46e5" strokeWidth={3} dot={{ r: 4, fill: '#4f46e5', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Serviso įrašai – pilna istorija iš API */}
+            {report.serviceEvents && report.serviceEvents.length > 0 && (
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-600"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="M9 15h6"/></svg>
+                  Serviso įrašai
+                </h3>
+                <div className="space-y-4">
+                  {report.serviceEvents.map((event, idx) => (
+                    <div key={idx} className="p-5 rounded-2xl border border-slate-100 bg-slate-50/50 hover:border-slate-200 transition-colors">
+                      <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <span className="font-mono text-sm font-bold text-slate-800">{event.date_of_service_event}</span>
+                        <span className="text-sm font-semibold text-indigo-600">
+                          {event.mileage_observed.toLocaleString()} {event.mileage_unit}
+                        </span>
+                      </div>
+                      {event.service_provider && (
+                        <p className="text-xs sm:text-sm text-slate-600 mb-2">{event.service_provider}</p>
+                      )}
+                      {event.service_type && (
+                        <span className="inline-block px-2 py-0.5 rounded-lg bg-indigo-100 text-indigo-700 text-xs font-bold uppercase tracking-wider mb-3">
+                          {event.service_type}
+                        </span>
+                      )}
+                      {event.service_actions && event.service_actions.length > 0 && (
+                        <ul className="list-disc list-inside space-y-1 text-sm text-slate-700">
+                          {event.service_actions.map((action, i) => (
+                            <li key={i}>{action}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Žalų sekcija */}
+            <div>
+               <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-600"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12" y1="17" y2="17.01"/></svg>
+                Užfiksuotos Žalos
+              </h3>
+              <div className="space-y-4">
+                {report.damages.map((damage, idx) => (
+                  <div key={idx} className="flex gap-4 p-4 rounded-2xl border border-slate-100 bg-white hover:border-slate-200 transition-colors">
+                    <div className={`w-10 h-10 sm:w-12 sm:h-12 shrink-0 rounded-xl flex items-center justify-center ${damage.severity === 'high' ? 'bg-rose-50 text-rose-500' : 'bg-amber-50 text-amber-500'}`}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    </div>
+                    <div className="grow">
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-1 gap-1">
+                        <span className="font-bold text-sm sm:text-base text-slate-800">{damage.description}</span>
+                        <span className="text-[10px] sm:text-xs font-mono text-slate-400">{damage.date}</span>
+                      </div>
+                      <div className="flex items-center flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm">
+                        <span className="text-slate-500">Žala: <strong className="text-slate-800">~{damage.estimatedCost.toLocaleString()} €</strong></span>
+                        <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase ${damage.severity === 'high' ? 'bg-rose-100 text-rose-600' : 'bg-amber-100 text-amber-600'}`}>
+                          {damage.severity === 'high' ? 'Didelė' : 'Vidutinė'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Šoninis skydelis */}
+          <div className="bg-slate-50 lg:bg-transparent p-6 sm:p-8 lg:p-0 space-y-8 border-t lg:border-t-0 border-slate-100">
+            {/* Rinkos vertė */}
+            <div className="bg-indigo-50 rounded-2xl p-6 border border-indigo-100">
+              <h4 className="text-indigo-900 font-bold mb-4 text-sm sm:text-base">Rinkos Vertė</h4>
+              <div className="text-3xl sm:text-4xl font-extrabold text-indigo-600 mb-1">
+                ~{report.marketValue.average.toLocaleString()} €
+              </div>
+              <p className="text-xs text-indigo-700/70 mb-6">Remiantis panašių modelių pardavimais.</p>
+              <div className="space-y-3">
+                <div className="flex justify-between text-[11px] sm:text-xs uppercase font-bold tracking-wider">
+                  <span className="text-indigo-900/40">Min</span>
+                  <span className="text-indigo-900/40">Max</span>
+                </div>
+                <div className="w-full bg-indigo-200/50 h-2 rounded-full overflow-hidden">
+                  <div className="bg-indigo-600 h-full w-2/3 ml-[15%]"></div>
+                </div>
+                <div className="flex justify-between text-xs font-bold text-indigo-900">
+                  <span>{report.marketValue.min.toLocaleString()} €</span>
+                  <span>{report.marketValue.max.toLocaleString()} €</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Techniniai duomenys */}
+            <div className="space-y-4">
+              <h4 className="text-slate-900 font-bold text-sm sm:text-base">Techniniai Duomenys</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2">
+                  {Object.entries(report.technicalSpecs).map(([key, val]) => (
+                    <div key={key} className="flex justify-between py-3 border-b border-slate-200/50 last:border-0 sm:last:border-b lg:last:border-0">
+                      <span className="text-slate-500 text-xs sm:text-sm capitalize">
+                        {key === 'fuelType' ? 'Kuras' : key === 'power' ? 'Galia' : key === 'engine' ? 'Variklis' : key === 'transmission' ? 'Pavarų dėžė' : key === 'bodyType' ? 'Kėbulas' : key === 'colour' ? 'Spalva' : key === 'co2' ? 'CO₂' : key}
+                      </span>
+                      <span className="text-slate-900 text-xs sm:text-sm font-semibold">{val}</span>
+                    </div>
+                  ))}
+              </div>
+            </div>
+
+            {/* AI Apibendrinimas */}
+            <div className="bg-slate-900 rounded-2xl p-6 text-white relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+              </div>
+              <h4 className="font-bold mb-2 text-sm">AI Eksperto įžvalga</h4>
+              <p className="text-[13px] text-slate-400 leading-relaxed mb-4">
+                Automobilis pasižymi stabilia ridos istorija, tačiau verta atkreipti dėmesį į užfiksuotas kėbulo žalas.
+              </p>
+              <button className="w-full py-2.5 bg-indigo-600 rounded-xl text-[13px] font-bold hover:bg-indigo-500 transition-colors shadow-lg shadow-indigo-900/20">
+                Detali AI analizė
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Visi API šaltiniai – skaitomai */}
+      {raw && Object.keys(raw).length > 0 && (
+        <div className="mt-8">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-600"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
+            Visi API šaltiniai
+            </h3>
+            <a href="#api-raw-data" className="text-sm font-semibold text-amber-700 hover:text-amber-800 underline">
+              Žemyn: visa informacija iš API (JSON)
+            </a>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {Object.entries(raw).map(([key, data]) => {
+              const title = SOURCE_LABELS[key] ?? key;
+              const success = data?.success === true;
+              const result = data?.result && typeof data.result === 'object' ? data.result : null;
+              const error = data?.error;
+              return (
+                <div key={key} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                  <div className={`px-4 py-3 border-b border-slate-100 flex items-center justify-between ${success ? 'bg-emerald-50' : 'bg-slate-50'}`}>
+                    <span className="font-bold text-sm text-slate-800">{title}</span>
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${success ? 'bg-emerald-200 text-emerald-800' : 'bg-slate-200 text-slate-600'}`}>
+                      {success ? 'OK' : 'Klaida'}
+                    </span>
+                  </div>
+                  <div className="p-4">
+                    {!success && error && (
+                      <p className="text-sm text-rose-600 font-medium">{error}</p>
+                    )}
+                    {success && result && Object.keys(result).length > 0 && (
+                      <dl className="space-y-2">
+                        {Object.entries(result)
+                          .filter(([, v]) => v != null && v !== '')
+                          .map(([k, v]) => (
+                            <div key={k} className="flex justify-between gap-2 text-sm border-b border-slate-100 pb-2 last:border-0 last:pb-0">
+                              <dt className="text-slate-500 shrink-0">
+                                {FIELD_LABELS[k] ?? k.replace(/_/g, ' ')}
+                              </dt>
+                              <dd className="text-slate-900 font-medium text-right break-all">{formatValue(v)}</dd>
+                            </div>
+                          ))}
+                      </dl>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Visa informacija iš API – geltonas blokas (apačioje, scroll žemyn) */}
+      <div id="api-raw-data" className="mt-10 p-5 rounded-2xl border-2 border-amber-300 bg-amber-100/90 shadow-sm">
+        <button
+          type="button"
+          onClick={() => setShowRawApi((v) => !v)}
+          className="w-full flex items-center justify-between gap-2 text-left py-4 px-5 rounded-xl bg-amber-200/90 hover:bg-amber-300/90 transition-colors border border-amber-300/80"
+        >
+          <span className="text-base font-bold text-amber-900">
+            {rawJson ? 'Visa informacija iš API (laikinai)' : 'API duomenys neprieinami'}
+          </span>
+          {rawJson && (
+            <span className="text-amber-800 text-sm font-medium">
+              {showRawApi ? 'Slėpti' : 'Rodyti'}
+            </span>
+          )}
+        </button>
+        {rawJson && showRawApi && (
+          <div className="mt-4 space-y-4">
+            <pre className="p-4 rounded-xl bg-slate-900 text-slate-100 text-xs overflow-x-auto max-h-[400px] overflow-y-auto font-mono whitespace-pre-wrap break-all">
+              {rawJson}
+            </pre>
+            <button
+              type="button"
+              onClick={handleSaveRaw}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-500 transition-colors shadow-lg"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+              Išsaugoti kaip JSON
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default ReportView;

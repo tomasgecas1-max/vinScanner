@@ -1,0 +1,7 @@
+{
+  "name": "vinscanner.eu - Moderni Automobilių Patikra",
+  "description": "Profesionali platforma automobilių istorijai tikrinti, naudojanti dirbtinį intelektą išsamioms ataskaitoms generuoti.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
