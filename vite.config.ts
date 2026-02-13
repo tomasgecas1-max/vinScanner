@@ -5,6 +5,8 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
     // loadEnv = .env failai; Vercel build'e .env nėra, kintamieji tik process.env – sujungiame
     const env = { ...loadEnv(mode, '.', ''), ...process.env };
+    const hasFirebase = !!(env.FIREBASE_API_KEY && env.FIREBASE_PROJECT_ID);
+    console.log('[vite] Firebase env:', hasFirebase ? 'present (Prisijungti bus rodomas)' : 'MISSING – patikrink Vercel Environment Variables');
     return {
       server: {
         port: 3000,
