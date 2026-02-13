@@ -16,18 +16,18 @@ function getBaseUrl(env: OneAutoEnv = "live"): string {
 }
 
 function getApiKey(): string | undefined {
-  return (typeof process !== "undefined" && process.env?.ONE_AUTO_API_KEY) || undefined;
+  return (typeof process !== "undefined" && process.env?.VIN_API_KEY) || undefined;
 }
 
-/** Jei true – kviečiamas tik Vehicle Identity (ne Service History, ne VIN Lookup), kad nešviestų 2,5 € už istoriją. */
+/** Jei true – kviečiamas tik Vehicle Identity (ne Service History, ne VIN Lookup). */
 function isVehicleIdentityOnly(): boolean {
-  const v = typeof process !== "undefined" ? process.env?.ONE_AUTO_VEHICLE_IDENTITY_ONLY : undefined;
+  const v = typeof process !== "undefined" ? process.env?.VIN_VEHICLE_IDENTITY_ONLY : undefined;
   return v === "true" || v === "1";
 }
 
-/** Jei true – Service History nekvietiname (ataskaita kraunasi greitai, bet be serviso įrašų). Naudinga, kai Ezyvin ilgai atsako ar 403. */
+/** Jei true – Service History nekvietiname (ataskaita greitesnė, be serviso įrašų). */
 function isServiceHistorySkipped(): boolean {
-  const v = typeof process !== "undefined" ? process.env?.ONE_AUTO_SKIP_SERVICE_HISTORY : undefined;
+  const v = typeof process !== "undefined" ? process.env?.VIN_SKIP_SERVICE_HISTORY : undefined;
   return v === "true" || v === "1";
 }
 
@@ -454,7 +454,7 @@ function mapVinLookupToCarReportFields(result: EzyVinLookupResult | undefined): 
 /**
  * Gauna automobilio ataskaitą iš One Auto API.
  * Kviečiami tik 2 šaltiniai: EzyVIN Service History ir OE VIN Lookup (Europe).
- * Jei nėra ONE_AUTO_API_KEY arba abu kvietimai nepavyksta – grąžina null (tada App rodo mock).
+ * Jei nėra VIN_API_KEY arba abu kvietimai nepavyksta – grąžina null (tada App rodo mock).
  */
 export async function fetchCarReportFromOneAuto(
   vin: string,
@@ -462,7 +462,7 @@ export async function fetchCarReportFromOneAuto(
 ): Promise<CarReport | null> {
   const apiKey = getApiKey();
   if (!apiKey) {
-    if (typeof console !== "undefined" && console.warn) console.warn("[One Auto API] ONE_AUTO_API_KEY nenustatytas – naudojama mock ataskaita.");
+    if (typeof console !== "undefined" && console.warn) console.warn("[VIN API] VIN_API_KEY nenustatytas – naudojama mock ataskaita.");
     return null;
   }
 
@@ -471,7 +471,7 @@ export async function fetchCarReportFromOneAuto(
   const skipServiceHistory = isServiceHistorySkipped();
 
   const serviceHistoryPromise = skipServiceHistory
-    ? Promise.resolve({ success: false, error: "Service History išjungtas (ONE_AUTO_SKIP_SERVICE_HISTORY)." as string })
+    ? Promise.resolve({ success: false, error: "Service History išjungtas (VIN_SKIP_SERVICE_HISTORY)." as string })
     : fetchServiceHistory(vin, apiKey, baseUrl, pollOpts);
 
   const [historyRes, lookupRes] = await Promise.all([
@@ -480,8 +480,8 @@ export async function fetchCarReportFromOneAuto(
   ]);
 
   if (typeof console !== "undefined" && console.log) {
-    console.log("[One Auto API] EzyVIN Service History:", historyRes.success ? "OK" : historyRes.error);
-    console.log("[One Auto API] OE VIN Lookup (Europe):", lookupRes.success ? "OK" : lookupRes.error);
+    console.log("[VIN API] Service History:", historyRes.success ? "OK" : historyRes.error);
+    console.log("[VIN API] VIN Lookup:", lookupRes.success ? "OK" : lookupRes.error);
   }
 
   const rawEvents = historyRes.result?.service_events;
@@ -506,7 +506,7 @@ export async function fetchCarReportFromOneAuto(
   const anySuccess = historyRes.success || lookupRes.success;
   if (!anySuccess) {
     const err = historyRes.error || lookupRes.error;
-    if (typeof console !== "undefined" && console.warn) console.warn("[One Auto API] Abu šaltiniai nepavyko:", err);
+    if (typeof console !== "undefined" && console.warn) console.warn("[VIN API] Abu šaltiniai nepavyko:", err);
     if (err) throw new Error(err);
     return null;
   }

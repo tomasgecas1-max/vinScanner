@@ -8,12 +8,27 @@
 
 ---
 
+## Aplinkos kintamieji (env)
+
+Projektas **nenaudoja** `.env.example` faile repozitorijoje. Reikalingus kintamuosius laikyk tik lokaliai `.env` (ir Vercel / Firebase config). **Vėliau pridėdamas naujus API** – įrašai juos į `.env` ir, jei nori, į šią dokumentaciją.
+
+| Kintamasis | Paskirtis |
+|------------|-----------|
+| `VIN_API_KEY` | VIN ataskaitų API raktas |
+| `AI_API_KEY` | AI / papildomų funkcijų API raktas |
+| `VIN_VEHICLE_IDENTITY_ONLY` | Pasirinktinai: `true` – tik Vehicle Identity |
+| `VIN_SKIP_SERVICE_HISTORY` | Pasirinktinai: `true` – be serviso istorijos |
+| `DISABLE_MOCK_REPORT` | Pasirinktinai: `true` – išjungia mock ataskaitą |
+
+**Jei seniau naudojai kitus pavadinimus:** lokaliai `.env` pervadink į šiuos: `ONE_AUTO_API_KEY` → `VIN_API_KEY`, `GEMINI_API_KEY` → `AI_API_KEY`, `ONE_AUTO_VEHICLE_IDENTITY_ONLY` → `VIN_VEHICLE_IDENTITY_ONLY`, `ONE_AUTO_SKIP_SERVICE_HISTORY` → `VIN_SKIP_SERVICE_HISTORY`. Vercel'e taip pat nustatyk naujus kintamųjų pavadinimus.
+
+---
+
 ## Saugumas: kad API raktai nepatiktų
 
 | Kas | Kur |
 |-----|-----|
 | **Nepushinti į Git** | Failai `.env`, `.env.local`, `.env.production` ir kt. jau įrašyti į `.gitignore`. **Niekada** necommittink `.env` su tikrais raktais. |
-| **Tik pavyzdys** | Į repozitoriją eina tik `.env.example` (be reikšmių, tik kintamųjų pavadinimai). |
 | **Vercel** | Raktus įrašyk **Vercel → Project → Settings → Environment Variables**. Build metu Vite įdeda juos į bundle; į GitHub jie **nepateina**. |
 | **Firebase** | Jei naudoji Functions – raktus laikyk Firebase Functions config arba Secret Manager, ne faile repozitorijoje. |
 
@@ -49,7 +64,7 @@ git init
 ```bash
 git status
 ```
-- Turėtum matyti daug failų (pvz. `package.json`, `src/`, `.env.example`).
+- Turėtum matyti daug failų (pvz. `package.json`, `src/`).
 - **`.env` neturėtų būti sąraše** – jis ignoruojamas per `.gitignore`.
 
 Papildomai:
@@ -122,7 +137,7 @@ git push -u origin main
 
 - Gali būti paprašyta prisijungimo (GitHub vardas + slaptažodis arba **Personal Access Token**). Jei naudoji 2FA, naudok tokeną vietoj slaptažodžio.
 
-**Žingsnis 13.** Patikrink: atidaryk savo repozitoriją github.com – turėtum matyti visus failus. **Į repozitoriją eina tik:** kodas, `package.json`, `.env.example`, `.gitignore`. **Nėra:** `.env` (su API raktais).
+**Žingsnis 13.** Patikrink: atidaryk savo repozitoriją github.com – turėtum matyti visus failus. **Nėra:** `.env` (su API raktais). Aplinkos kintamieji – tik lokaliai ir Vercel; sąrašas žr. skyriuje „Aplinkos kintamieji (env)“.
 
 ---
 
@@ -139,11 +154,11 @@ git push -u origin main
 4. **Build:** Vercel paprastai atpažįsta Vite (Build Command: `vite build`, Output: `dist`). Jei reikia, nustatyk:
    - Build Command: `npm run build`
    - Output Directory: `dist`
-5. **Environment Variables (Vercel Dashboard):** pridėk šiuos kintamuosius (reikšmes nukopijuok iš savo lokalinio `.env`; į GitHub jų **nerašyk**):
-   - `ONE_AUTO_API_KEY` – One Auto API raktas
-   - `GEMINI_API_KEY` – Gemini API raktas (jei naudoji)
-   - Pasirinktinai: `ONE_AUTO_VEHICLE_IDENTITY_ONLY`, `ONE_AUTO_SKIP_SERVICE_HISTORY`, `DISABLE_MOCK_REPORT` (reikšmės: `true` arba palik tuščią)
-   Nustatyk juos **Production** (ir jei nori – Preview). Po **Redeploy** nauji raktai įsigalios.
+5. **Environment Variables (Vercel Dashboard):** pridėk kintamuosius (reikšmes iš savo `.env`; į GitHub **nerašyk**):
+   - `VIN_API_KEY` – VIN ataskaitų API raktas
+   - `AI_API_KEY` – AI / papildomų funkcijų raktas (jei naudoji)
+   - Pasirinktinai: `VIN_VEHICLE_IDENTITY_ONLY`, `VIN_SKIP_SERVICE_HISTORY`, `DISABLE_MOCK_REPORT` (`true` arba tuščią)
+   Nustatyk **Production** (ir pasirinktinai Preview). Po **Redeploy** raktai įsigalios.
 6. **Deploy** – po push į `main` Vercel automatiškai perbuildins ir išskirs naują URL.
 
 **Rezultatas:** svetainė prieinama pvz. `tavo-projektas.vercel.app` (ir galima prijungti savo domeną).
@@ -193,7 +208,7 @@ Firebase naudingas, jei reikia:
 ## Paruošti prieš deploy (kad API kodai nenutektų)
 
 1. **Patikrink `.gitignore`** – turi būti: `.env`, `.env.local`, `.env.*.local`, `.env.development`, `.env.production`.
-2. **Į repozitoriją įeina tik `.env.example`** – be jokių tikrų raktų (tik pavadinimai ir tuščios reikšmės).
+2. **Lokaliai** naudok failą `.env` su kintamaisiais iš skyriaus „Aplinkos kintamieji (env)“; **nepushink** `.env` į GitHub.
 3. **Prieš `git add` / `git commit`** paleisk: `git status` ir įsitikink, kad `.env` nerodomas; `git check-ignore -v .env` turėtų patvirtinti, kad `.env` ignoruojamas.
 4. **Raktus į Vercel** įrašyk tik per **Settings → Environment Variables**, niekada neįkelk `.env` failo į GitHub.
-5. Po pirmo deploy Vercel – patikrink svetainę: ar ataskaitos veikia (One Auto API). Jei ne – peržiūrėk env kintamuosius ir **Redeploy**.
+5. Po pirmo deploy Vercel – patikrink svetainę; jei ataskaitos neveikia – peržiūrėk env kintamuosius ir **Redeploy**.

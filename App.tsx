@@ -73,8 +73,8 @@ const App: React.FC = () => {
         data = null;
         apiError = e instanceof Error ? e.message : String(e);
       }
-      const hasOneAutoKey = typeof process !== "undefined" && !!(process.env?.ONE_AUTO_API_KEY);
-      const mockDisabled = hasOneAutoKey || (typeof process !== "undefined" && (process.env?.DISABLE_MOCK_REPORT === "true" || process.env?.DISABLE_MOCK_REPORT === "1"));
+      const hasVinKey = typeof process !== "undefined" && !!(process.env?.VIN_API_KEY);
+      const mockDisabled = hasVinKey || (typeof process !== "undefined" && (process.env?.DISABLE_MOCK_REPORT === "true" || process.env?.DISABLE_MOCK_REPORT === "1"));
       if (!data) {
         if (mockDisabled) {
           setError(apiError || (lang === "lt" ? "Duomenų nepavyko gauti iš API. Patikrinkite raktą ir ryšį." : "Failed to get data from API. Check key and connection."));

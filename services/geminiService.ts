@@ -33,7 +33,7 @@ function getLocalMockReport(vin: string) {
  * Gauna eksperto atsakymą į vartotojo užklausą.
  */
 export const getCarExpertResponse = async (userPrompt: string, carContext?: any) => {
-  const apiKey = process.env.API_KEY ?? process.env.GEMINI_API_KEY;
+  const apiKey = process.env.AI_API_KEY;
   if (!apiKey) return "Konfigūracijos klaida. API raktas nenustatytas.";
 
   const ai = new GoogleGenAI({ apiKey });
@@ -60,7 +60,7 @@ export const getCarExpertResponse = async (userPrompt: string, carContext?: any)
  * Sugeneruoja ataskaitą VIN numeriui. Jei nėra API rago arba API neprieinamas – grąžina lokalią netikrą ataskaitą.
  */
 export const generateMockReport = async (vin: string): Promise<any> => {
-  const apiKey = process.env.API_KEY ?? process.env.GEMINI_API_KEY;
+  const apiKey = process.env.AI_API_KEY;
 
   if (!apiKey) {
     await new Promise((r) => setTimeout(r, 1200));

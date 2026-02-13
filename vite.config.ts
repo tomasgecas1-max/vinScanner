@@ -11,11 +11,10 @@ export default defineConfig(({ mode }) => {
       },
       plugins: [react()],
       define: {
-        'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-        'process.env.ONE_AUTO_API_KEY': JSON.stringify(env.ONE_AUTO_API_KEY),
-        'process.env.ONE_AUTO_VEHICLE_IDENTITY_ONLY': JSON.stringify(env.ONE_AUTO_VEHICLE_IDENTITY_ONLY),
-        'process.env.ONE_AUTO_SKIP_SERVICE_HISTORY': JSON.stringify(env.ONE_AUTO_SKIP_SERVICE_HISTORY),
+        'process.env.AI_API_KEY': JSON.stringify(env.AI_API_KEY),
+        'process.env.VIN_API_KEY': JSON.stringify(env.VIN_API_KEY),
+        'process.env.VIN_VEHICLE_IDENTITY_ONLY': JSON.stringify(env.VIN_VEHICLE_IDENTITY_ONLY),
+        'process.env.VIN_SKIP_SERVICE_HISTORY': JSON.stringify(env.VIN_SKIP_SERVICE_HISTORY),
         'process.env.DISABLE_MOCK_REPORT': JSON.stringify(env.DISABLE_MOCK_REPORT),
       },
       resolve: {
