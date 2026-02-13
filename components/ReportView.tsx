@@ -6,6 +6,9 @@ import html2pdf from 'html2pdf.js';
 
 interface ReportViewProps {
   report: CarReport;
+  lang?: 'lt' | 'en';
+  canSave?: boolean;
+  onSaveReport?: () => Promise<void>;
 }
 
 /** Pavadinimai API šaltiniams ir žinomų laukų etiketės (VIN Lookup, Cartell ir kt.) */
@@ -61,10 +64,26 @@ function formatValue(val: unknown): string {
   return String(val);
 }
 
-const ReportView: React.FC<ReportViewProps> = ({ report }) => {
+const ReportView: React.FC<ReportViewProps> = ({ report, lang = 'lt', canSave, onSaveReport }) => {
   const [showRawApi, setShowRawApi] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
+  const [saveCloudLoading, setSaveCloudLoading] = useState(false);
+  const [saveCloudDone, setSaveCloudDone] = useState(false);
   const reportPdfRef = useRef<HTMLDivElement>(null);
+
+  const handleSaveToCloud = async () => {
+    if (!onSaveReport) return;
+    setSaveCloudLoading(true);
+    setSaveCloudDone(false);
+    try {
+      await onSaveReport();
+      setSaveCloudDone(true);
+    } catch (e) {
+      if (typeof console !== 'undefined' && console.error) console.error('Save to cloud:', e);
+    } finally {
+      setSaveCloudLoading(false);
+    }
+  };
 
   const raw = report.rawApiResponses != null && typeof report.rawApiResponses === 'object'
     ? report.rawApiResponses as Record<string, { success?: boolean; result?: Record<string, unknown>; error?: string }>
@@ -143,6 +162,23 @@ const ReportView: React.FC<ReportViewProps> = ({ report }) => {
                   ? 'VOGTAS / IEŠKOMAS'
                   : 'NEPATIKRINTA'}
             </div>
+            {canSave && onSaveReport && (
+              <button
+                type="button"
+                onClick={handleSaveToCloud}
+                disabled={saveCloudLoading}
+                className="p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors disabled:opacity-60 flex items-center gap-2"
+                title={lang === 'lt' ? 'Išsaugoti ataskaitą į debesį' : 'Save report to cloud'}
+              >
+                {saveCloudLoading ? (
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : saveCloudDone ? (
+                  <span className="text-[10px] font-bold text-emerald-300">✓</span>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                )}
+              </button>
+            )}
             <button
               type="button"
               onClick={handleDownloadPdf}

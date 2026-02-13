@@ -19,6 +19,13 @@ Projektas **nenaudoja** `.env.example` faile repozitorijoje. Reikalingus kintamu
 | `VIN_VEHICLE_IDENTITY_ONLY` | Pasirinktinai: `true` – tik Vehicle Identity |
 | `VIN_SKIP_SERVICE_HISTORY` | Pasirinktinai: `true` – be serviso istorijos |
 | `DISABLE_MOCK_REPORT` | Pasirinktinai: `true` – išjungia mock ataskaitą |
+| **Firebase (prisijungimai + ataskaitų saugojimas)** | |
+| `FIREBASE_API_KEY` | Firebase projekto API raktas |
+| `FIREBASE_AUTH_DOMAIN` | `tavo-projektas.firebaseapp.com` |
+| `FIREBASE_PROJECT_ID` | Firebase projekto ID |
+| `FIREBASE_STORAGE_BUCKET` | `tavo-projektas.appspot.com` |
+| `FIREBASE_MESSAGING_SENDER_ID` | Skaitiklio ID |
+| `FIREBASE_APP_ID` | Firebase app ID |
 
 **Jei seniau naudojai kitus pavadinimus:** lokaliai `.env` pervadink į šiuos: `ONE_AUTO_API_KEY` → `VIN_API_KEY`, `GEMINI_API_KEY` → `AI_API_KEY`, `ONE_AUTO_VEHICLE_IDENTITY_ONLY` → `VIN_VEHICLE_IDENTITY_ONLY`, `ONE_AUTO_SKIP_SERVICE_HISTORY` → `VIN_SKIP_SERVICE_HISTORY`. Vercel'e taip pat nustatyk naujus kintamųjų pavadinimus.
 
@@ -155,9 +162,8 @@ git push -u origin main
    - Build Command: `npm run build`
    - Output Directory: `dist`
 5. **Environment Variables (Vercel Dashboard):** pridėk kintamuosius (reikšmes iš savo `.env`; į GitHub **nerašyk**):
-   - `VIN_API_KEY` – VIN ataskaitų API raktas
-   - `AI_API_KEY` – AI / papildomų funkcijų raktas (jei naudoji)
-   - Pasirinktinai: `VIN_VEHICLE_IDENTITY_ONLY`, `VIN_SKIP_SERVICE_HISTORY`, `DISABLE_MOCK_REPORT` (`true` arba tuščią)
+   - `VIN_API_KEY`, `AI_API_KEY` (ir pasirinktinai: `VIN_VEHICLE_IDENTITY_ONLY`, `VIN_SKIP_SERVICE_HISTORY`, `DISABLE_MOCK_REPORT`)
+   - Firebase (jei naudoji prisijungimus ir ataskaitų saugojimą): `FIREBASE_API_KEY`, `FIREBASE_AUTH_DOMAIN`, `FIREBASE_PROJECT_ID`, `FIREBASE_STORAGE_BUCKET`, `FIREBASE_MESSAGING_SENDER_ID`, `FIREBASE_APP_ID`
    Nustatyk **Production** (ir pasirinktinai Preview). Po **Redeploy** raktai įsigalios.
 6. **Deploy** – po push į `main` Vercel automatiškai perbuildins ir išskirs naują URL.
 
@@ -165,31 +171,24 @@ git push -u origin main
 
 ---
 
-## 3. Firebase (trečias žingsnis – jei reikia)
+## 3. Firebase – Google prisijungimai ir ataskaitų saugojimas
 
-Firebase naudingas, jei reikia:
+Šiame projekte Firebase naudojamas **Authentication (Google)** ir **Firestore** (išsaugotos ataskaitos). Hostingas lieka Vercel. Žingsniai:
 
-- **Firebase Hosting** – alternatyva Vercel (dažniausiai pakanka vieno: arba Vercel, arba Firebase Hosting).
-- **Authentication** – prisijungimai (pvz. el. paštas, Google).
-- **Firestore / Realtime Database** – duomenų saugojimas (pvz. išsaugotos ataskaitos, vartotojų duomenys).
-- **Cloud Functions** – serverio logika (pvz. One Auto API kvietimai per backend, kad būtų nematomi API raktai kliente).
+**3.1. Sukurti projektą:** [Firebase Console](https://console.firebase.google.com) → Create a project → pavadinimas (pvz. vinScanner) → Create project.
 
-**Jei dabar tik frontendas + One Auto API iš naršyklės:**
+**3.2. Google prisijungimas:** Build → Authentication → Get started → Sign-in method → Google → Enable → Project support email → Save.
 
-- Dažnai **pakanka GitHub + Vercel**. API raktą laikyk tik Vercel Environment Variables (ir nekoduok jo į frontendą, jei galima – idealiau kvietimus daryti per savo backend / Cloud Function).
+**3.3. Firestore:** Build → Firestore Database → Create database → Start in production mode → region (pvz. europe-west1) → Enable.
 
-**Jei nori Firebase:**
+**3.4. Firestore Rules:** Firestore → Rules. Nustatyk taisykles: vartotojas gali skaityti/rašyti tik savo dokumentus po users/{userId}/reports. Pvz. allow read, write: if request.auth != null && request.auth.uid == userId; → Publish.
 
-1. [Firebase Console](https://console.firebase.google.com) → sukurti projektą.
-2. Įdiegti **Firebase CLI:** `npm install -g firebase-tools` → `firebase login`.
-3. Projekte: `firebase init` – pasirink:
-   - **Hosting** (jei hostinsi čia), **Firestore**, **Functions** arba **Auth**, priklausomai nuo poreikio.
-4. Hosting: jei frontendą jau hostini **Vercel**, Firebase Hosting gali būti naudojamas tik atskiems puslapiams arba admin; jei viską nori hostinti Firebase – build output (`dist`) nurodai kaip `public` ir deploy’ini su `firebase deploy`.
+**3.5. Konfigūracija:** Project settings → General → Your apps → Add app → Web → Register. Nukopijuok firebaseConfig į .env ir Vercel Environment Variables (FIREBASE_API_KEY, FIREBASE_AUTH_DOMAIN, FIREBASE_PROJECT_ID, FIREBASE_STORAGE_BUCKET, FIREBASE_MESSAGING_SENDER_ID, FIREBASE_APP_ID). Redeploy.
 
-**Rekomenduojama eilė šiame projekte:**
+**3.6. Authorized domains:** Authentication → Settings → Authorized domains. Įsitikink, kad yra localhost ir tavo Vercel domenas. Jei nėra – Add domain.
 
-- **Dabar:** GitHub → Vercel (ataskaitos svetainė veikia).
-- **Vėliau:** Firebase – jei reikės prisijungimų, išsaugotų ataskaitų ar API raktų slėpimo per Cloud Functions.
+Po šių žingsnių svetainėje bus **Prisijungti** (Google), **Mano ataskaitos** ir ataskaitos antraštėje mygtukas **Išsaugoti ataskaitą į debesį**.
+
 
 ---
 

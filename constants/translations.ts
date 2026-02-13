@@ -1,7 +1,7 @@
 
 export const translations = {
   lt: {
-    nav: { services: 'Paslaugos', pricing: 'Kainos', about: 'Apie mus', login: 'Prisijungti' },
+    nav: { services: 'Paslaugos', pricing: 'Kainos', about: 'Apie mus', login: 'Prisijungti', myReports: 'Mano ataskaitos', signOut: 'Atsijungti' },
     hero: {
       title: 'Sužinokite visą tiesą',
       titleAccent: 'apie bet kurį automobilį',
@@ -21,7 +21,7 @@ export const translations = {
     }
   },
   en: {
-    nav: { services: 'Services', pricing: 'Pricing', about: 'About Us', login: 'Login' },
+    nav: { services: 'Services', pricing: 'Pricing', about: 'About Us', login: 'Login', myReports: 'My reports', signOut: 'Sign out' },
     hero: {
       title: 'Discover the full truth',
       titleAccent: 'about any vehicle',

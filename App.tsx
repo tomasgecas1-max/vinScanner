@@ -3,21 +3,26 @@ import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import ReportView from './components/ReportView';
+import MyReports from './components/MyReports';
 import Pricing from './components/Pricing';
 import AIChat from './components/AIChat';
 import Logo from './components/Logo';
+import { useAuth } from './context/AuthContext';
 import { generateMockReport } from './services/geminiService';
 import { fetchCarReportFromOneAuto } from './services/oneAutoApiService';
+import { saveReport } from './services/reportsFirestore';
 import { CarReport } from './types';
 import { translations } from './constants/translations';
 
 const App: React.FC = () => {
+  const { user } = useAuth();
   const [lang, setLang] = useState<'lt' | 'en'>('lt');
   const [report, setReport] = useState<CarReport | null>(null);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [loadingStep, setLoadingStep] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [showMyReports, setShowMyReports] = useState(false);
 
   const t = translations[lang];
 
@@ -97,9 +102,14 @@ const App: React.FC = () => {
     }
   };
 
+  const handleSaveReport = async (r: CarReport) => {
+    if (!user) return;
+    await saveReport(user.uid, r);
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 selection:bg-indigo-100 selection:text-indigo-900">
-      <Navbar lang={lang} setLang={setLang} t={t} />
+      <Navbar lang={lang} setLang={setLang} t={t} onMyReportsClick={() => setShowMyReports(true)} />
       
       <main className="overflow-x-hidden">
         <Hero onSearch={handleSearch} loading={loading} t={t} />
@@ -151,8 +161,23 @@ const App: React.FC = () => {
         )}
 
         <div id="car-report">
-          {report && !loading && <ReportView report={report} />}
+          {report && !loading && (
+            <ReportView
+              report={report}
+              lang={lang}
+              canSave={!!user}
+              onSaveReport={user ? () => handleSaveReport(report) : undefined}
+            />
+          )}
         </div>
+
+        {showMyReports && (
+          <MyReports
+            lang={lang}
+            onSelectReport={(r) => { setReport(r); setShowMyReports(false); }}
+            onClose={() => setShowMyReports(false)}
+          />
+        )}
 
         <Pricing t={t} />
 
