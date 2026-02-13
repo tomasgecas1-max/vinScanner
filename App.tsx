@@ -90,7 +90,11 @@ const App: React.FC = () => {
       }
       setProgress(100);
       setLoadingStep(lang === 'lt' ? "Paruošta!" : "Ready!");
-      setReport({ ...data, vin });
+      const reportData = { ...data, vin };
+      setReport(reportData);
+      if (user) {
+        saveReport(user.uid, reportData).catch(() => {});
+      }
       await new Promise(resolve => setTimeout(resolve, 400));
       const reportElement = document.getElementById('car-report');
       if (reportElement) reportElement.scrollIntoView({ behavior: 'smooth' });
