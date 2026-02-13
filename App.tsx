@@ -113,6 +113,42 @@ const App: React.FC = () => {
     await saveReport(user.uid, r);
   };
 
+  const [supplementLoading, setSupplementLoading] = useState(false);
+  const handleSupplementReport = async (vin: string, opts: { useServiceHistory: boolean; useVinLookup: boolean }) => {
+    if (!report || (!opts.useServiceHistory && !opts.useVinLookup)) return;
+    setSupplementLoading(true);
+    try {
+      const partial = await fetchCarReportFromOneAuto(vin, {
+        useServiceHistory: opts.useServiceHistory,
+        useVinLookup: opts.useVinLookup,
+      });
+      if (!partial) {
+        setSupplementLoading(false);
+        return;
+      }
+      const raw = partial.rawApiResponses as { serviceHistory?: { success?: boolean }; vinLookup?: { success?: boolean } } | undefined;
+      const merged: CarReport = { ...report };
+      if (raw?.serviceHistory?.success) {
+        merged.mileageHistory = partial.mileageHistory;
+        merged.serviceEvents = partial.serviceEvents;
+        merged.rawApiResponses = { ...(merged.rawApiResponses as object || {}), serviceHistory: (partial.rawApiResponses as any)?.serviceHistory };
+      }
+      if (raw?.vinLookup?.success) {
+        merged.make = partial.make;
+        merged.model = partial.model;
+        merged.year = partial.year;
+        merged.technicalSpecs = partial.technicalSpecs;
+        merged.rawApiResponses = { ...(merged.rawApiResponses as object || {}), vinLookup: (partial.rawApiResponses as any)?.vinLookup };
+      }
+      setReport(merged);
+      if (user) saveReport(user.uid, merged).catch(() => {});
+    } catch (e) {
+      if (typeof console !== 'undefined' && console.error) console.error('Papildymas:', e);
+    } finally {
+      setSupplementLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 selection:bg-indigo-100 selection:text-indigo-900">
       <Navbar lang={lang} setLang={setLang} t={t} onMyReportsClick={() => setShowMyReports(true)} />
@@ -181,6 +217,8 @@ const App: React.FC = () => {
               lang={lang}
               canSave={!!user}
               onSaveReport={user ? () => handleSaveReport(report) : undefined}
+              onSupplementReport={handleSupplementReport}
+              supplementLoading={supplementLoading}
             />
           )}
         </div>

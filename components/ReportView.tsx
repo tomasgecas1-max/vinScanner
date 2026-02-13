@@ -9,6 +9,8 @@ interface ReportViewProps {
   lang?: 'lt' | 'en';
   canSave?: boolean;
   onSaveReport?: () => Promise<void>;
+  onSupplementReport?: (vin: string, opts: { useServiceHistory: boolean; useVinLookup: boolean }) => Promise<void>;
+  supplementLoading?: boolean;
 }
 
 /** Pavadinimai API šaltiniams ir žinomų laukų etiketės (VIN Lookup, Cartell ir kt.) */
@@ -64,11 +66,13 @@ function formatValue(val: unknown): string {
   return String(val);
 }
 
-const ReportView: React.FC<ReportViewProps> = ({ report, lang = 'lt', canSave, onSaveReport }) => {
+const ReportView: React.FC<ReportViewProps> = ({ report, lang = 'lt', canSave, onSaveReport, onSupplementReport, supplementLoading }) => {
   const [showRawApi, setShowRawApi] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [saveCloudLoading, setSaveCloudLoading] = useState(false);
   const [saveCloudDone, setSaveCloudDone] = useState(false);
+  const [supplementServiceHistory, setSupplementServiceHistory] = useState(true);
+  const [supplementVinLookup, setSupplementVinLookup] = useState(true);
   const reportPdfRef = useRef<HTMLDivElement>(null);
 
   const handleSaveToCloud = async () => {
@@ -194,6 +198,47 @@ const ReportView: React.FC<ReportViewProps> = ({ report, lang = 'lt', canSave, o
             </button>
           </div>
         </div>
+
+        {onSupplementReport && (
+          <div className="px-6 sm:px-8 py-4 bg-slate-50 border-b border-slate-100">
+            <div className="flex flex-wrap items-center gap-4">
+              <span className="text-sm font-semibold text-slate-700">Papildyti ataskaitą iš šaltinių:</span>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={supplementServiceHistory}
+                  onChange={(e) => setSupplementServiceHistory(e.target.checked)}
+                  className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                <span className="text-sm text-slate-600">{SOURCE_LABELS.serviceHistory}</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={supplementVinLookup}
+                  onChange={(e) => setSupplementVinLookup(e.target.checked)}
+                  className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                <span className="text-sm text-slate-600">{SOURCE_LABELS.vinLookup}</span>
+              </label>
+              <button
+                type="button"
+                onClick={() => onSupplementReport(report.vin, { useServiceHistory: supplementServiceHistory, useVinLookup: supplementVinLookup })}
+                disabled={supplementLoading || (!supplementServiceHistory && !supplementVinLookup)}
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-colors flex items-center gap-2"
+              >
+                {supplementLoading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Gaunama…
+                  </>
+                ) : (
+                  'Gauti duomenis'
+                )}
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 lg:gap-8 p-0 lg:p-8 border-t border-slate-100 lg:border-t-0">
           {/* Pagrindinė informacija */}
