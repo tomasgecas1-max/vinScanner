@@ -1,4 +1,5 @@
 import { GoogleGenAI, Type } from "@google/genai";
+import type { CarReport, ReportAnalysis } from "../types";
 
 /** Lokali netikra ataskaita – naudojama be API rago arba kai API neprieinamas */
 function getLocalMockReport(vin: string) {
@@ -150,4 +151,112 @@ export const generateMockReport = async (vin: string): Promise<any> => {
 
   await new Promise((r) => setTimeout(r, 800));
   return getLocalMockReport(vin);
+};
+
+export type ReportAnalysisResult =
+  | { ok: true; data: ReportAnalysis }
+  | { ok: false; error: string };
+
+/**
+ * Pagal ataskaitos duomenis su Gemini AI sugeneruoja: galimas problemines vietas ir stipriąsias automobilio puses.
+ */
+export const getReportAnalysis = async (report: CarReport): Promise<ReportAnalysisResult> => {
+  const apiKey = process.env.AI_API_KEY;
+  if (!apiKey) {
+    return { ok: false, error: "API raktas nenustatytas. Pridėk AI_API_KEY į .env (lokaliai) arba Vercel → Settings → Environment Variables, tada Redeploy." };
+  }
+
+  const lastMileage = report.mileageHistory?.length
+    ? report.mileageHistory[report.mileageHistory.length - 1]?.value
+    : null;
+  const mileageStr = lastMileage != null ? `Paskutinė rida: ${lastMileage} km.` : "Ridos duomenų nėra.";
+  const damagesStr =
+    report.damages?.length > 0
+      ? report.damages.map((d) => `${d.description} (${d.severity})`).join(". ")
+      : "Žalų įrašų nėra.";
+  const theftStr =
+    report.theftStatus === "clear"
+      ? "Vagystės patikra: ne vogtas."
+      : report.theftStatus === "flagged"
+        ? "Vagystės patikra: VOGTAS arba ieškomas!"
+        : "Vagystės patikra neatlikta.";
+  const serviceCount = report.serviceEvents?.length ?? 0;
+  const specsStr =
+    report.technicalSpecs && Object.keys(report.technicalSpecs).length > 0
+      ? Object.entries(report.technicalSpecs)
+          .map(([k, v]) => `${k}: ${v}`)
+          .join(". ")
+      : "Techninių specifikacijų nėra.";
+
+  const context = [
+    `Automobilis: ${report.year} ${report.make} ${report.model}, VIN: ${report.vin}.`,
+    mileageStr,
+    `Serviso įrašų skaičius: ${serviceCount}.`,
+    `Žalos / remontai: ${damagesStr}`,
+    theftStr,
+    specsStr,
+  ].join(" ");
+
+  const prompt = `Remdamasis šia automobilio patikros ataskaitos santrauka, išskirk:
+1) Galimas problemines automobilio vietas arba rizikas (pvz. didelė rida, žalos, trūkstami servisai, vagystės įspėjimas) – trumpai, punktais.
+2) Stipriąsias automobilio puses (pvz. nuosekli serviso istorija, maža rida, jokių žalų, geras techninis stovis) – trumpai, punktais.
+Atsakyk LIETUVIŲ kalba. Kiekvienas punktas – viena aiški frazė. Jei duomenų trūksta, įvertink tik tai, kas pateikta.
+
+Ataskaitos santrauka: ${context}`;
+
+  const schema = {
+    responseMimeType: "application/json" as const,
+    responseSchema: {
+      type: Type.OBJECT,
+      properties: {
+        problemAreas: { type: Type.ARRAY, items: { type: Type.STRING } },
+        strongPoints: { type: Type.ARRAY, items: { type: Type.STRING } },
+      },
+      required: ["problemAreas", "strongPoints"],
+    },
+  };
+
+  const ai = new GoogleGenAI({ apiKey });
+  const modelsToTry = ["gemini-2.0-flash"];
+
+  for (const model of modelsToTry) {
+    try {
+      const response = await ai.models.generateContent({
+        model,
+        contents: prompt,
+        config: schema,
+      });
+      const text = response.text?.trim();
+      if (text) {
+        const parsed = JSON.parse(text) as ReportAnalysis;
+        return {
+          ok: true,
+          data: {
+            problemAreas: Array.isArray(parsed.problemAreas) ? parsed.problemAreas : [],
+            strongPoints: Array.isArray(parsed.strongPoints) ? parsed.strongPoints : [],
+          },
+        };
+      }
+    } catch (err) {
+      let msg = err instanceof Error ? err.message : String(err);
+      if (msg === "[object Object]" && err && typeof err === "object") {
+        try {
+          const ob = (err as { error?: { code?: number; message?: string } }).error;
+          if (ob?.code === 429 || ob?.message) msg = ob.message || JSON.stringify(ob);
+        } catch (_) {}
+      }
+      const isQuota = /429|quota|RESOURCE_EXHAUSTED|rate\.limit|limit:\s*0/i.test(msg);
+      if (isQuota) {
+        return {
+          ok: false,
+          error: "Kvota viršyta (Free tier ribos). Palaukite ~1 min., tada spauskite „Analizuoti su AI“ dar kartą. Daugiau: https://ai.google.dev/gemini-api/docs/rate-limits",
+        };
+      }
+      if (typeof console !== "undefined" && console.error) console.error("Gemini report analysis error:", err);
+      const shortMsg = msg.length > 280 ? msg.slice(0, 280) + "…" : msg;
+      return { ok: false, error: shortMsg };
+    }
+  }
+
+  return { ok: false, error: "AI negrąžino atsakymo. Pabandykite vėliau." };
 };

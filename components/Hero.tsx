@@ -3,13 +3,15 @@ import React, { useState } from 'react';
 import { ResponsiveContainer, AreaChart, Area, BarChart, Bar, Cell, XAxis, YAxis, Tooltip, LabelList } from 'recharts';
 
 interface HeroProps {
-  onSearch: (vin: string) => void;
+  onVinSubmit: (vin: string) => void;
   loading: boolean;
   t: any;
   useServiceHistory: boolean;
   useVinLookup: boolean;
+  useVehicleSpecs: boolean;
   onUseServiceHistoryChange: (v: boolean) => void;
   onUseVinLookupChange: (v: boolean) => void;
+  onUseVehicleSpecsChange: (v: boolean) => void;
 }
 
 const mileageData = [
@@ -27,18 +29,18 @@ const valueData = [
   { year: '2026', val: 16000, status: 'high' },    // Atsigavusi kaina po remonto
 ];
 
-const Hero: React.FC<HeroProps> = ({ onSearch, loading, t, useServiceHistory, useVinLookup, onUseServiceHistoryChange, onUseVinLookupChange }) => {
+const Hero: React.FC<HeroProps> = ({ onVinSubmit, loading, t, useServiceHistory, useVinLookup, useVehicleSpecs, onUseServiceHistoryChange, onUseVinLookupChange, onUseVehicleSpecsChange }) => {
   const [vin, setVin] = useState('');
   const SAMPLE_VIN = "WBAUR51010CZ12345";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (vin.length > 5) onSearch(vin);
+    if (vin.trim().length > 5) onVinSubmit(vin.trim());
   };
 
   const handleSampleClick = () => {
     setVin(SAMPLE_VIN);
-    onSearch(SAMPLE_VIN);
+    onVinSubmit(SAMPLE_VIN);
   };
 
   return (
@@ -62,22 +64,22 @@ const Hero: React.FC<HeroProps> = ({ onSearch, loading, t, useServiceHistory, us
             <div className="max-w-xl mx-auto lg:mx-0 relative z-40">
               <form onSubmit={handleSubmit} className="relative group">
                 <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-3xl blur opacity-20 group-hover:opacity-30 transition duration-1000 group-hover:duration-200"></div>
-                <div className="relative">
+                <div className="relative flex flex-col gap-3 sm:block">
                   <input
                     type="text"
                     value={vin}
                     onChange={(e) => setVin(e.target.value.toUpperCase())}
                     placeholder={t.hero.placeholder}
-                    className="w-full h-18 sm:h-20 pl-8 pr-44 rounded-[1.5rem] border-2 border-slate-200/60 bg-white/80 backdrop-blur-xl text-lg font-semibold focus:outline-none focus:border-indigo-500 transition-all shadow-2xl shadow-slate-200/50"
+                    className="w-full h-14 sm:h-20 pl-6 sm:pl-8 pr-6 sm:pr-44 rounded-[1.5rem] border-2 border-slate-200/60 bg-white/80 backdrop-blur-xl text-base sm:text-lg font-semibold focus:outline-none focus:border-indigo-500 transition-all shadow-2xl shadow-slate-200/50"
                     maxLength={17}
                   />
                   <button
                     disabled={loading}
                     type="submit"
-                    className="absolute right-2.5 top-2.5 bottom-2.5 px-10 bg-indigo-600 text-white rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-indigo-700 transition-all min-w-[140px] shadow-lg shadow-indigo-200 hover:shadow-indigo-300 active:scale-95 disabled:bg-slate-400"
+                    className="sm:absolute sm:right-2.5 sm:top-2.5 sm:bottom-2.5 w-full sm:w-auto h-14 sm:h-auto px-10 py-3 sm:py-0 bg-indigo-600 text-white rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-indigo-700 transition-all min-w-0 sm:min-w-[140px] shadow-lg shadow-indigo-200 hover:shadow-indigo-300 active:scale-95 disabled:bg-slate-400"
                   >
                     {loading ? (
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto sm:mx-0"></div>
                     ) : (
                       t.hero.button
                     )}
@@ -98,6 +100,10 @@ const Hero: React.FC<HeroProps> = ({ onSearch, loading, t, useServiceHistory, us
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input type="checkbox" checked={useVinLookup} onChange={(e) => onUseVinLookupChange(e.target.checked)} className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
                     OE VIN Lookup (Europe)
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" checked={useVehicleSpecs} onChange={(e) => onUseVehicleSpecsChange(e.target.checked)} className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
+                    Automobilio specifikacijos
                   </label>
                 </div>
               </div>

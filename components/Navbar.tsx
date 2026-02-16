@@ -1,22 +1,31 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Logo from './Logo';
 import { useAuth } from '../context/AuthContext';
+import { SUPPORTED_LANGUAGES, type SupportedLang } from '../constants/translations';
+
+function langLabel(l: SupportedLang): string {
+  return l.toUpperCase().slice(0, 2);
+}
 
 interface NavbarProps {
-  lang: 'lt' | 'en';
-  setLang: (lang: 'lt' | 'en') => void;
-  t: any;
+  lang: SupportedLang;
+  setLang: (lang: SupportedLang) => void;
+  t: import('../constants/translations').Translations;
   onMyReportsClick?: () => void;
 }
 
 const Navbar: React.FC<NavbarProps> = ({ lang, setLang, t, onMyReportsClick }) => {
   const { user, loading, signInWithGoogle, signOut, isFirebaseEnabled } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const close = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+        setLangDropdownOpen(false);
+      }
     };
     document.addEventListener('click', close);
     return () => document.removeEventListener('click', close);
@@ -39,9 +48,29 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, t, onMyReportsClick }) =
             <button onClick={() => scrollToSection('pricing')} className="text-[11px] font-[900] text-slate-400 hover:text-indigo-600 transition-colors uppercase tracking-[0.2em]">{t.nav.pricing}</button>
             <a href="#" className="text-[11px] font-[900] text-slate-400 hover:text-indigo-600 transition-colors uppercase tracking-[0.2em]">{t.nav.about}</a>
 
-            <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-100">
-              <button onClick={() => setLang('lt')} className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase transition-all ${lang === 'lt' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}>LT</button>
-              <button onClick={() => setLang('en')} className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase transition-all ${lang === 'en' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}>EN</button>
+            <div className="relative">
+              <button
+                onClick={() => { setLangDropdownOpen((o) => !o); setMenuOpen(false); }}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-100 bg-slate-50 hover:bg-slate-100 text-[10px] font-black uppercase tracking-wide text-slate-700 transition-colors"
+              >
+                <span>{langLabel(lang)}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className={`transition-transform ${langDropdownOpen ? 'rotate-180' : ''}`}>
+                  <path d="m6 9 6 6 6-6"/>
+                </svg>
+              </button>
+              {langDropdownOpen && (
+                <div className="absolute right-0 top-full mt-2 min-w-full bg-white rounded-xl border border-slate-100 shadow-xl py-1 z-50">
+                  {SUPPORTED_LANGUAGES.map((l) => (
+                    <button
+                      key={l}
+                      onClick={() => { setLang(l); setLangDropdownOpen(false); }}
+                      className={`w-full text-left px-4 py-2.5 text-[10px] font-black uppercase tracking-wide transition-colors ${lang === l ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50'}`}
+                    >
+                      {langLabel(l)}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {isFirebaseEnabled && (
@@ -75,6 +104,26 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, t, onMyReportsClick }) =
           </div>
 
           <div className="md:hidden flex items-center gap-2 relative">
+            <div className="relative">
+              <button
+                onClick={() => { setLangDropdownOpen((o) => !o); setMenuOpen(false); }}
+                className="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-100 bg-slate-50 hover:bg-slate-100 text-[10px] font-black uppercase tracking-wide text-slate-700"
+              >
+                {langLabel(lang)}
+                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className={langDropdownOpen ? 'rotate-180' : ''}>
+                  <path d="m6 9 6 6 6-6"/>
+                </svg>
+              </button>
+              {langDropdownOpen && (
+                <div className="absolute right-0 top-full mt-2 min-w-full bg-white rounded-xl border border-slate-100 shadow-xl py-1 z-[120]">
+                  {SUPPORTED_LANGUAGES.map((l) => (
+                    <button key={l} onClick={() => { setLang(l); setLangDropdownOpen(false); }} className={`w-full text-left px-4 py-2.5 text-[10px] font-black uppercase ${lang === l ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50'}`}>
+                      {langLabel(l)}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             {isFirebaseEnabled && !loading && !user && (
               <button onClick={signInWithGoogle} className="bg-slate-950 text-white px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wide">
                 {t.nav.login}

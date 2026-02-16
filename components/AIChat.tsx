@@ -1,12 +1,16 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { getCarExpertResponse } from '../services/geminiService';
 import { ChatMessage } from '../types';
+import type { Translations } from '../constants/translations';
 
-const AIChat: React.FC = () => {
+interface AIChatProps {
+  t: Translations;
+}
+
+const AIChat: React.FC<AIChatProps> = ({ t }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
-    { role: 'model', text: 'Sveiki! Aš esu VinSkaneris AI ekspertas. Kaip galiu padėti jums šiandien?' }
+    { role: 'model', text: t.aiChat.welcome }
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -29,7 +33,7 @@ const AIChat: React.FC = () => {
     const response = await getCarExpertResponse(userMsg);
     
     setIsTyping(false);
-    setMessages(prev => [...prev, { role: 'model', text: response || 'Atsiprašau, negaliu dabar atsakyti.' }]);
+    setMessages(prev => [...prev, { role: 'model', text: response || t.aiChat.cantRespond }]);
   };
 
   return (
@@ -41,10 +45,10 @@ const AIChat: React.FC = () => {
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center font-black shadow-lg shadow-indigo-500/30">V</div>
               <div>
-                <div className="font-black text-sm uppercase tracking-widest">AI Ekspertas</div>
+                <div className="font-black text-sm uppercase tracking-widest">{t.aiChat.expertTitle}</div>
                 <div className="text-[10px] text-emerald-400 font-bold flex items-center gap-1.5 uppercase tracking-wider">
                   <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>
-                  Online
+                  {t.aiChat.online}
                 </div>
               </div>
             </div>
@@ -81,7 +85,7 @@ const AIChat: React.FC = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                placeholder="Rašykite žinutę..."
+                placeholder={t.aiChat.placeholder}
                 className="w-full py-4 pl-6 pr-14 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all"
               />
               <button onClick={handleSend} className="absolute right-2 top-2 bottom-2 px-3 text-indigo-600 hover:bg-indigo-50 rounded-xl transition-colors">

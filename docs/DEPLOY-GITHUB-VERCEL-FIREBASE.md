@@ -16,6 +16,7 @@ Projektas **nenaudoja** `.env.example` faile repozitorijoje. Reikalingus kintamu
 |------------|-----------|
 | `VIN_API_KEY` | VIN ataskaitų API raktas |
 | `AI_API_KEY` | AI / papildomų funkcijų API raktas |
+| `CARSXE_API_KEY` | Automobilio specifikacijų API (CarsXE specs; UI: „Automobilio specifikacijos“) |
 | `VIN_VEHICLE_IDENTITY_ONLY` | Pasirinktinai: `true` – tik Vehicle Identity |
 | `VIN_SKIP_SERVICE_HISTORY` | Pasirinktinai: `true` – be serviso istorijos |
 | `DISABLE_MOCK_REPORT` | Pasirinktinai: `true` – išjungia mock ataskaitą |
@@ -162,7 +163,7 @@ git push -u origin main
    - Build Command: `npm run build`
    - Output Directory: `dist`
 5. **Environment Variables (Vercel Dashboard):** pridėk kintamuosius (reikšmes iš savo `.env`; į GitHub **nerašyk**):
-   - `VIN_API_KEY`, `AI_API_KEY` (ir pasirinktinai: `VIN_VEHICLE_IDENTITY_ONLY`, `VIN_SKIP_SERVICE_HISTORY`, `DISABLE_MOCK_REPORT`)
+   - `VIN_API_KEY`, `AI_API_KEY`, `CARSXE_API_KEY` (ir pasirinktinai: `VIN_VEHICLE_IDENTITY_ONLY`, `VIN_SKIP_SERVICE_HISTORY`, `DISABLE_MOCK_REPORT`)
    - Firebase (jei naudoji prisijungimus ir ataskaitų saugojimą): `FIREBASE_API_KEY`, `FIREBASE_AUTH_DOMAIN`, `FIREBASE_PROJECT_ID`, `FIREBASE_STORAGE_BUCKET`, `FIREBASE_MESSAGING_SENDER_ID`, `FIREBASE_APP_ID`
    Nustatyk **Production** (ir pasirinktinai Preview). Po **Redeploy** raktai įsigalios.
 6. **Deploy** – po push į `main` Vercel automatiškai perbuildins ir išskirs naują URL.

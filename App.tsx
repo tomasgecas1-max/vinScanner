@@ -1,6 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
+import MobilePlanSheet from './components/MobilePlanSheet';
+import OrderEmailStepModal from './components/OrderEmailStepModal';
+import PaymentModal from './components/PaymentModal';
 import Hero from './components/Hero';
 import ReportView from './components/ReportView';
 import MyReports from './components/MyReports';
@@ -9,14 +12,16 @@ import AIChat from './components/AIChat';
 import Logo from './components/Logo';
 import { useAuth } from './context/AuthContext';
 import { generateMockReport } from './services/geminiService';
-import { fetchCarReportFromOneAuto } from './services/oneAutoApiService';
+import { fetchCarReportFromOneAuto, HISTORY_NOT_FOUND_ERROR } from './services/oneAutoApiService';
+import { fetchVehicleSpecs, mapVehicleSpecsToReportFields } from './services/carsxeApiService';
 import { saveReport } from './services/reportsFirestore';
 import { CarReport } from './types';
 import { translations } from './constants/translations';
+import type { SupportedLang } from './constants/translations';
 
 const App: React.FC = () => {
   const { user } = useAuth();
-  const [lang, setLang] = useState<'lt' | 'en'>('lt');
+  const [lang, setLang] = useState<SupportedLang>('lt');
   const [report, setReport] = useState<CarReport | null>(null);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -26,22 +31,26 @@ const App: React.FC = () => {
   const [myReportsRefreshKey, setMyReportsRefreshKey] = useState(0);
   const [useServiceHistory, setUseServiceHistory] = useState(true);
   const [useVinLookup, setUseVinLookup] = useState(true);
+  const [useVehicleSpecs, setUseVehicleSpecs] = useState(true);
+  const [pendingVin, setPendingVin] = useState<string | null>(null);
+  const [showMobilePlanSheet, setShowMobilePlanSheet] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [showOrderEmailModal, setShowOrderEmailModal] = useState(false);
+  const [vinForOrder, setVinForOrder] = useState<string | null>(null);
+  const [planIndexForOrder, setPlanIndexForOrder] = useState<number>(1);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [orderEmail, setOrderEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    const handler = () => setIsMobile(mq.matches);
+    handler();
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
   const t = translations[lang];
-
-  const steps = lang === 'lt' ? [
-    "Jungiamasi prie tarptautinių duomenų bazių...",
-    "Tikrinami ridos įrašai TA centruose...",
-    "Analizuojamas žalų registras...",
-    "Tikrinama Interpol vagysčių bazė...",
-    "Generuojama išsami ataskaita..."
-  ] : [
-    "Connecting to international databases...",
-    "Checking mileage records...",
-    "Analyzing damage registry...",
-    "Checking Interpol databases...",
-    "Generating report..."
-  ];
+  const steps = t.loading.steps;
 
   const LOAD_DURATION_MS = 20000;
   const TICK_MS = 200;
@@ -68,42 +77,160 @@ const App: React.FC = () => {
     return () => clearInterval(interval);
   }, [loading, lang]);
 
+  const handleVinSubmit = (vin: string) => {
+    if (vin.trim().length > 5) {
+      setPendingVin(vin.trim());
+      setError(null);
+      if (isMobile) {
+        setShowMobilePlanSheet(true);
+      } else {
+        setTimeout(() => {
+          const el = document.getElementById('pricing');
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+      }
+    }
+  };
+
+  const handlePlanSelect = (vin: string, planIndex: number = 1) => {
+    setShowMobilePlanSheet(false);
+    setVinForOrder(vin);
+    setPlanIndexForOrder(planIndex);
+    setShowOrderEmailModal(true);
+  };
+
+  const handleOrderEmailConfirm = (vin: string, email: string) => {
+    setOrderEmail(email);
+    setShowOrderEmailModal(false);
+    setShowPaymentModal(true);
+  };
+
+  const handlePaymentPay = (vin: string) => {
+    setShowPaymentModal(false);
+    setVinForOrder(null);
+    setOrderEmail(null);
+    setPendingVin(null);
+    handleSearch(vin);
+  };
+
   const handleSearch = async (vin: string) => {
+    const previousReport = report;
     setLoading(true);
     setReport(null);
     setError(null);
     try {
       let data: CarReport | null = null;
       let apiError: string | null = null;
-      try {
-        data = await fetchCarReportFromOneAuto(vin, { useServiceHistory, useVinLookup });
-      } catch (e) {
-        data = null;
-        apiError = e instanceof Error ? e.message : String(e);
+      const needsOneAuto = useServiceHistory || useVinLookup;
+      const allSourcesChecked = useServiceHistory && useVinLookup && useVehicleSpecs;
+
+      if (needsOneAuto) {
+        try {
+          data = await fetchCarReportFromOneAuto(vin, {
+            useServiceHistory,
+            useVinLookup,
+            sequential: allSourcesChecked,
+          });
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e);
+          if (msg === HISTORY_NOT_FOUND_ERROR) {
+            setError(t.errors.historyNotFound);
+            setLoading(false);
+            return;
+          }
+          data = null;
+          apiError = msg;
+        }
       }
+
       const hasVinKey = !!(process.env.VIN_API_KEY);
       const mockDisabled = hasVinKey || (process.env.DISABLE_MOCK_REPORT === "true" || process.env.DISABLE_MOCK_REPORT === "1");
+
+      const vinLookupSuccess = data?.rawApiResponses && typeof data.rawApiResponses === "object" && (data.rawApiResponses as Record<string, { success?: boolean }>).vinLookup?.success === true;
+
+      if (!data && useVehicleSpecs) {
+        const specsRes = await fetchVehicleSpecs(vin);
+        if (specsRes.success && specsRes.result?.attributes) {
+          const fromSpecs = mapVehicleSpecsToReportFields(specsRes.result.attributes);
+          data = {
+            vin,
+            make: fromSpecs.make ?? "–",
+            model: fromSpecs.model ?? "–",
+            year: fromSpecs.year ?? 0,
+            mileageHistory: [{ date: new Date().toISOString().slice(0, 7), value: 0 }],
+            serviceEvents: [],
+            damages: [],
+            theftStatus: "unknown",
+            technicalSpecs: fromSpecs.technicalSpecs ?? { engine: "–", power: "–", fuelType: "–" },
+            marketValue: { min: 0, max: 0, average: 0 },
+            rawApiResponses: { vehicleSpecs: specsRes },
+          };
+        }
+      }
+
       if (!data) {
         if (mockDisabled) {
-          setError(apiError || (lang === "lt" ? "Duomenų nepavyko gauti iš API. Patikrinkite raktą ir ryšį." : "Failed to get data from API. Check key and connection."));
+          setError(apiError || t.errors.apiFailed);
           setLoading(false);
           return;
         }
         data = await generateMockReport(vin);
       }
       setProgress(100);
-      setLoadingStep(lang === 'lt' ? "Paruošta!" : "Ready!");
-      const reportData = { ...data, vin };
-      setReport(reportData);
+      setLoadingStep(t.loading.ready);
+      let reportData: CarReport = { ...data, vin };
+
+      const alreadyHasVehicleSpecs = data?.rawApiResponses && typeof data.rawApiResponses === "object" && (data.rawApiResponses as Record<string, { success?: boolean }>).vehicleSpecs?.success === true;
+      const needVehicleSpecs = useVehicleSpecs && !alreadyHasVehicleSpecs && (allSourcesChecked ? !vinLookupSuccess : true);
+      if (needVehicleSpecs) {
+        const specsRes = await fetchVehicleSpecs(vin);
+        if (specsRes.success && specsRes.result?.attributes) {
+          const fromSpecs = mapVehicleSpecsToReportFields(specsRes.result.attributes);
+          reportData = {
+            ...reportData,
+            ...fromSpecs,
+            rawApiResponses: { ...(reportData.rawApiResponses as object || {}), vehicleSpecs: specsRes },
+          };
+        }
+      }
+
+      const rawData = reportData.rawApiResponses as { serviceHistory?: { success?: boolean }; vinLookup?: { success?: boolean }; vehicleSpecs?: { success?: boolean } } | undefined;
+
+      let finalReport: CarReport = reportData;
+      if (previousReport && previousReport.vin === vin) {
+        const raw = data.rawApiResponses as { serviceHistory?: { success?: boolean }; vinLookup?: { success?: boolean } } | undefined;
+        finalReport = { ...previousReport };
+        if (raw?.serviceHistory?.success) {
+          finalReport.mileageHistory = data.mileageHistory;
+          finalReport.serviceEvents = data.serviceEvents;
+          finalReport.rawApiResponses = { ...(finalReport.rawApiResponses as object || {}), serviceHistory: (data.rawApiResponses as any)?.serviceHistory };
+        }
+        if (raw?.vinLookup?.success) {
+          finalReport.make = data.make;
+          finalReport.model = data.model;
+          finalReport.year = data.year;
+          finalReport.technicalSpecs = data.technicalSpecs;
+          finalReport.rawApiResponses = { ...(finalReport.rawApiResponses as object || {}), vinLookup: (data.rawApiResponses as any)?.vinLookup };
+        }
+        if (rawData?.vehicleSpecs?.success) {
+          finalReport.make = reportData.make;
+          finalReport.model = reportData.model;
+          finalReport.year = reportData.year;
+          finalReport.technicalSpecs = reportData.technicalSpecs;
+          finalReport.rawApiResponses = { ...(finalReport.rawApiResponses as object || {}), vehicleSpecs: reportData.rawApiResponses && typeof reportData.rawApiResponses === 'object' ? (reportData.rawApiResponses as any).vehicleSpecs : undefined };
+        }
+      }
+
+      setReport(finalReport);
       if (user) {
-        saveReport(user.uid, reportData).then(() => setMyReportsRefreshKey((k) => k + 1)).catch(() => {});
+        saveReport(user.uid, finalReport).then(() => setMyReportsRefreshKey((k) => k + 1)).catch(() => {});
       }
       await new Promise(resolve => setTimeout(resolve, 400));
       const reportElement = document.getElementById('car-report');
       if (reportElement) reportElement.scrollIntoView({ behavior: 'smooth' });
     } catch (err) {
       console.error(err);
-      setError(lang === 'lt' ? "Nepavyko gauti duomenų. Patikrinkite ryšį." : "Failed to retrieve data.");
+      setError(t.errors.networkFailed);
     } finally {
       setTimeout(() => setLoading(false), 500);
     }
@@ -115,32 +242,44 @@ const App: React.FC = () => {
   };
 
   const [supplementLoading, setSupplementLoading] = useState(false);
-  const handleSupplementReport = async (vin: string, opts: { useServiceHistory: boolean; useVinLookup: boolean }) => {
-    if (!report || (!opts.useServiceHistory && !opts.useVinLookup)) return;
+  const handleSupplementReport = async (vin: string, opts: { useServiceHistory: boolean; useVinLookup: boolean; useVehicleSpecs?: boolean }) => {
+    if (!report || (!opts.useServiceHistory && !opts.useVinLookup && !opts.useVehicleSpecs)) return;
     setSupplementLoading(true);
     try {
-      const partial = await fetchCarReportFromOneAuto(vin, {
-        useServiceHistory: opts.useServiceHistory,
-        useVinLookup: opts.useVinLookup,
-      });
-      if (!partial) {
-        setSupplementLoading(false);
-        return;
-      }
-      const raw = partial.rawApiResponses as { serviceHistory?: { success?: boolean }; vinLookup?: { success?: boolean } } | undefined;
       const merged: CarReport = { ...report };
-      if (raw?.serviceHistory?.success) {
-        merged.mileageHistory = partial.mileageHistory;
-        merged.serviceEvents = partial.serviceEvents;
-        merged.rawApiResponses = { ...(merged.rawApiResponses as object || {}), serviceHistory: (partial.rawApiResponses as any)?.serviceHistory };
+      const needsOneAuto = opts.useServiceHistory || opts.useVinLookup;
+
+      if (needsOneAuto) {
+        const partial = await fetchCarReportFromOneAuto(vin, {
+          useServiceHistory: opts.useServiceHistory,
+          useVinLookup: opts.useVinLookup,
+        });
+        if (partial) {
+          const raw = partial.rawApiResponses as { serviceHistory?: { success?: boolean }; vinLookup?: { success?: boolean } } | undefined;
+          if (raw?.serviceHistory?.success) {
+            merged.mileageHistory = partial.mileageHistory;
+            merged.serviceEvents = partial.serviceEvents;
+            merged.rawApiResponses = { ...(merged.rawApiResponses as object || {}), serviceHistory: (partial.rawApiResponses as any)?.serviceHistory };
+          }
+          if (raw?.vinLookup?.success) {
+            merged.make = partial.make;
+            merged.model = partial.model;
+            merged.year = partial.year;
+            merged.technicalSpecs = partial.technicalSpecs;
+            merged.rawApiResponses = { ...(merged.rawApiResponses as object || {}), vinLookup: (partial.rawApiResponses as any)?.vinLookup };
+          }
+        }
       }
-      if (raw?.vinLookup?.success) {
-        merged.make = partial.make;
-        merged.model = partial.model;
-        merged.year = partial.year;
-        merged.technicalSpecs = partial.technicalSpecs;
-        merged.rawApiResponses = { ...(merged.rawApiResponses as object || {}), vinLookup: (partial.rawApiResponses as any)?.vinLookup };
+
+      if (opts.useVehicleSpecs) {
+        const specsRes = await fetchVehicleSpecs(vin);
+        if (specsRes.success && specsRes.result?.attributes) {
+          const fromSpecs = mapVehicleSpecsToReportFields(specsRes.result.attributes);
+          Object.assign(merged, fromSpecs);
+          merged.rawApiResponses = { ...(merged.rawApiResponses as object || {}), vehicleSpecs: specsRes };
+        }
       }
+
       setReport(merged);
       if (user) saveReport(user.uid, merged).then(() => setMyReportsRefreshKey((k) => k + 1)).catch(() => {});
     } catch (e) {
@@ -156,13 +295,15 @@ const App: React.FC = () => {
       
       <main className="overflow-x-hidden">
         <Hero
-          onSearch={handleSearch}
+          onVinSubmit={handleVinSubmit}
           loading={loading}
           t={t}
           useServiceHistory={useServiceHistory}
           useVinLookup={useVinLookup}
+          useVehicleSpecs={useVehicleSpecs}
           onUseServiceHistoryChange={setUseServiceHistory}
           onUseVinLookupChange={setUseVinLookup}
+          onUseVehicleSpecsChange={setUseVehicleSpecs}
         />
 
         {loading && (
@@ -173,7 +314,7 @@ const App: React.FC = () => {
                    <Logo size="lg" />
                 </div>
                 <h3 className="text-2xl font-black text-slate-900 mb-2 tracking-tight">
-                  {lang === 'lt' ? 'Skenuojama istorija' : 'Scanning History'}
+                  {t.loading.scanningHistory}
                 </h3>
                 <p className="text-indigo-600 font-bold text-[11px] h-4 animate-pulse uppercase tracking-[0.2em]">
                   {loadingStep}
@@ -182,7 +323,7 @@ const App: React.FC = () => {
 
               <div className="relative mb-8">
                 <div className="flex justify-between items-center mb-3">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{lang === 'lt' ? 'Saugus ryšys' : 'Secure Connection'}</span>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t.loading.secureConnection}</span>
                   <span className="text-3xl font-black text-indigo-600 font-mono tracking-tighter">
                     {Math.round(progress)}%
                   </span>
@@ -197,7 +338,7 @@ const App: React.FC = () => {
               
               <div className="mt-10 flex items-center justify-center gap-2 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                SSL Encryption Active
+                {t.loading.sslEncryption}
               </div>
             </div>
           </div>
@@ -215,6 +356,7 @@ const App: React.FC = () => {
           {report && !loading && (
             <ReportView
               report={report}
+              t={t}
               lang={lang}
               canSave={!!user}
               onSaveReport={user ? () => handleSaveReport(report) : undefined}
@@ -226,6 +368,7 @@ const App: React.FC = () => {
 
         {showMyReports && (
           <MyReports
+            t={t}
             lang={lang}
             isOpen={showMyReports}
             refreshKey={myReportsRefreshKey}
@@ -234,15 +377,43 @@ const App: React.FC = () => {
           />
         )}
 
-        <Pricing t={t} />
+        {pendingVin && isMobile && showMobilePlanSheet && (
+          <MobilePlanSheet
+            pendingVin={pendingVin}
+            t={t}
+            onPlanSelect={handlePlanSelect}
+            onClose={() => setShowMobilePlanSheet(false)}
+          />
+        )}
+        {showOrderEmailModal && vinForOrder && (
+          <OrderEmailStepModal
+            open={showOrderEmailModal}
+            onClose={() => { setShowOrderEmailModal(false); setVinForOrder(null); }}
+            onConfirm={handleOrderEmailConfirm}
+            pendingVin={vinForOrder}
+            t={t}
+          />
+        )}
+        {showPaymentModal && vinForOrder && (
+          <PaymentModal
+            open={showPaymentModal}
+            onClose={() => { setShowPaymentModal(false); setVinForOrder(null); setOrderEmail(null); }}
+            onPay={handlePaymentPay}
+            vin={vinForOrder}
+            planIndex={planIndexForOrder}
+            email={orderEmail ?? undefined}
+            t={t}
+          />
+        )}
+        <Pricing t={t} pendingVin={pendingVin} onPlanSelect={handlePlanSelect} />
 
         {!report && !loading && (
           <section className="max-w-7xl mx-auto px-4 py-20">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
               {[
-                { title: lang === 'lt' ? 'Ridos Istorija' : 'Mileage History', desc: lang === 'lt' ? 'Analizuojame duomenis iš visos Europos dilerių ir TA registrų.' : 'Analyzing data from dealers and registries across Europe.' },
-                { title: lang === 'lt' ? 'Žalų Registras' : 'Damage Records', desc: lang === 'lt' ? 'Pateikiame detalią informaciją apie eismo įvykius.' : 'Detailed information about traffic accidents.' },
-                { title: lang === 'lt' ? 'Vagysčių Patikra' : 'Theft Check', desc: lang === 'lt' ? 'Tikriname Interpol ir vietines policijos bazes.' : 'Checking Interpol and local police databases.' }
+                { title: t.features.mileageHistory, desc: t.features.mileageHistoryDesc },
+                { title: t.features.damageRecords, desc: t.features.damageRecordsDesc },
+                { title: t.features.theftCheck, desc: t.features.theftCheckDesc },
               ].map((feat, idx) => (
                 <div key={idx} className="p-10 bg-white rounded-[2.5rem] border border-slate-100 hover:shadow-2xl transition-all duration-300">
                   <h3 className="text-2xl font-black text-slate-900 mb-4 tracking-tight">{feat.title}</h3>
@@ -268,7 +439,7 @@ const App: React.FC = () => {
         </div>
       </footer>
 
-      <AIChat />
+      <AIChat key={lang} t={t} />
     </div>
   );
 };

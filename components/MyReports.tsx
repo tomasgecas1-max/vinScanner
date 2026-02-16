@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { getSavedReports, type SavedReport } from '../services/reportsFirestore';
 import type { CarReport } from '../types';
+import type { Translations } from '../constants/translations';
 
 interface MyReportsProps {
+  t: Translations;
   lang: 'lt' | 'en';
   isOpen: boolean;
   /** Padidėjimas po naujo ataskaitos išsaugojimo – sąrašas persikrauna */
@@ -12,7 +14,7 @@ interface MyReportsProps {
   onClose: () => void;
 }
 
-const MyReports: React.FC<MyReportsProps> = ({ lang, isOpen, refreshKey = 0, onSelectReport, onClose }) => {
+const MyReports: React.FC<MyReportsProps> = ({ t, lang, isOpen, refreshKey = 0, onSelectReport, onClose }) => {
   const { user } = useAuth();
   const [list, setList] = useState<SavedReport[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,17 +40,17 @@ const MyReports: React.FC<MyReportsProps> = ({ lang, isOpen, refreshKey = 0, onS
       <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 w-full max-w-lg max-h-[85vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
         <div className="p-6 border-b border-slate-100 flex justify-between items-center">
           <h2 className="text-xl font-black text-slate-900">
-            {lang === 'lt' ? 'Mano ataskaitos' : 'My reports'}
+            {t.myReports.title}
           </h2>
           <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600 rounded-xl hover:bg-slate-50" aria-label="Close">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
         <div className="p-4 overflow-y-auto flex-1">
-          {loading && <p className="text-slate-500 text-sm py-8 text-center">{lang === 'lt' ? 'Kraunama...' : 'Loading...'}</p>}
+          {loading && <p className="text-slate-500 text-sm py-8 text-center">{t.myReports.loading}</p>}
           {error && <p className="text-rose-600 text-sm py-4">{error}</p>}
           {!loading && !error && list.length === 0 && (
-            <p className="text-slate-500 text-sm py-8 text-center">{lang === 'lt' ? 'Išsaugotų ataskaitų nėra.' : 'No saved reports.'}</p>
+            <p className="text-slate-500 text-sm py-8 text-center">{t.myReports.noReports}</p>
           )}
           {!loading && !error && list.length > 0 && (
             <ul className="space-y-2">

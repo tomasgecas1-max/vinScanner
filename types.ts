@@ -36,3 +36,9 @@ export interface ChatMessage {
   role: 'user' | 'model';
   text: string;
 }
+
+/** AI (Gemini) ataskaitos analizė: problemos ir stiprybės */
+export interface ReportAnalysis {
+  problemAreas: string[];
+  strongPoints: string[];
+}

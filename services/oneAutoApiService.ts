@@ -450,14 +450,31 @@ function mapVinLookupToCarReportFields(result: EzyVinLookupResult | undefined): 
   };
 }
 
+/** Klaida, kai serviso istorija nerandama ir sustabdoma tikrinimo eilė (sequential). */
+export const HISTORY_NOT_FOUND_ERROR = "Istorija nebuvo rasta.";
+
 /**
  * Gauna automobilio ataskaitą iš One Auto API.
- * Kviečiami tik 2 šaltiniai: EzyVIN Service History ir OE VIN Lookup (Europe).
- * Jei nėra VIN_API_KEY arba abu kvietimai nepavyksta – grąžina null (tada App rodo mock).
+ * Kviečiami 2 šaltiniai: EzyVIN Service History ir OE VIN Lookup (Europe).
+ *
+ * Kai sequential=true ir useServiceHistory=true: pirmiausia tikrinama Service History.
+ * Jei istorija nerandama – metama HISTORY_NOT_FOUND_ERROR, VIN Lookup nebekviečiamas.
+ * Jei istorija randama – tikrinamas VIN Lookup (jei useVinLookup).
+ *
+ * Jei nėra VIN_API_KEY arba abu kvietimai nepavyksta (ne sequential) – grąžina null.
  */
 export async function fetchCarReportFromOneAuto(
   vin: string,
-  options?: { useSandbox?: boolean; maxPollAttempts?: number; pollIntervalMs?: number; vrm?: string; useServiceHistory?: boolean; useVinLookup?: boolean }
+  options?: {
+    useSandbox?: boolean;
+    maxPollAttempts?: number;
+    pollIntervalMs?: number;
+    vrm?: string;
+    useServiceHistory?: boolean;
+    useVinLookup?: boolean;
+    /** Jei true: Service History pirmiausia; jei nerandama – metama HISTORY_NOT_FOUND_ERROR ir sustabdoma. */
+    sequential?: boolean;
+  }
 ): Promise<CarReport | null> {
   const apiKey = getApiKey();
   if (!apiKey) {
@@ -469,23 +486,43 @@ export async function fetchCarReportFromOneAuto(
   const pollOpts = { maxPollAttempts: options?.maxPollAttempts ?? 10, pollIntervalMs: options?.pollIntervalMs ?? 3000 };
   const skipServiceHistory = isServiceHistorySkipped() || options?.useServiceHistory === false;
   const skipVinLookup = options?.useVinLookup === false;
+  const sequential = options?.sequential === true;
 
-  const serviceHistoryPromise = skipServiceHistory
-    ? Promise.resolve({ success: false, error: "Service History išjungtas (pasirinkta)." as string })
-    : fetchServiceHistory(vin, apiKey, baseUrl, pollOpts);
+  let historyRes: { success: boolean; result?: EzyVinServiceHistoryResult; error?: string };
+  let lookupRes: { success: boolean; result?: EzyVinLookupResult; error?: string };
 
-  const vinLookupPromise = skipVinLookup
-    ? Promise.resolve({ success: false, error: "VIN Lookup išjungtas (pasirinkta)." as string })
-    : fetchVinLookup(vin, apiKey, baseUrl, pollOpts);
-
-  const [historyRes, lookupRes] = await Promise.all([
-    serviceHistoryPromise,
-    vinLookupPromise,
-  ]);
-
-  if (typeof console !== "undefined" && console.log) {
-    console.log("[VIN API] Service History:", historyRes.success ? "OK" : historyRes.error);
-    console.log("[VIN API] VIN Lookup:", lookupRes.success ? "OK" : lookupRes.error);
+  if (sequential) {
+    if (!skipServiceHistory) {
+      historyRes = await fetchServiceHistory(vin, apiKey, baseUrl, pollOpts);
+      if (typeof console !== "undefined" && console.log) {
+        console.log("[VIN API] Service History:", historyRes.success ? "OK" : historyRes.error);
+      }
+      if (!historyRes.success) {
+        throw new Error(HISTORY_NOT_FOUND_ERROR);
+      }
+    } else {
+      historyRes = { success: false, error: "Service History išjungtas (pasirinkta)." };
+    }
+    if (!skipVinLookup) {
+      lookupRes = await fetchVinLookup(vin, apiKey, baseUrl, pollOpts);
+      if (typeof console !== "undefined" && console.log) {
+        console.log("[VIN API] VIN Lookup:", lookupRes.success ? "OK" : lookupRes.error);
+      }
+    } else {
+      lookupRes = { success: false, error: "VIN Lookup išjungtas (pasirinkta)." };
+    }
+  } else {
+    const serviceHistoryPromise = skipServiceHistory
+      ? Promise.resolve({ success: false, error: "Service History išjungtas (pasirinkta)." as string })
+      : fetchServiceHistory(vin, apiKey, baseUrl, pollOpts);
+    const vinLookupPromise = skipVinLookup
+      ? Promise.resolve({ success: false, error: "VIN Lookup išjungtas (pasirinkta)." as string })
+      : fetchVinLookup(vin, apiKey, baseUrl, pollOpts);
+    [historyRes, lookupRes] = await Promise.all([serviceHistoryPromise, vinLookupPromise]);
+    if (typeof console !== "undefined" && console.log) {
+      console.log("[VIN API] Service History:", historyRes.success ? "OK" : historyRes.error);
+      console.log("[VIN API] VIN Lookup:", lookupRes.success ? "OK" : lookupRes.error);
+    }
   }
 
   const rawEvents = historyRes.result?.service_events;
