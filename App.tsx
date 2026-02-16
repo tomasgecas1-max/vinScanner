@@ -236,7 +236,7 @@ const App: React.FC = () => {
                 }
               } catch (_) {}
             }
-            setPendingEmailReport({ email: customerEmail, vin, token, reportsRemaining: token != null ? planIndex : undefined });
+            setPendingEmailReport({ email: customerEmail, vin, token, reportsRemaining: planIndex >= 1 ? planIndex : undefined });
           }
           await new Promise((resolve) => setTimeout(resolve, 400));
           const reportElement = document.getElementById('car-report');
@@ -366,7 +366,7 @@ const App: React.FC = () => {
             }
           } catch (_) {}
         }
-        setPendingEmailReport({ email: customerEmail, vin, token });
+        setPendingEmailReport({ email: customerEmail, vin, token, reportsRemaining: planIndex >= 1 ? planIndex : undefined });
       }
       fetch('/api/report-cache', {
         method: 'POST',

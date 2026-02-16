@@ -72,6 +72,12 @@ export default async function handler(req, res) {
       <p style="margin:0;"><a href="${baseUrl}/?token=${encodeURIComponent(token)}" style="display:inline-block;padding:14px 24px;background:#4f46e5;color:white;font-weight:bold;font-size:16px;text-decoration:none;border-radius:12px;">Peržiūrėti likusias ataskaitas →</a></p>
       <p style="margin:16px 0 0 0;font-size:12px;color:#6366f1;">Arba nukopijuokite: ${baseUrl}/?token=${String(token).slice(0, 20)}...</p>
     </div>`
+    : n > 0 && !token
+    ? `
+    <div style="margin:24px 0;padding:20px;background:#fef3c7;border:2px solid #f59e0b;border-radius:16px;">
+      <p style="margin:0 0 12px 0;font-size:18px;font-weight:bold;color:#78350f;">Turite dar ${n} ataskait${n === 1 ? 'ą' : 'as'}!</p>
+      <p style="margin:0;font-size:15px;color:#92400e;">Deja, techninės klaidos dėka nuoroda negali būti rodoma. Susisiekite su mumis: <a href="mailto:info@vinscanner.eu" style="color:#d97706;font-weight:bold;">info@vinscanner.eu</a> – mes padėsime pasiekti likusias ataskaitas.</p>
+    </div>`
     : '';
   const html = `
     <p>Sveikiname!</p>
