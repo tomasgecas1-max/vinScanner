@@ -1,0 +1,73 @@
+/**
+ * Vercel serverless – siunčia el. laišką klientui po sėkmingo mokėjimo.
+ * Naudoja Hostinger SMTP (arba bet kurį SMTP).
+ * POST: { to, vin }
+ */
+import nodemailer from 'nodemailer';
+
+export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const host = process.env.SMTP_HOST;
+  const port = Number(process.env.SMTP_PORT) || 587;
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+  const fromAddr = process.env.SMTP_FROM || user;
+
+  if (!host || !user || !pass) {
+    return res.status(500).json({ error: 'SMTP not configured (SMTP_HOST, SMTP_USER, SMTP_PASS)' });
+  }
+
+  let body;
+  try {
+    body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+  } catch {
+    return res.status(400).json({ error: 'Invalid JSON' });
+  }
+
+  const { to, vin } = body;
+  if (!to || typeof to !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
+    return res.status(400).json({ error: 'Valid email required' });
+  }
+  const vinStr = String(vin || '').trim().slice(0, 50);
+
+  const transporter = nodemailer.createTransport({
+    host,
+    port,
+    secure: port === 465,
+    auth: { user, pass },
+  });
+
+  const subject = `Jūsų VIN ataskaita paruošta – vinscanner.eu${vinStr ? ` (${vinStr})` : ''}`;
+  const html = `
+    <p>Sveikiname!</p>
+    <p>Jūsų VIN <strong>${vinStr || '–'}</strong> ataskaita paruošta.</p>
+    <p>Peržiūrėkite ją svetainėje <a href="https://vinscanner.eu">vinscanner.eu</a>.</p>
+    <p>Klausimams rašykite: <a href="mailto:info@vinscanner.eu">info@vinscanner.eu</a></p>
+    <p>– vinscanner.eu komanda</p>
+  `;
+
+  try {
+    await transporter.sendMail({
+      from: `vinscanner.eu <${fromAddr}>`,
+      to,
+      subject,
+      html,
+      text: html.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim(),
+    });
+    return res.status(200).json({ success: true });
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e);
+    return res.status(502).json({ error: message });
+  }
+}

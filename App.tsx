@@ -105,15 +105,15 @@ const App: React.FC = () => {
     setShowPaymentModal(true);
   };
 
-  const handlePaymentPay = (vin: string) => {
+  const handlePaymentPay = (vin: string, customerEmail?: string) => {
     setShowPaymentModal(false);
     setVinForOrder(null);
     setOrderEmail(null);
     setPendingVin(null);
-    handleSearch(vin);
+    handleSearch(vin, customerEmail);
   };
 
-  const handleSearch = async (vin: string) => {
+  const handleSearch = async (vin: string, customerEmail?: string) => {
     const previousReport = report;
     setLoading(true);
     setReport(null);
@@ -224,6 +224,13 @@ const App: React.FC = () => {
       setReport(finalReport);
       if (user) {
         saveReport(user.uid, finalReport).then(() => setMyReportsRefreshKey((k) => k + 1)).catch(() => {});
+      }
+      if (customerEmail) {
+        fetch('/api/send-order-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ to: customerEmail, vin }),
+        }).catch(() => {});
       }
       await new Promise(resolve => setTimeout(resolve, 400));
       const reportElement = document.getElementById('car-report');

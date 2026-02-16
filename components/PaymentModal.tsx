@@ -18,7 +18,7 @@ const DISCOUNT_CODES: Record<string, { type: 'percent' | 'fixed'; value: number 
 interface PaymentModalProps {
   open: boolean;
   onClose: () => void;
-  onPay: (vin: string) => void;
+  onPay: (vin: string, email?: string) => void;
   vin: string;
   planIndex: number;
   email?: string;
@@ -172,7 +172,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       setStripeLoading(false);
       return;
     }
-    onPay(vin);
+    onPay(vin, email ?? undefined);
     onClose();
     setDiscountInput('');
     setAppliedCode(null);
@@ -184,7 +184,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     setStripeError(null);
     setDiscountInput('');
     setAppliedCode(null);
-    onPay(vin);
+    onPay(vin, email ?? undefined);
     onClose();
   };
 
