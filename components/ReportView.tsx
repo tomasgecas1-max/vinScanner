@@ -146,7 +146,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
     const run = async () => {
       emailSentForRef.current = pendingEmailReport.vin;
       reportPdfRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      await new Promise((r) => setTimeout(r, 2500));
+      await new Promise((r) => setTimeout(r, 3500));
       const el2 = reportPdfRef.current;
       if (!el2) {
         onEmailWithPdfSent();
@@ -160,16 +160,27 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
         } catch (_) {}
         return;
       }
+      let pdfBase64 = '';
       try {
         const opt = {
           margin: 10,
-          image: { type: 'jpeg' as const, quality: 0.95 },
+          image: { type: 'jpeg' as const, quality: 0.92 },
           html2canvas: { scale: 2, useCORS: true, logging: false, allowTaint: true },
           jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const },
         };
-        const dataUrl = await html2pdf().set(opt).from(el2).outputPdf('datauristring');
-        const m = typeof dataUrl === 'string' && dataUrl.match(/^data:application\/pdf;base64,(.+)$/);
-        const pdfBase64 = m ? m[1] : '';
+        const blob = await html2pdf().set(opt).from(el2).outputPdf('blob');
+        if (blob && blob.size > 0) {
+          pdfBase64 = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              const s = reader.result as string;
+              const m = s?.match(/^data:application\/pdf;base64,(.+)$/);
+              resolve(m ? m[1] : '');
+            };
+            reader.onerror = () => resolve('');
+            reader.readAsDataURL(blob);
+          });
+        }
         await fetch('/api/send-order-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -177,6 +188,8 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
         });
       } catch (e) {
         if (typeof console !== 'undefined' && console.error) console.error('Email su PDF klaida:', e);
+      }
+      if (!pdfBase64) {
         try {
           await fetch('/api/send-order-email', {
             method: 'POST',
@@ -184,10 +197,9 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
             body: JSON.stringify({ to: pendingEmailReport.email, vin: report.vin }),
           });
         } catch (_) {}
-      } finally {
-        onEmailWithPdfSent();
-        emailSentForRef.current = null;
       }
+      onEmailWithPdfSent();
+      emailSentForRef.current = null;
     };
     run();
   }, [report.vin, pendingEmailReport, onEmailWithPdfSent]);
