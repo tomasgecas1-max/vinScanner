@@ -40,6 +40,22 @@ const App: React.FC = () => {
   const [planIndexForOrder, setPlanIndexForOrder] = useState<number>(1);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [orderEmail, setOrderEmail] = useState<string | null>(null);
+  const [redirectOrder, setRedirectOrder] = useState<{ vin: string; email?: string } | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('redirect_status') === 'succeeded' && params.get('payment_intent_client_secret')) {
+      try {
+        const raw = sessionStorage.getItem('vinscanner_pending_order');
+        const data = raw ? JSON.parse(raw) : null;
+        sessionStorage.removeItem('vinscanner_pending_order');
+        if (data?.vin && typeof data.vin === 'string' && data.vin.trim().length > 5) {
+          setRedirectOrder({ vin: data.vin.trim(), email: data.email || undefined });
+        }
+      } catch (_) {}
+      window.history.replaceState({}, '', window.location.pathname || '/');
+    }
+  }, []);
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 767px)');
@@ -104,6 +120,12 @@ const App: React.FC = () => {
     setShowOrderEmailModal(false);
     setShowPaymentModal(true);
   };
+
+  useEffect(() => {
+    if (!redirectOrder) return;
+    handleSearch(redirectOrder.vin, redirectOrder.email);
+    setRedirectOrder(null);
+  }, [redirectOrder]);
 
   const handlePaymentPay = (vin: string, customerEmail?: string) => {
     setShowPaymentModal(false);

@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
+const PENDING_ORDER_KEY = 'vinscanner_pending_order';
+
 interface StripePaymentFormProps {
   onSuccess: () => void;
   onBack: () => void;
   totalFormatted: string;
   payLabel: string;
   closeLabel: string;
+  pendingVin?: string;
+  pendingEmail?: string;
 }
 
 export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
@@ -15,6 +19,8 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
   totalFormatted,
   payLabel,
   closeLabel,
+  pendingVin,
+  pendingEmail,
 }) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -26,6 +32,11 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
     if (!stripe || !elements) return;
     setLoading(true);
     setError(null);
+    if (pendingVin) {
+      try {
+        sessionStorage.setItem(PENDING_ORDER_KEY, JSON.stringify({ vin: pendingVin, email: pendingEmail ?? '' }));
+      } catch (_) {}
+    }
     const { error: confirmError } = await stripe.confirmPayment({
       elements,
       confirmParams: {

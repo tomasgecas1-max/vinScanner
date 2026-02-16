@@ -326,6 +326,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                     totalFormatted={`${total.toFixed(2)} €`}
                     payLabel={t.pricing.paymentPay}
                     closeLabel={t.pricing.close}
+                    pendingVin={vin}
+                    pendingEmail={email}
                   />
                 </Elements>
               </div>
