@@ -64,7 +64,60 @@ const FIELD_LABELS: Record<string, string> = {
   first_registration_date: 'Pirmoji registracija',
   number_seats: 'Sėdimų vietų sk.',
   ncap_rating: 'Euro NCAP',
+  engine: 'Variklis',
+  engine_size: 'Variklio tūris',
+  engine_cylinders: 'Cilindrų sk.',
+  fuel_type: 'Kuras',
+  transmission: 'Pavarų dėžė',
+  transmission_short: 'Pavarų dėžė',
+  drivetrain: 'Pavara',
+  doors: 'Durų sk.',
+  standard_seating: 'Sėdimų vietų sk.',
+  body_style: 'Kėbulo tipas',
+  style: 'Stilius',
+  type: 'Tipas',
+  curb_weight: 'Svoris',
+  made_in: 'Pagaminta',
+  make: 'Gamintojas',
+  model: 'Modelis',
+  year: 'Metai',
+  model_year: 'Modelio metai',
+  series: 'Serija',
+  trim: 'Rūšis',
+  manufacturer: 'Gamintojas',
 };
+
+/** Gauna visus techninius duomenis iš OE VIN Lookup arba CarsXE (Automobilio specifikacijos), priklausomai nuo to kuris API suveikė */
+function getFullTechnicalData(report: CarReport): Record<string, string> {
+  const raw = report.rawApiResponses as Record<string, { success?: boolean; result?: Record<string, unknown>; attributes?: Record<string, string> } | undefined> | undefined;
+  const vinLookup = raw?.vinLookup;
+  const vehicleSpecs = raw?.vehicleSpecs;
+
+  if (vinLookup?.success && vinLookup?.result) {
+    const r = vinLookup.result as Record<string, unknown>;
+    const out: Record<string, string> = {};
+    for (const [k, v] of Object.entries(r)) {
+      if (v == null) continue;
+      if (typeof v === 'object' && !Array.isArray(v) && !(v instanceof Date)) continue;
+      out[k] = Array.isArray(v) ? v.join(', ') : String(v);
+    }
+    if (Object.keys(out).length > 0) return out;
+  }
+
+  if (vehicleSpecs?.success && vehicleSpecs?.result?.attributes) {
+    return { ...vehicleSpecs.result.attributes };
+  }
+
+  if (vehicleSpecs?.attributes) {
+    return { ...vehicleSpecs.attributes };
+  }
+
+  return report.technicalSpecs;
+}
+
+function getTechnicalLabel(key: string): string {
+  return FIELD_LABELS[key] ?? key.replace(/_/g, ' ');
+}
 
 function formatValue(val: unknown, t?: { report: { yes: string; no: string } }): string {
   if (val == null) return '–';
@@ -456,14 +509,16 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
               </div>
             </div>
 
-            {/* Techniniai duomenys */}
+            {/* Techniniai duomenys – visa info iš OE VIN Lookup arba Automobilio specifikacijos */}
             <div className="space-y-4">
               <h4 className="text-slate-900 font-bold text-sm sm:text-base">{t.report.technicalSpecs}</h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2">
-                  {Object.entries(report.technicalSpecs).map(([key, val]) => (
+                  {Object.entries(getFullTechnicalData(report))
+                    .filter(([, val]) => val != null && String(val).trim() !== '')
+                    .map(([key, val]) => (
                     <div key={key} className="flex justify-between py-3 border-b border-slate-200/50 last:border-0 sm:last:border-b lg:last:border-0">
                       <span className="text-slate-500 text-xs sm:text-sm capitalize">
-                        {key === 'fuelType' ? t.report.fuelType : key === 'power' ? t.report.power : key === 'engine' ? t.report.engine : key === 'transmission' ? t.report.transmission : key === 'bodyType' ? t.report.bodyType : key === 'colour' ? t.report.colour : key === 'co2' ? 'CO₂' : key}
+                        {key === 'fuelType' ? t.report.fuelType : key === 'power' ? t.report.power : key === 'engine' ? t.report.engine : key === 'transmission' ? t.report.transmission : key === 'bodyType' ? t.report.bodyType : key === 'colour' ? t.report.colour : key === 'co2' ? 'CO₂' : getTechnicalLabel(key)}
                       </span>
                       <span className="text-slate-900 text-xs sm:text-sm font-semibold">{val}</span>
                     </div>
