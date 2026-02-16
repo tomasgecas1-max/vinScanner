@@ -35,7 +35,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid JSON' });
   }
 
-  const { to, vin, pdfBase64, token } = body;
+  const { to, vin, pdfBase64, token, reportsRemaining } = body;
   if (!to || typeof to !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
     return res.status(400).json({ error: 'Valid email required' });
   }
@@ -62,8 +62,17 @@ export default async function handler(req, res) {
   });
 
   const subject = `Jūsų VIN ataskaita paruošta – vinscanner.eu${vinStr ? ` (${vinStr})` : ''}`;
-  const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://vinscanner.eu';
-  const reportsLink = token ? `<p><strong>Norėdami naudoti likusias ataskaitas, paspauskite:</strong><br/><a href="${baseUrl}/?token=${encodeURIComponent(token)}" style="color:#4f46e5;font-weight:bold;">${baseUrl}/?token=${String(token).slice(0, 12)}...</a></p>` : '';
+  const baseUrl = 'https://vinscanner.eu';
+  const n = Math.max(0, Number(reportsRemaining) || 0);
+  const reportsLink = token && n > 0
+    ? `
+    <div style="margin:24px 0;padding:20px;background:#eef2ff;border:2px solid #4f46e5;border-radius:16px;">
+      <p style="margin:0 0 12px 0;font-size:18px;font-weight:bold;color:#1e1b4b;">Turite dar ${n} ataskait${n === 1 ? 'ą' : 'as'}!</p>
+      <p style="margin:0 0 16px 0;font-size:15px;color:#3730a3;">Norėdami sugeneruoti kit${n === 1 ? 'ą' : 'as'} VIN ataskait${n === 1 ? 'ą' : 'as'}, atidarykite šią nuorodą ir įveskite naują VIN kodą:</p>
+      <p style="margin:0;"><a href="${baseUrl}/?token=${encodeURIComponent(token)}" style="display:inline-block;padding:14px 24px;background:#4f46e5;color:white;font-weight:bold;font-size:16px;text-decoration:none;border-radius:12px;">Peržiūrėti likusias ataskaitas →</a></p>
+      <p style="margin:16px 0 0 0;font-size:12px;color:#6366f1;">Arba nukopijuokite: ${baseUrl}/?token=${String(token).slice(0, 20)}...</p>
+    </div>`
+    : '';
   const html = `
     <p>Sveikiname!</p>
     <p>Jūsų VIN <strong>${vinStr || '–'}</strong> ataskaita paruošta${attachments.length > 0 ? ' – PDF prisegtas prie šio laiško.' : '.'}</p>

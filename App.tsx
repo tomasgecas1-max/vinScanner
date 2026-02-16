@@ -42,7 +42,7 @@ const App: React.FC = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [orderEmail, setOrderEmail] = useState<string | null>(null);
   const [redirectOrder, setRedirectOrder] = useState<{ vin: string; email?: string; planIndex?: number } | null>(null);
-  const [pendingEmailReport, setPendingEmailReport] = useState<{ email: string; vin: string; token?: string } | null>(null);
+  const [pendingEmailReport, setPendingEmailReport] = useState<{ email: string; vin: string; token?: string; reportsRemaining?: number } | null>(null);
   const [purchaseToken, setPurchaseToken] = useState<string | null>(null);
   const [purchaseInfo, setPurchaseInfo] = useState<{
     reportsRemaining: number;
@@ -236,7 +236,7 @@ const App: React.FC = () => {
                 }
               } catch (_) {}
             }
-            setPendingEmailReport({ email: customerEmail, vin, token });
+            setPendingEmailReport({ email: customerEmail, vin, token, reportsRemaining: token != null ? planIndex : undefined });
           }
           await new Promise((resolve) => setTimeout(resolve, 400));
           const reportElement = document.getElementById('car-report');
