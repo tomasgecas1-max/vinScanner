@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import { StripePaymentForm } from './StripePaymentForm';
@@ -39,6 +39,7 @@ interface PaymentModalProps {
       paymentCodeInvalid: string;
       paymentCodeApplied: string;
       paymentApiUnavailable: string;
+      paymentFormLoading: string;
       paymentOrPayAnotherWay: string;
       paymentMethod: string;
       paymentCard: string;
@@ -46,6 +47,7 @@ interface PaymentModalProps {
       paymentApplePay: string;
       paymentEmail: string;
       paymentOr: string;
+      paymentExpressCheckout: string;
       close: string;
     };
     nav: { services: string };
@@ -68,6 +70,44 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   const [stripeClientSecret, setStripeClientSecret] = useState<string | null>(null);
   const [stripeError, setStripeError] = useState<string | null>(null);
   const [stripeLoading, setStripeLoading] = useState(false);
+
+  // Kai Stripe įjungtas – iš karto kuriame PaymentIntent ir rodom Stripe formą kaip pirmą langą
+  useEffect(() => {
+    if (!open || !stripePromise || !stripePk || !vin) return;
+    setStripeError(null);
+    setStripeLoading(true);
+    const basePrice = PLAN_PRICES[Math.min(planIndex, 2)] ?? 20;
+    const discountConfig = appliedCode ? DISCOUNT_CODES[appliedCode.toUpperCase()] : null;
+    const discountAmount = discountConfig
+      ? discountConfig.type === 'percent'
+        ? Math.round((basePrice * discountConfig.value) / 100 * 100) / 100
+        : Math.min(discountConfig.value, basePrice - 0.01)
+      : 0;
+    const amountEur = Math.max(0.01, basePrice - discountAmount);
+    fetch('/api/create-payment-intent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amountEur, vin, planIndex, email: email ?? '' }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.clientSecret) {
+          setStripeClientSecret(data.clientSecret);
+        } else {
+          setStripeError(data.error ?? t.pricing.paymentApiUnavailable);
+        }
+      })
+      .catch(() => setStripeError(t.pricing.paymentApiUnavailable))
+      .finally(() => setStripeLoading(false));
+  }, [open, vin, planIndex, email, stripePk, appliedCode, t.pricing.paymentApiUnavailable]);
+
+  // Uždarius modalą išvalome clientSecret, kad kitą kartą būtų naujas PaymentIntent
+  useEffect(() => {
+    if (!open) {
+      setStripeClientSecret(null);
+      setStripeError(null);
+    }
+  }, [open]);
 
   if (!open) return null;
 
@@ -266,11 +306,18 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 
         {stripeClientSecret && stripePromise && (
           <div className="p-6 md:p-8 relative z-[2] bg-white" style={{ pointerEvents: 'auto' }}>
+            {email && (
+              <div className="mb-4">
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">{t.pricing.paymentEmail}</span>
+                <p className="text-sm font-medium text-slate-700 mt-1">{email}</p>
+              </div>
+            )}
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">{t.pricing.paymentExpressCheckout}</p>
             {stripeError && (
-              <p className="mb-4 text-sm font-medium text-rose-600">{stripeError}</p>
+              <p className="mb-4 text-sm font-medium text-rose-600 bg-rose-50 border border-rose-200 rounded-xl px-4 py-3">{stripeError}</p>
             )}
             <div className="relative z-[2] min-h-[280px]">
-              <Elements stripe={stripePromise} options={{ clientSecret: stripeClientSecret }}>
+              <Elements stripe={stripePromise} options={{ clientSecret: stripeClientSecret }} key={stripeClientSecret}>
                 <StripePaymentForm
                 onSuccess={handleStripeSuccess}
                 onBack={handleStripeBack}
@@ -280,11 +327,19 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
               />
               </Elements>
             </div>
+            {discountBlock}
             <div className="mt-6">{orderSummaryBlock}</div>
           </div>
         )}
 
-        {!stripeClientSecret && (
+        {stripePk && stripeLoading && !stripeClientSecret && (
+          <div className="p-8 flex flex-col items-center justify-center min-h-[280px]">
+            <div className="w-10 h-10 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mb-4" />
+            <p className="text-sm font-medium text-slate-600">{t.pricing.paymentFormLoading}</p>
+          </div>
+        )}
+
+        {!stripePk && (
         <>
         {/* Mobile: single column */}
         <div className="md:hidden p-6 space-y-6">

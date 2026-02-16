@@ -68,6 +68,7 @@ export interface Translations {
     paymentCodeInvalid: string;
     paymentCodeApplied: string;
     paymentApiUnavailable: string;
+    paymentFormLoading: string;
     paymentOrPayAnotherWay: string;
     paymentMethod: string;
     paymentCard: string;
@@ -75,6 +76,7 @@ export interface Translations {
     paymentApplePay: string;
     paymentEmail: string;
     paymentOr: string;
+    paymentExpressCheckout: string;
   };
   footer: {
     desc: string;
@@ -208,6 +210,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
       paymentCodeInvalid: 'Netinkamas nuolaidos kodas',
       paymentCodeApplied: 'Nuolaida taikoma',
       paymentApiUnavailable: 'Mokėjimo API nepasiekiamas. Lokaliai paleiskite: vercel dev (ne npm run dev).',
+      paymentFormLoading: 'Ruošiama mokėjimo forma…',
       paymentOrPayAnotherWay: 'Arba mokėkite kitu būdu',
       paymentMethod: 'Mokėjimo būdas',
       paymentCard: 'Korta',
@@ -215,6 +218,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
       paymentApplePay: 'Apple Pay',
       paymentEmail: 'El. paštas',
       paymentOr: 'arba',
+      paymentExpressCheckout: 'Express: Apple Pay, Google Pay (rodomi žemiau, kai įrenginyje palaikomi)',
       refundPolicyText: 'Naudotojas turi teisę per 30 dienų nuo įsigijimo dienos atsisakyti Paslaugų (Ataskaitų), pateikdamas prašymą el. paštu ir nurodydamas užsakymo numerį, užsakymo datą bei savo kontaktinius duomenis. Pinigai grąžinami per 14 dienų nuo prašymo gavimo.\n\nGrąžinimas netaikomas, jei ataskaita jau buvo panaudota transporto priemonės istorijai tikrinti arba jei iš įsigyto ataskaitų paketo buvo panaudota bent viena ataskaita.',
       close: 'Uždaryti',
     },
@@ -353,6 +357,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
       paymentCodeInvalid: 'Invalid discount code',
       paymentCodeApplied: 'Discount applied',
       paymentApiUnavailable: 'Payment API unavailable. For local testing run: vercel dev (not npm run dev).',
+      paymentFormLoading: 'Preparing payment form…',
       paymentOrPayAnotherWay: 'Or pay another way',
       paymentMethod: 'Payment method',
       paymentCard: 'Card',
@@ -360,6 +365,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
       paymentApplePay: 'Apple Pay',
       paymentEmail: 'Email',
       paymentOr: 'or',
+      paymentExpressCheckout: 'Express: Apple Pay, Google Pay (shown below when supported on your device)',
       refundPolicyText: 'The user has the right to withdraw from the Services (Reports) within 30 days of the purchase date by submitting a request by email, indicating the order number, order date and contact details. The refund is processed within 14 days of receiving the request.\n\nRefunds do not apply if the report has already been used to verify the vehicle history or if at least one report from the purchased report package has been used.',
       close: 'Close',
     },
@@ -498,6 +504,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
       paymentCodeInvalid: 'Ungültiger Rabattcode',
       paymentCodeApplied: 'Rabatt angewendet',
       paymentApiUnavailable: 'Zahlungs-API nicht erreichbar. Lokal bitte ausführen: vercel dev (nicht npm run dev).',
+      paymentFormLoading: 'Zahlungsformular wird vorbereitet…',
       paymentOrPayAnotherWay: 'Oder anders bezahlen',
       paymentMethod: 'Zahlungsmethode',
       paymentCard: 'Karte',
@@ -505,6 +512,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
       paymentApplePay: 'Apple Pay',
       paymentEmail: 'E-Mail',
       paymentOr: 'oder',
+      paymentExpressCheckout: 'Express: Apple Pay, Google Pay (unten angezeigt, wenn vom Gerät unterstützt)',
       refundPolicyText: 'Der Nutzer hat das Recht, innerhalb von 30 Tagen ab dem Kaufdatum von den Leistungen (Berichten) zurückzutreten, indem er einen Antrag per E-Mail einreicht und die Bestellnummer, das Bestelldatum und seine Kontaktdaten angibt. Die Rückerstattung erfolgt innerhalb von 14 Tagen nach Erhalt des Antrags.\n\nRückerstattungen gelten nicht, wenn der Bericht bereits zur Überprüfung der Fahrzeughistorie verwendet wurde oder wenn mindestens ein Bericht aus dem gekauften Berichtspaket verwendet wurde.',
       close: 'Schließen',
     },
