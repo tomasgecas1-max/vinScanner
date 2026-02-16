@@ -328,6 +328,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                     closeLabel={t.pricing.close}
                     pendingVin={vin}
                     pendingEmail={email}
+                    pendingPlanIndex={planIndex}
                   />
                 </Elements>
               </div>

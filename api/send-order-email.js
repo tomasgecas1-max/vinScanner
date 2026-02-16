@@ -35,7 +35,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid JSON' });
   }
 
-  const { to, vin, pdfBase64 } = body;
+  const { to, vin, pdfBase64, token } = body;
   if (!to || typeof to !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
     return res.status(400).json({ error: 'Valid email required' });
   }
@@ -62,10 +62,13 @@ export default async function handler(req, res) {
   });
 
   const subject = `Jūsų VIN ataskaita paruošta – vinscanner.eu${vinStr ? ` (${vinStr})` : ''}`;
+  const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://vinscanner.eu';
+  const reportsLink = token ? `<p><strong>Norėdami naudoti likusias ataskaitas, paspauskite:</strong><br/><a href="${baseUrl}/?token=${encodeURIComponent(token)}" style="color:#4f46e5;font-weight:bold;">${baseUrl}/?token=${String(token).slice(0, 12)}...</a></p>` : '';
   const html = `
     <p>Sveikiname!</p>
     <p>Jūsų VIN <strong>${vinStr || '–'}</strong> ataskaita paruošta${attachments.length > 0 ? ' – PDF prisegtas prie šio laiško.' : '.'}</p>
-    <p>Peržiūrėkite ją svetainėje <a href="https://vinscanner.eu">vinscanner.eu</a>.</p>
+    <p>Peržiūrėkite ją svetainėje <a href="${baseUrl}">vinscanner.eu</a>.</p>
+    ${reportsLink}
     <p>Klausimams rašykite: <a href="mailto:info@vinscanner.eu">info@vinscanner.eu</a></p>
     <p>– vinscanner.eu komanda</p>
   `;

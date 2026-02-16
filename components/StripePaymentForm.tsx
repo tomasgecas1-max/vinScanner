@@ -11,6 +11,7 @@ interface StripePaymentFormProps {
   closeLabel: string;
   pendingVin?: string;
   pendingEmail?: string;
+  pendingPlanIndex?: number;
 }
 
 export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
@@ -21,6 +22,7 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
   closeLabel,
   pendingVin,
   pendingEmail,
+  pendingPlanIndex,
 }) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -34,7 +36,7 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
     setError(null);
     if (pendingVin) {
       try {
-        sessionStorage.setItem(PENDING_ORDER_KEY, JSON.stringify({ vin: pendingVin, email: pendingEmail ?? '' }));
+        sessionStorage.setItem(PENDING_ORDER_KEY, JSON.stringify({ vin: pendingVin, email: pendingEmail ?? '', planIndex: pendingPlanIndex ?? 0 }));
       } catch (_) {}
     }
     const { error: confirmError } = await stripe.confirmPayment({

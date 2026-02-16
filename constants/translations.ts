@@ -21,6 +21,12 @@ export interface Translations {
     myReports: string;
     signOut: string;
   };
+  tokenMode: {
+    banner: string;
+    noReports: string;
+    loading: string;
+    error: string;
+  };
   hero: {
     title: string;
     titleAccent: string;
@@ -170,6 +176,12 @@ export interface Translations {
 const translationsMap: Record<SupportedLang, Translations> = {
   lt: {
     nav: { services: 'Paslaugos', pricing: 'Kainos', about: 'Apie mus', login: 'Prisijungti', myReports: 'Mano ataskaitos', signOut: 'Atsijungti' },
+    tokenMode: {
+      banner: 'Turite {n} iš {total} ataskaitų. Įveskite VIN žemiau.',
+      noReports: 'Neturite likusių ataskaitų. Norėdami patikrinti kitą automobilį, įsigykite naują planą.',
+      loading: 'Kraunama…',
+      error: 'Nepavyko užkrauti pirkimo. Patikrinkite nuorodą.',
+    },
     hero: {
       title: 'Sužinokite automobilio istoriją',
       titleAccent: 'pagal VIN kodą',
@@ -322,6 +334,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
   },
   en: {
     nav: { services: 'Services', pricing: 'Pricing', about: 'About Us', login: 'Login', myReports: 'My reports', signOut: 'Sign out' },
+    tokenMode: {
+      banner: 'You have {n} of {total} reports left. Enter VIN below.',
+      noReports: 'No reports remaining. Purchase a new plan to check another vehicle.',
+      loading: 'Loading…',
+      error: 'Failed to load purchase. Please check the link.',
+    },
     hero: {
       title: 'Discover vehicle history',
       titleAccent: 'by VIN code',
@@ -473,6 +491,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
   },
   de: {
     nav: { services: 'Leistungen', pricing: 'Preise', about: 'Über uns', login: 'Anmelden', myReports: 'Meine Berichte', signOut: 'Abmelden' },
+    tokenMode: {
+      banner: 'Sie haben {n} von {total} Berichten übrig. FIN unten eingeben.',
+      noReports: 'Keine Berichte übrig. Kaufen Sie einen neuen Plan für ein weiteres Fahrzeug.',
+      loading: 'Laden…',
+      error: 'Kauf konnte nicht geladen werden. Bitte prüfen Sie den Link.',
+    },
     hero: {
       title: 'Fahrzeughistorie abrufen',
       titleAccent: 'per FIN-Code',

@@ -41,8 +41,15 @@ const App: React.FC = () => {
   const [planIndexForOrder, setPlanIndexForOrder] = useState<number>(1);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [orderEmail, setOrderEmail] = useState<string | null>(null);
-  const [redirectOrder, setRedirectOrder] = useState<{ vin: string; email?: string } | null>(null);
-  const [pendingEmailReport, setPendingEmailReport] = useState<{ email: string; vin: string } | null>(null);
+  const [redirectOrder, setRedirectOrder] = useState<{ vin: string; email?: string; planIndex?: number } | null>(null);
+  const [pendingEmailReport, setPendingEmailReport] = useState<{ email: string; vin: string; token?: string } | null>(null);
+  const [purchaseToken, setPurchaseToken] = useState<string | null>(null);
+  const [purchaseInfo, setPurchaseInfo] = useState<{
+    reportsRemaining: number;
+    reportsTotal: number;
+    loading: boolean;
+    error: boolean;
+  } | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -52,12 +59,49 @@ const App: React.FC = () => {
         const data = raw ? JSON.parse(raw) : null;
         sessionStorage.removeItem('vinscanner_pending_order');
         if (data?.vin && typeof data.vin === 'string' && data.vin.trim().length > 5) {
-          setRedirectOrder({ vin: data.vin.trim(), email: data.email || undefined });
+          setRedirectOrder({ vin: data.vin.trim(), email: data.email || undefined, planIndex: typeof data.planIndex === 'number' ? data.planIndex : 1 });
         }
       } catch (_) {}
       window.history.replaceState({}, '', window.location.pathname || '/');
     }
   }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token')?.trim();
+    if (token && token.length >= 10 && !params.get('redirect_status')) {
+      setPurchaseToken(token);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!purchaseToken) {
+      setPurchaseInfo(null);
+      return;
+    }
+    setPurchaseInfo((p) => ({ reportsRemaining: p?.reportsRemaining ?? 0, reportsTotal: p?.reportsTotal ?? 1, loading: true, error: false }));
+    fetch(`/api/get-purchase?token=${encodeURIComponent(purchaseToken)}`)
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed');
+        return res.json();
+      })
+      .then((data) => {
+        setPurchaseInfo({
+          reportsRemaining: data.reportsRemaining ?? 0,
+          reportsTotal: data.reportsTotal ?? 1,
+          loading: false,
+          error: false,
+        });
+      })
+      .catch(() => {
+        setPurchaseInfo((p) => ({
+          reportsRemaining: p?.reportsRemaining ?? 0,
+          reportsTotal: p?.reportsTotal ?? 0,
+          loading: false,
+          error: true,
+        }));
+      });
+  }, [purchaseToken]);
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 767px)');
@@ -96,17 +140,41 @@ const App: React.FC = () => {
   }, [loading, lang]);
 
   const handleVinSubmit = (vin: string) => {
-    if (vin.trim().length > 5) {
-      setPendingVin(vin.trim());
-      setError(null);
-      if (isMobile) {
-        setShowMobilePlanSheet(true);
-      } else {
-        setTimeout(() => {
-          const el = document.getElementById('pricing');
-          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
-      }
+    const vinTrimmed = vin.trim();
+    if (vinTrimmed.length <= 5) return;
+    setError(null);
+    setPendingVin(vinTrimmed);
+
+    if (purchaseToken && purchaseInfo && purchaseInfo.reportsRemaining > 0 && !purchaseInfo.loading) {
+      setLoading(true);
+      setReport(null);
+      fetch('/api/use-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: purchaseToken, vin: vinTrimmed }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success !== true) throw new Error(data.error || 'Failed');
+          setPurchaseInfo((prev) =>
+            prev ? { ...prev, reportsRemaining: data.reportsRemaining ?? prev.reportsRemaining - 1 } : null
+          );
+          return handleSearch(vinTrimmed);
+        })
+        .catch(() => {
+          setError(t.errors.apiFailed);
+          setLoading(false);
+        });
+      return;
+    }
+
+    if (isMobile) {
+      setShowMobilePlanSheet(true);
+    } else {
+      setTimeout(() => {
+        const el = document.getElementById('pricing');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
     }
   };
 
@@ -125,7 +193,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (!redirectOrder) return;
-    handleSearch(redirectOrder.vin, redirectOrder.email);
+    handleSearch(redirectOrder.vin, redirectOrder.email, redirectOrder.planIndex ?? 1);
     setRedirectOrder(null);
   }, [redirectOrder]);
 
@@ -134,10 +202,10 @@ const App: React.FC = () => {
     setVinForOrder(null);
     setOrderEmail(null);
     setPendingVin(null);
-    handleSearch(vin, customerEmail);
+    handleSearch(vin, customerEmail, planIndexForOrder);
   };
 
-  const handleSearch = async (vin: string, customerEmail?: string) => {
+  const handleSearch = async (vin: string, customerEmail?: string, planIndex: number = 1) => {
     const previousReport = report;
     setLoading(true);
     setReport(null);
@@ -154,7 +222,21 @@ const App: React.FC = () => {
             saveReport(user.uid, cached).then(() => setMyReportsRefreshKey((k) => k + 1)).catch(() => {});
           }
           if (customerEmail) {
-            setPendingEmailReport({ email: customerEmail, vin });
+            let token: string | undefined;
+            if (planIndex >= 1) {
+              try {
+                const pr = await fetch('/api/create-purchase', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ email: customerEmail, planIndex, vin }),
+                });
+                if (pr.ok) {
+                  const prData = await pr.json();
+                  token = prData?.token;
+                }
+              } catch (_) {}
+            }
+            setPendingEmailReport({ email: customerEmail, vin, token });
           }
           await new Promise((resolve) => setTimeout(resolve, 400));
           const reportElement = document.getElementById('car-report');
@@ -270,7 +352,21 @@ const App: React.FC = () => {
         saveReport(user.uid, finalReport).then(() => setMyReportsRefreshKey((k) => k + 1)).catch(() => {});
       }
       if (customerEmail) {
-        setPendingEmailReport({ email: customerEmail, vin });
+        let token: string | undefined;
+        if (planIndex >= 1) {
+          try {
+            const pr = await fetch('/api/create-purchase', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: customerEmail, planIndex, vin }),
+            });
+            if (pr.ok) {
+              const prData = await pr.json();
+              token = prData?.token;
+            }
+          } catch (_) {}
+        }
+        setPendingEmailReport({ email: customerEmail, vin, token });
       }
       fetch('/api/report-cache', {
         method: 'POST',
@@ -346,6 +442,32 @@ const App: React.FC = () => {
       <Navbar lang={lang} setLang={setLang} t={t} onMyReportsClick={() => setShowMyReports(true)} />
       
       <main className="overflow-x-hidden">
+        {purchaseToken && purchaseInfo && (
+          <div className="max-w-2xl mx-auto px-4 pt-8 pb-4">
+            <div
+              className={`rounded-2xl px-6 py-4 text-center ${
+                purchaseInfo.loading
+                  ? 'bg-indigo-50 border border-indigo-100 text-indigo-700'
+                  : purchaseInfo.error
+                  ? 'bg-rose-50 border border-rose-100 text-rose-700'
+                  : purchaseInfo.reportsRemaining === 0
+                  ? 'bg-amber-50 border border-amber-100 text-amber-800'
+                  : 'bg-indigo-50 border border-indigo-100 text-indigo-800'
+              }`}
+            >
+              {purchaseInfo.loading && <p className="font-bold">{t.tokenMode.loading}</p>}
+              {purchaseInfo.error && <p className="font-bold">{t.tokenMode.error}</p>}
+              {!purchaseInfo.loading && !purchaseInfo.error && purchaseInfo.reportsRemaining === 0 && (
+                <p className="font-bold">{t.tokenMode.noReports}</p>
+              )}
+              {!purchaseInfo.loading && !purchaseInfo.error && purchaseInfo.reportsRemaining > 0 && (
+                <p className="font-bold">
+                  {t.tokenMode.banner.replace('{n}', String(purchaseInfo.reportsRemaining)).replace('{total}', String(purchaseInfo.reportsTotal))}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
         <Hero
           onVinSubmit={handleVinSubmit}
           loading={loading}
