@@ -143,18 +143,31 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
   useEffect(() => {
     if (!pendingEmailReport || !onEmailWithPdfSent || report.vin !== pendingEmailReport.vin) return;
     if (emailSentForRef.current === pendingEmailReport.vin) return;
-    const el = reportPdfRef.current;
-    if (!el) return;
     const run = async () => {
       emailSentForRef.current = pendingEmailReport.vin;
+      reportPdfRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      await new Promise((r) => setTimeout(r, 2500));
+      const el2 = reportPdfRef.current;
+      if (!el2) {
+        onEmailWithPdfSent();
+        emailSentForRef.current = null;
+        try {
+          await fetch('/api/send-order-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ to: pendingEmailReport.email, vin: report.vin }),
+          });
+        } catch (_) {}
+        return;
+      }
       try {
         const opt = {
           margin: 10,
           image: { type: 'jpeg' as const, quality: 0.95 },
-          html2canvas: { scale: 2, useCORS: true, logging: false },
+          html2canvas: { scale: 2, useCORS: true, logging: false, allowTaint: true },
           jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const },
         };
-        const dataUrl = await html2pdf().set(opt).from(el).outputPdf('datauristring');
+        const dataUrl = await html2pdf().set(opt).from(el2).outputPdf('datauristring');
         const m = typeof dataUrl === 'string' && dataUrl.match(/^data:application\/pdf;base64,(.+)$/);
         const pdfBase64 = m ? m[1] : '';
         await fetch('/api/send-order-email', {
@@ -382,8 +395,25 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
           </div>
         )}
 
+        {/* Techniniai duomenys – viršuje, viso ekrano plotis, 2 stulpeliai */}
+        <div className="w-full px-6 sm:px-8 py-6 sm:py-8 border-t border-slate-100">
+          <h4 className="text-slate-900 font-bold text-sm sm:text-base mb-4">{t.report.technicalSpecs}</h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
+            {Object.entries(getFullTechnicalData(report))
+              .filter(([, val]) => val != null && String(val).trim() !== '')
+              .map(([key, val]) => (
+              <div key={key} className="flex justify-between py-3 border-b border-slate-200/50">
+                <span className="text-slate-500 text-xs sm:text-sm capitalize">
+                  {key === 'fuelType' ? t.report.fuelType : key === 'power' ? t.report.power : key === 'engine' ? t.report.engine : key === 'transmission' ? t.report.transmission : key === 'bodyType' ? t.report.bodyType : key === 'colour' ? t.report.colour : key === 'co2' ? 'CO₂' : getTechnicalLabel(key)}
+                </span>
+                <span className="text-slate-900 text-xs sm:text-sm font-semibold text-right">{val}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 lg:gap-8 p-0 lg:p-8 border-t border-slate-100 lg:border-t-0">
-          {/* Pagrindinė informacija */}
+          {/* Ridos ir serviso istorija */}
           <div className="lg:col-span-2 space-y-10 p-6 sm:p-8 lg:p-0">
             {/* Ridos sekcija */}
             <div>
@@ -506,23 +536,6 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                   <span>{report.marketValue.min.toLocaleString()} €</span>
                   <span>{report.marketValue.max.toLocaleString()} €</span>
                 </div>
-              </div>
-            </div>
-
-            {/* Techniniai duomenys – visa info iš OE VIN Lookup arba Automobilio specifikacijos */}
-            <div className="space-y-4">
-              <h4 className="text-slate-900 font-bold text-sm sm:text-base">{t.report.technicalSpecs}</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2">
-                  {Object.entries(getFullTechnicalData(report))
-                    .filter(([, val]) => val != null && String(val).trim() !== '')
-                    .map(([key, val]) => (
-                    <div key={key} className="flex justify-between py-3 border-b border-slate-200/50 last:border-0 sm:last:border-b lg:last:border-0">
-                      <span className="text-slate-500 text-xs sm:text-sm capitalize">
-                        {key === 'fuelType' ? t.report.fuelType : key === 'power' ? t.report.power : key === 'engine' ? t.report.engine : key === 'transmission' ? t.report.transmission : key === 'bodyType' ? t.report.bodyType : key === 'colour' ? t.report.colour : key === 'co2' ? 'CO₂' : getTechnicalLabel(key)}
-                      </span>
-                      <span className="text-slate-900 text-xs sm:text-sm font-semibold">{val}</span>
-                    </div>
-                  ))}
               </div>
             </div>
 
