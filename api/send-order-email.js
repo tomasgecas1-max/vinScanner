@@ -35,11 +35,24 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid JSON' });
   }
 
-  const { to, vin } = body;
+  const { to, vin, pdfBase64 } = body;
   if (!to || typeof to !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
     return res.status(400).json({ error: 'Valid email required' });
   }
   const vinStr = String(vin || '').trim().slice(0, 50);
+
+  const attachments = [];
+  if (pdfBase64 && typeof pdfBase64 === 'string' && pdfBase64.length > 0) {
+    try {
+      const buf = Buffer.from(pdfBase64, 'base64');
+      if (buf.length > 0 && buf.length < 10 * 1024 * 1024) {
+        attachments.push({
+          filename: `vinscanner-ataskaita-${vinStr || 'report'}-${new Date().toISOString().slice(0, 10)}.pdf`,
+          content: buf,
+        });
+      }
+    } catch (_) {}
+  }
 
   const transporter = nodemailer.createTransport({
     host,
@@ -51,7 +64,7 @@ export default async function handler(req, res) {
   const subject = `Jūsų VIN ataskaita paruošta – vinscanner.eu${vinStr ? ` (${vinStr})` : ''}`;
   const html = `
     <p>Sveikiname!</p>
-    <p>Jūsų VIN <strong>${vinStr || '–'}</strong> ataskaita paruošta.</p>
+    <p>Jūsų VIN <strong>${vinStr || '–'}</strong> ataskaita paruošta${attachments.length > 0 ? ' – PDF prisegtas prie šio laiško.' : '.'}</p>
     <p>Peržiūrėkite ją svetainėje <a href="https://vinscanner.eu">vinscanner.eu</a>.</p>
     <p>Klausimams rašykite: <a href="mailto:info@vinscanner.eu">info@vinscanner.eu</a></p>
     <p>– vinscanner.eu komanda</p>
@@ -64,6 +77,7 @@ export default async function handler(req, res) {
       subject,
       html,
       text: html.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim(),
+      attachments: attachments.length > 0 ? attachments : undefined,
     });
     return res.status(200).json({ success: true });
   } catch (e) {

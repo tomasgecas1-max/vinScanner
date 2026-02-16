@@ -14,6 +14,8 @@ interface ReportViewProps {
   onSaveReport?: () => Promise<void>;
   onSupplementReport?: (vin: string, opts: { useServiceHistory: boolean; useVinLookup: boolean; useVehicleSpecs?: boolean }) => Promise<void>;
   supplementLoading?: boolean;
+  pendingEmailReport?: { email: string; vin: string } | null;
+  onEmailWithPdfSent?: () => void;
 }
 
 /** Pavadinimai API šaltiniams ir žinomų laukų etiketės (VIN Lookup, Cartell ir kt.) */
@@ -70,7 +72,7 @@ function formatValue(val: unknown, t?: { report: { yes: string; no: string } }):
   return String(val);
 }
 
-const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave, onSaveReport, onSupplementReport, supplementLoading }) => {
+const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave, onSaveReport, onSupplementReport, supplementLoading, pendingEmailReport, onEmailWithPdfSent }) => {
   const [showRawApi, setShowRawApi] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [saveCloudLoading, setSaveCloudLoading] = useState(false);
@@ -83,6 +85,46 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
   const [reportAnalysisError, setReportAnalysisError] = useState<string | null>(null);
   const [analysisCooldownSec, setAnalysisCooldownSec] = useState(0);
   const reportPdfRef = useRef<HTMLDivElement>(null);
+  const emailSentForRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!pendingEmailReport || !onEmailWithPdfSent || report.vin !== pendingEmailReport.vin) return;
+    if (emailSentForRef.current === pendingEmailReport.vin) return;
+    const el = reportPdfRef.current;
+    if (!el) return;
+    const run = async () => {
+      emailSentForRef.current = pendingEmailReport.vin;
+      try {
+        const opt = {
+          margin: 10,
+          image: { type: 'jpeg' as const, quality: 0.95 },
+          html2canvas: { scale: 2, useCORS: true, logging: false },
+          jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const },
+        };
+        const dataUrl = await html2pdf().set(opt).from(el).outputPdf('datauristring');
+        const m = typeof dataUrl === 'string' && dataUrl.match(/^data:application\/pdf;base64,(.+)$/);
+        const pdfBase64 = m ? m[1] : '';
+        await fetch('/api/send-order-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ to: pendingEmailReport.email, vin: report.vin, pdfBase64 }),
+        });
+      } catch (e) {
+        if (typeof console !== 'undefined' && console.error) console.error('Email su PDF klaida:', e);
+        try {
+          await fetch('/api/send-order-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ to: pendingEmailReport.email, vin: report.vin }),
+          });
+        } catch (_) {}
+      } finally {
+        onEmailWithPdfSent();
+        emailSentForRef.current = null;
+      }
+    };
+    run();
+  }, [report.vin, pendingEmailReport, onEmailWithPdfSent]);
 
   useEffect(() => {
     if (analysisCooldownSec <= 0) return;

@@ -29,8 +29,9 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showMyReports, setShowMyReports] = useState(false);
   const [myReportsRefreshKey, setMyReportsRefreshKey] = useState(0);
-  const [useServiceHistory, setUseServiceHistory] = useState(true);
-  const [useVinLookup, setUseVinLookup] = useState(true);
+  // Laikinai išjungti brangūs API (Service History, VIN Lookup) – palikti tik specifikacijas testavimui
+  const [useServiceHistory, setUseServiceHistory] = useState(false);
+  const [useVinLookup, setUseVinLookup] = useState(false);
   const [useVehicleSpecs, setUseVehicleSpecs] = useState(true);
   const [pendingVin, setPendingVin] = useState<string | null>(null);
   const [showMobilePlanSheet, setShowMobilePlanSheet] = useState(false);
@@ -41,6 +42,7 @@ const App: React.FC = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [orderEmail, setOrderEmail] = useState<string | null>(null);
   const [redirectOrder, setRedirectOrder] = useState<{ vin: string; email?: string } | null>(null);
+  const [pendingEmailReport, setPendingEmailReport] = useState<{ email: string; vin: string } | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -141,6 +143,26 @@ const App: React.FC = () => {
     setReport(null);
     setError(null);
     try {
+      const vinNorm = vin.trim().toUpperCase();
+      const cacheRes = await fetch(`/api/report-cache?vin=${encodeURIComponent(vinNorm)}`);
+      if (cacheRes.ok) {
+        const cacheData = await cacheRes.json();
+        if (cacheData?.report) {
+          const cached: CarReport = { ...cacheData.report, vin };
+          setReport(cached);
+          if (user) {
+            saveReport(user.uid, cached).then(() => setMyReportsRefreshKey((k) => k + 1)).catch(() => {});
+          }
+          if (customerEmail) {
+            setPendingEmailReport({ email: customerEmail, vin });
+          }
+          await new Promise((resolve) => setTimeout(resolve, 400));
+          const reportElement = document.getElementById('car-report');
+          if (reportElement) reportElement.scrollIntoView({ behavior: 'smooth' });
+          setTimeout(() => setLoading(false), 500);
+          return;
+        }
+      }
       let data: CarReport | null = null;
       let apiError: string | null = null;
       const needsOneAuto = useServiceHistory || useVinLookup;
@@ -248,12 +270,13 @@ const App: React.FC = () => {
         saveReport(user.uid, finalReport).then(() => setMyReportsRefreshKey((k) => k + 1)).catch(() => {});
       }
       if (customerEmail) {
-        fetch('/api/send-order-email', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ to: customerEmail, vin }),
-        }).catch(() => {});
+        setPendingEmailReport({ email: customerEmail, vin });
       }
+      fetch('/api/report-cache', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ vin, report: finalReport }),
+      }).catch(() => {});
       await new Promise(resolve => setTimeout(resolve, 400));
       const reportElement = document.getElementById('car-report');
       if (reportElement) reportElement.scrollIntoView({ behavior: 'smooth' });
@@ -391,6 +414,8 @@ const App: React.FC = () => {
               onSaveReport={user ? () => handleSaveReport(report) : undefined}
               onSupplementReport={handleSupplementReport}
               supplementLoading={supplementLoading}
+              pendingEmailReport={pendingEmailReport}
+              onEmailWithPdfSent={() => setPendingEmailReport(null)}
             />
           )}
         </div>
