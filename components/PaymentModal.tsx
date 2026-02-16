@@ -305,30 +305,36 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         </div>
 
         {stripeClientSecret && stripePromise && (
-          <div className="p-6 md:p-8 relative z-[2] bg-white" style={{ pointerEvents: 'auto' }}>
-            {email && (
-              <div className="mb-4">
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">{t.pricing.paymentEmail}</span>
-                <p className="text-sm font-medium text-slate-700 mt-1">{email}</p>
+          <div className="p-6 md:p-8 relative z-[2] bg-white grid grid-cols-1 md:grid-cols-[1fr,340px] md:min-h-[420px] gap-8 md:gap-10" style={{ pointerEvents: 'auto' }}>
+            {/* Kairė: mokėjimo būdai */}
+            <div className="space-y-4">
+              {email && (
+                <div>
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">{t.pricing.paymentEmail}</span>
+                  <p className="text-sm font-medium text-slate-700 mt-1">{email}</p>
+                </div>
+              )}
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-wide">{t.pricing.paymentExpressCheckout}</p>
+              {stripeError && (
+                <p className="text-sm font-medium text-rose-600 bg-rose-50 border border-rose-200 rounded-xl px-4 py-3">{stripeError}</p>
+              )}
+              <div className="relative z-[2] min-h-[280px]">
+                <Elements stripe={stripePromise} options={{ clientSecret: stripeClientSecret }} key={stripeClientSecret}>
+                  <StripePaymentForm
+                    onSuccess={handleStripeSuccess}
+                    onBack={handleStripeBack}
+                    totalFormatted={`${total.toFixed(2)} €`}
+                    payLabel={t.pricing.paymentPay}
+                    closeLabel={t.pricing.close}
+                  />
+                </Elements>
               </div>
-            )}
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">{t.pricing.paymentExpressCheckout}</p>
-            {stripeError && (
-              <p className="mb-4 text-sm font-medium text-rose-600 bg-rose-50 border border-rose-200 rounded-xl px-4 py-3">{stripeError}</p>
-            )}
-            <div className="relative z-[2] min-h-[280px]">
-              <Elements stripe={stripePromise} options={{ clientSecret: stripeClientSecret }} key={stripeClientSecret}>
-                <StripePaymentForm
-                onSuccess={handleStripeSuccess}
-                onBack={handleStripeBack}
-                totalFormatted={`${total.toFixed(2)} €`}
-                payLabel={t.pricing.paymentPay}
-                closeLabel={t.pricing.close}
-              />
-              </Elements>
             </div>
-            {discountBlock}
-            <div className="mt-6">{orderSummaryBlock}</div>
+            {/* Dešinė: prekės ir nuolaidos kodas */}
+            <div className="md:border-l md:border-slate-100 md:pl-8 flex flex-col gap-6">
+              {discountBlock}
+              {orderSummaryBlock}
+            </div>
           </div>
         )}
 
