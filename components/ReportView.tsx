@@ -9,7 +9,7 @@ import html2pdf from 'html2pdf.js';
 interface ReportViewProps {
   report: CarReport;
   t: Translations;
-  lang?: 'lt' | 'en';
+  lang?: string;
   canSave?: boolean;
   onSaveReport?: () => Promise<void>;
   onSupplementReport?: (vin: string, opts: { useServiceHistory: boolean; useVinLookup: boolean; useVehicleSpecs?: boolean }) => Promise<void>;

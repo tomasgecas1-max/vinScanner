@@ -1,15 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Logo from './Logo';
 import { useAuth } from '../context/AuthContext';
-import { SUPPORTED_LANGUAGES, type SupportedLang } from '../constants/translations';
+import { ALL_LANGUAGES, type LangCode } from '../constants/translations';
 
-function langLabel(l: SupportedLang): string {
-  return l.toUpperCase().slice(0, 2);
+function getCurrentLangInfo(code: LangCode) {
+  return ALL_LANGUAGES.find((x) => x.code === code) ?? ALL_LANGUAGES[2];
 }
 
 interface NavbarProps {
-  lang: SupportedLang;
-  setLang: (lang: SupportedLang) => void;
+  lang: LangCode;
+  setLang: (lang: LangCode) => void;
   t: import('../constants/translations').Translations;
   onMyReportsClick?: () => void;
 }
@@ -44,7 +44,6 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, t, onMyReportsClick }) =
           <Logo onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} />
 
           <div className="hidden md:flex items-center gap-8 lg:gap-10">
-            <a href="#" className="text-[11px] font-[900] text-slate-400 hover:text-indigo-600 transition-colors uppercase tracking-[0.2em]">{t.nav.services}</a>
             <button onClick={() => scrollToSection('pricing')} className="text-[11px] font-[900] text-slate-400 hover:text-indigo-600 transition-colors uppercase tracking-[0.2em]">{t.nav.pricing}</button>
             <button type="button" onClick={() => scrollToSection('about')} className="text-[11px] font-[900] text-slate-400 hover:text-indigo-600 transition-colors uppercase tracking-[0.2em]">{t.nav.about}</button>
 
@@ -53,20 +52,22 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, t, onMyReportsClick }) =
                 onClick={() => { setLangDropdownOpen((o) => !o); setMenuOpen(false); }}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-100 bg-slate-50 hover:bg-slate-100 text-[10px] font-black uppercase tracking-wide text-slate-700 transition-colors"
               >
-                <span>{langLabel(lang)}</span>
+                <span className="text-base">{getCurrentLangInfo(lang).flag}</span>
+                <span>{getCurrentLangInfo(lang).name}</span>
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className={`transition-transform ${langDropdownOpen ? 'rotate-180' : ''}`}>
                   <path d="m6 9 6 6 6-6"/>
                 </svg>
               </button>
               {langDropdownOpen && (
-                <div className="absolute right-0 top-full mt-2 min-w-full bg-white rounded-xl border border-slate-100 shadow-xl py-1 z-50">
-                  {SUPPORTED_LANGUAGES.map((l) => (
+                <div className="absolute right-0 top-full mt-2 w-[min(90vw,520px)] max-h-[min(70vh,420px)] overflow-y-auto bg-white rounded-xl border border-slate-100 shadow-xl p-3 z-50 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1">
+                  {ALL_LANGUAGES.map((item) => (
                     <button
-                      key={l}
-                      onClick={() => { setLang(l); setLangDropdownOpen(false); }}
-                      className={`w-full text-left px-4 py-2.5 text-[10px] font-black uppercase tracking-wide transition-colors ${lang === l ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50'}`}
+                      key={item.code}
+                      onClick={() => { setLang(item.code); setLangDropdownOpen(false); }}
+                      className={`text-left px-3 py-2 rounded-lg flex items-center gap-2 text-sm font-medium transition-colors ${lang === item.code ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50'}`}
                     >
-                      {langLabel(l)}
+                      <span className="text-lg shrink-0">{item.flag}</span>
+                      <span className="truncate">{item.name}</span>
                     </button>
                   ))}
                 </div>
@@ -109,16 +110,21 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, t, onMyReportsClick }) =
                 onClick={() => { setLangDropdownOpen((o) => !o); setMenuOpen(false); }}
                 className="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-100 bg-slate-50 hover:bg-slate-100 text-[10px] font-black uppercase tracking-wide text-slate-700"
               >
-                {langLabel(lang)}
+                <span className="text-base">{getCurrentLangInfo(lang).flag}</span>
                 <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className={langDropdownOpen ? 'rotate-180' : ''}>
                   <path d="m6 9 6 6 6-6"/>
                 </svg>
               </button>
               {langDropdownOpen && (
-                <div className="absolute right-0 top-full mt-2 min-w-full bg-white rounded-xl border border-slate-100 shadow-xl py-1 z-[120]">
-                  {SUPPORTED_LANGUAGES.map((l) => (
-                    <button key={l} onClick={() => { setLang(l); setLangDropdownOpen(false); }} className={`w-full text-left px-4 py-2.5 text-[10px] font-black uppercase ${lang === l ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50'}`}>
-                      {langLabel(l)}
+                <div className="absolute right-0 top-full mt-2 w-52 max-h-[min(70vh,380px)] overflow-y-auto bg-white rounded-xl border border-slate-100 shadow-xl py-1 z-[120]">
+                  {ALL_LANGUAGES.map((item) => (
+                    <button
+                      key={item.code}
+                      onClick={() => { setLang(item.code); setLangDropdownOpen(false); }}
+                      className={`w-full text-left px-4 py-2.5 flex items-center gap-3 text-sm font-medium ${lang === item.code ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50'}`}
+                    >
+                      <span className="text-lg">{item.flag}</span>
+                      <span>{item.name}</span>
                     </button>
                   ))}
                 </div>

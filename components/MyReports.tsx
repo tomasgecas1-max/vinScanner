@@ -6,7 +6,7 @@ import type { Translations } from '../constants/translations';
 
 interface MyReportsProps {
   t: Translations;
-  lang: 'lt' | 'en';
+  lang: string;
   isOpen: boolean;
   /** Padidėjimas po naujo ataskaitos išsaugojimo – sąrašas persikrauna */
   refreshKey?: number;
@@ -32,7 +32,8 @@ const MyReports: React.FC<MyReportsProps> = ({ t, lang, isOpen, refreshKey = 0, 
 
   const formatDate = (ms: number) => {
     const d = new Date(ms);
-    return d.toLocaleDateString(lang === 'lt' ? 'lt-LT' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    const locale = lang === 'lt' ? 'lt-LT' : lang === 'de' ? 'de-DE' : 'en-GB';
+    return d.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' });
   };
 
   return (

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import MobilePlanSheet from './components/MobilePlanSheet';
 import OrderEmailStepModal from './components/OrderEmailStepModal';
+import PrivacyPolicyModal from './components/PrivacyPolicyModal';
 import PaymentModal from './components/PaymentModal';
 import Hero from './components/Hero';
 import ReportView from './components/ReportView';
@@ -16,12 +17,12 @@ import { fetchCarReportFromOneAuto, HISTORY_NOT_FOUND_ERROR } from './services/o
 import { fetchVehicleSpecs, mapVehicleSpecsToReportFields } from './services/carsxeApiService';
 import { saveReport } from './services/reportsFirestore';
 import { CarReport } from './types';
-import { translations } from './constants/translations';
-import type { SupportedLang } from './constants/translations';
+import { getTranslations } from './constants/translations';
+import type { LangCode } from './constants/translations';
 
 const App: React.FC = () => {
   const { user } = useAuth();
-  const [lang, setLang] = useState<SupportedLang>('lt');
+  const [lang, setLang] = useState<LangCode>('lt');
   const [report, setReport] = useState<CarReport | null>(null);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -44,6 +45,7 @@ const App: React.FC = () => {
   const [redirectOrder, setRedirectOrder] = useState<{ vin: string; email?: string; planIndex?: number } | null>(null);
   const [pendingEmailReport, setPendingEmailReport] = useState<{ email: string; vin: string; token?: string; reportsRemaining?: number } | null>(null);
   const [purchaseToken, setPurchaseToken] = useState<string | null>(null);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [purchaseInfo, setPurchaseInfo] = useState<{
     reportsRemaining: number;
     reportsTotal: number;
@@ -111,7 +113,7 @@ const App: React.FC = () => {
     return () => mq.removeEventListener('change', handler);
   }, []);
 
-  const t = translations[lang];
+  const t = getTranslations(lang);
   const steps = t.loading.steps;
 
   const LOAD_DURATION_MS = 20000;
@@ -567,6 +569,8 @@ const App: React.FC = () => {
             onClose={() => { setShowOrderEmailModal(false); setVinForOrder(null); }}
             onConfirm={handleOrderEmailConfirm}
             pendingVin={vinForOrder}
+            defaultEmail={user?.email ?? undefined}
+            lang={lang}
             t={t}
           />
         )}
@@ -624,12 +628,29 @@ const App: React.FC = () => {
           <p className="text-slate-500 max-w-lg mx-auto mb-12 text-base font-medium px-4">
             {t.footer.desc}
           </p>
+          <div className="flex flex-wrap justify-center gap-4 mb-8 text-sm font-bold">
+            <button
+              type="button"
+              onClick={() => setShowPrivacyModal(true)}
+              className="text-indigo-600 hover:text-indigo-700 hover:underline focus:outline-none focus:ring-2 focus:ring-indigo-200 rounded"
+            >
+              {t.footer.privacyLink}
+            </button>
+          </div>
           <div className="text-[11px] text-slate-400 font-black tracking-[0.3em] uppercase border-t border-slate-50 pt-12">
             &copy; {new Date().getFullYear()} vinscanner.eu. All rights reserved.
           </div>
         </div>
       </footer>
 
+      {showPrivacyModal && (
+        <PrivacyPolicyModal
+          open={showPrivacyModal}
+          onClose={() => setShowPrivacyModal(false)}
+          lang={lang}
+          closeLabel={t.pricing.close}
+        />
+      )}
       <AIChat key={lang} t={t} />
     </div>
   );

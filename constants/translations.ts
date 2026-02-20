@@ -4,13 +4,53 @@
  * Kaip pridėti naują kalbą (pvz. 'de'):
  * 1. Pridėk 'de' į SUPPORTED_LANGUAGES masyvą
  * 2. Pridėk translationsMap['de'] = { ... } su visais vertimais (galima nukopijuoti iš 'en' ir išversti)
- * 3. Navbar kalbos perjungiklis automatiškai parodys naują mygtuką
+ * 3. Pridėk į ALL_LANGUAGES masyvą (jei dar ne)
  */
 
 export const SUPPORTED_LANGUAGES = ['lt', 'en', 'de'] as const;
 export type SupportedLang = (typeof SUPPORTED_LANGUAGES)[number];
 
 const FALLBACK_LANG: SupportedLang = 'en';
+
+/** Visos rodomos kalbos su vėliavėlėmis ir pavadinimais lietuviškai */
+export const ALL_LANGUAGES = [
+  { code: 'tr', flag: '🇹🇷', name: 'Turkų' },
+  { code: 'de', flag: '🇩🇪', name: 'Vokiečių' },
+  { code: 'en', flag: '🇬🇧', name: 'Anglų' },
+  { code: 'fr', flag: '🇫🇷', name: 'Prancūzų' },
+  { code: 'it', flag: '🇮🇹', name: 'Italų' },
+  { code: 'es', flag: '🇪🇸', name: 'Ispanų' },
+  { code: 'uk', flag: '🇺🇦', name: 'Ukrainiečių' },
+  { code: 'pl', flag: '🇵🇱', name: 'Lenkų' },
+  { code: 'ro', flag: '🇷🇴', name: 'Rumunų' },
+  { code: 'nl', flag: '🇳🇱', name: 'Olandų' },
+  { code: 'cs', flag: '🇨🇿', name: 'Čekų' },
+  { code: 'sv', flag: '🇸🇪', name: 'Švedų' },
+  { code: 'el', flag: '🇬🇷', name: 'Graikų' },
+  { code: 'pt', flag: '🇵🇹', name: 'Portugalų' },
+  { code: 'hu', flag: '🇭🇺', name: 'Vengrų' },
+  { code: 'bg', flag: '🇧🇬', name: 'Bulgarų' },
+  { code: 'sr', flag: '🇷🇸', name: 'Serbų' },
+  { code: 'da', flag: '🇩🇰', name: 'Danų' },
+  { code: 'no', flag: '🇳🇴', name: 'Norvegų' },
+  { code: 'fi', flag: '🇫🇮', name: 'Suomių' },
+  { code: 'sk', flag: '🇸🇰', name: 'Slovakų' },
+  { code: 'hr', flag: '🇭🇷', name: 'Kroatų' },
+  { code: 'bs', flag: '🇧🇦', name: 'Bosnių' },
+  { code: 'lt', flag: '🇱🇹', name: 'Lietuvių' },
+  { code: 'sq', flag: '🇦🇱', name: 'Albanų' },
+  { code: 'sl', flag: '🇸🇮', name: 'Slovėnų' },
+  { code: 'lv', flag: '🇱🇻', name: 'Latvių' },
+  { code: 'mk', flag: '🇲🇰', name: 'Makedonų' },
+  { code: 'et', flag: '🇪🇪', name: 'Estų' },
+  { code: 'ca', flag: '🌐', name: 'Katalonų' },
+  { code: 'lb', flag: '🇱🇺', name: 'Liuksemburgiečių' },
+  { code: 'cnr', flag: '🇲🇪', name: 'Juodkalniečių' },
+  { code: 'mt', flag: '🇲🇹', name: 'Maltiečių' },
+  { code: 'is', flag: '🇮🇸', name: 'Islandų' },
+] as const;
+
+export type LangCode = (typeof ALL_LANGUAGES)[number]['code'];
 
 export interface Translations {
   nav: {
@@ -86,6 +126,8 @@ export interface Translations {
   };
   footer: {
     desc: string;
+    privacyLink: string;
+    termsLink: string;
   };
   about: {
     body: string;
@@ -240,6 +282,8 @@ const translationsMap: Record<SupportedLang, Translations> = {
     },
     footer: {
       desc: 'Patikimas automobilių istorijos šaltinis Europoje. Mūsų misija – skaidrumas kiekviename kilometre.',
+      privacyLink: 'Privatumo politika',
+      termsLink: 'Naudojimo taisyklės',
     },
     about: {
       body: 'Vinscanner.eu – patikima VIN ir automobilių istorijos patikra. Siūlome ataskaitas apie ridą, žalų įrašus ir rinkos vertę, kad galėtumėte įsigyti naudotą automobilį saugiai.',
@@ -397,6 +441,8 @@ const translationsMap: Record<SupportedLang, Translations> = {
     },
     footer: {
       desc: 'A reliable source of car history in Europe. Our mission is transparency in every kilometer.',
+      privacyLink: 'Privacy Policy',
+      termsLink: 'Terms of Use',
     },
     about: {
       body: 'Vinscanner.eu – reliable VIN and vehicle history checks. We provide reports on mileage, damage records and market value so you can buy a used car with confidence.',
@@ -554,6 +600,8 @@ const translationsMap: Record<SupportedLang, Translations> = {
     },
     footer: {
       desc: 'Eine zuverlässige Quelle für Fahrzeughistorie in Europa. Unsere Mission ist Transparenz bei jedem Kilometer.',
+      privacyLink: 'Datenschutzrichtlinie',
+      termsLink: 'Nutzungsbedingungen',
     },
     about: {
       body: 'Vinscanner.eu – zuverlässige VIN- und Fahrzeughistorie-Prüfungen. Wir liefern Berichte zu Laufleistung, Schadenshistorie und Marktwert für einen sicheren Gebrauchtwagenkauf.',
@@ -649,13 +697,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
 };
 
 /**
- * Gauna vertimus pagal kalbą. Jei kalba nepalaikoma – grąžina fallback (en).
- * Norint pridėti naują kalbą: išplėsk SUPPORTED_LANGUAGES ir translations objektą.
+ * Gauna vertimus pagal kalbą. Jei kalba nepalaikoma (lt, en, de) – grąžina fallback (en).
  */
-export function getTranslations(lang: string): Translations {
+export function getTranslations(lang: LangCode | string): Translations {
   const key = SUPPORTED_LANGUAGES.includes(lang as SupportedLang) ? (lang as SupportedLang) : FALLBACK_LANG;
   return translationsMap[key];
 }
 
-/** Tėvinėms komponentams: naudok translations[lang] arba getTranslations(lang) */
+/** Tėvinėms komponentams: naudok getTranslations(lang) arba translations[lang] (tik lt|en|de) */
 export const translations = translationsMap;
