@@ -9,9 +9,11 @@ interface HeroProps {
   useServiceHistory: boolean;
   useVinLookup: boolean;
   useVehicleSpecs: boolean;
+  useCarsXeHistory: boolean;
   onUseServiceHistoryChange: (v: boolean) => void;
   onUseVinLookupChange: (v: boolean) => void;
   onUseVehicleSpecsChange: (v: boolean) => void;
+  onUseCarsXeHistoryChange: (v: boolean) => void;
 }
 
 const mileageData = [
@@ -29,7 +31,7 @@ const valueData = [
   { year: '2026', val: 16000, status: 'high' },    // Atsigavusi kaina po remonto
 ];
 
-const Hero: React.FC<HeroProps> = ({ onVinSubmit, loading, t, useServiceHistory, useVinLookup, useVehicleSpecs, onUseServiceHistoryChange, onUseVinLookupChange, onUseVehicleSpecsChange }) => {
+const Hero: React.FC<HeroProps> = ({ onVinSubmit, loading, t, useServiceHistory, useVinLookup, useVehicleSpecs, useCarsXeHistory, onUseServiceHistoryChange, onUseVinLookupChange, onUseVehicleSpecsChange, onUseCarsXeHistoryChange }) => {
   const [vin, setVin] = useState('');
   const SAMPLE_VIN = "WBAUR51010CZ12345";
 
@@ -103,7 +105,11 @@ const Hero: React.FC<HeroProps> = ({ onVinSubmit, loading, t, useServiceHistory,
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input type="checkbox" checked={useVehicleSpecs} onChange={(e) => onUseVehicleSpecsChange(e.target.checked)} className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
-                    Automobilio specifikacijos
+                    CarsXE Specs
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" checked={useCarsXeHistory} onChange={(e) => onUseCarsXeHistoryChange(e.target.checked)} className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
+                    CarsXE History
                   </label>
                 </div>
               </div>

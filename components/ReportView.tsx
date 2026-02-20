@@ -12,7 +12,7 @@ interface ReportViewProps {
   lang?: string;
   canSave?: boolean;
   onSaveReport?: () => Promise<void>;
-  onSupplementReport?: (vin: string, opts: { useServiceHistory: boolean; useVinLookup: boolean; useVehicleSpecs?: boolean }) => Promise<void>;
+  onSupplementReport?: (vin: string, opts: { useServiceHistory: boolean; useVinLookup: boolean; useVehicleSpecs?: boolean; useCarsXeHistory?: boolean }) => Promise<void>;
   supplementLoading?: boolean;
   pendingEmailReport?: { email: string; vin: string; token?: string; reportsRemaining?: number } | null;
   onEmailWithPdfSent?: () => void;
@@ -23,6 +23,7 @@ const SOURCE_LABELS: Record<string, string> = {
   serviceHistory: 'EzyVIN Service History',
   vinLookup: 'OE VIN Lookup (Europe)',
   vehicleSpecs: 'CarsXE (Automobilio specifikacijos)',
+  carsxeHistory: 'CarsXE History',
   vehicleIdentity: 'Experian Vehicle Identity',
   cartellVindecoder: 'Cartell VIN Decoder',
   experianAutoCheck: 'Experian AutoCheck',
@@ -133,6 +134,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
   const [supplementServiceHistory, setSupplementServiceHistory] = useState(true);
   const [supplementVinLookup, setSupplementVinLookup] = useState(true);
   const [supplementVehicleSpecs, setSupplementVehicleSpecs] = useState(true);
+  const [supplementCarsXeHistory, setSupplementCarsXeHistory] = useState(true);
   const [reportAnalysis, setReportAnalysis] = useState<ReportAnalysis | null>(null);
   const [reportAnalysisLoading, setReportAnalysisLoading] = useState(false);
   const [reportAnalysisError, setReportAnalysisError] = useState<string | null>(null);
@@ -383,10 +385,19 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                 />
                 <span className="text-sm text-slate-600">{SOURCE_LABELS.vehicleSpecs}</span>
               </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={supplementCarsXeHistory}
+                  onChange={(e) => setSupplementCarsXeHistory(e.target.checked)}
+                  className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                <span className="text-sm text-slate-600">{SOURCE_LABELS.carsxeHistory}</span>
+              </label>
               <button
                 type="button"
-                onClick={() => onSupplementReport(report.vin, { useServiceHistory: supplementServiceHistory, useVinLookup: supplementVinLookup, useVehicleSpecs: supplementVehicleSpecs })}
-                disabled={supplementLoading || (!supplementServiceHistory && !supplementVinLookup && !supplementVehicleSpecs)}
+                onClick={() => onSupplementReport(report.vin, { useServiceHistory: supplementServiceHistory, useVinLookup: supplementVinLookup, useVehicleSpecs: supplementVehicleSpecs, useCarsXeHistory: supplementCarsXeHistory })}
+                disabled={supplementLoading || (!supplementServiceHistory && !supplementVinLookup && !supplementVehicleSpecs && !supplementCarsXeHistory)}
                 className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-colors flex items-center gap-2"
               >
                 {supplementLoading ? (

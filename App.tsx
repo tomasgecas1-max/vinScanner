@@ -15,7 +15,7 @@ import Logo from './components/Logo';
 import { useAuth } from './context/AuthContext';
 import { generateMockReport } from './services/geminiService';
 import { fetchCarReportFromOneAuto, HISTORY_NOT_FOUND_ERROR } from './services/oneAutoApiService';
-import { fetchVehicleSpecs, mapVehicleSpecsToReportFields } from './services/carsxeApiService';
+import { fetchVehicleSpecs, mapVehicleSpecsToReportFields, fetchVehicleHistory, mapCarsXeHistoryToReportFields } from './services/carsxeApiService';
 import { saveReport } from './services/reportsFirestore';
 import { CarReport } from './types';
 import { getTranslations } from './constants/translations';
@@ -35,6 +35,7 @@ const App: React.FC = () => {
   const [useServiceHistory, setUseServiceHistory] = useState(false);
   const [useVinLookup, setUseVinLookup] = useState(false);
   const [useVehicleSpecs, setUseVehicleSpecs] = useState(true);
+  const [useCarsXeHistory, setUseCarsXeHistory] = useState(true);
   const [pendingVin, setPendingVin] = useState<string | null>(null);
   const [showMobilePlanSheet, setShowMobilePlanSheet] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -340,6 +341,17 @@ const App: React.FC = () => {
         }
       }
 
+      if (useCarsXeHistory) {
+        const historyRes = await fetchVehicleHistory(vin);
+        if (historyRes.success && historyRes.result) {
+          const fromHistory = mapCarsXeHistoryToReportFields(historyRes.result);
+          if (fromHistory.mileageHistory?.length) reportData.mileageHistory = fromHistory.mileageHistory;
+          if (fromHistory.damages?.length) reportData.damages = fromHistory.damages;
+          if (fromHistory.theftStatus) reportData.theftStatus = fromHistory.theftStatus;
+          reportData.rawApiResponses = { ...(reportData.rawApiResponses as object || {}), carsxeHistory: historyRes };
+        }
+      }
+
       const rawData = reportData.rawApiResponses as { serviceHistory?: { success?: boolean }; vinLookup?: { success?: boolean }; vehicleSpecs?: { success?: boolean } } | undefined;
 
       let finalReport: CarReport = reportData;
@@ -357,6 +369,15 @@ const App: React.FC = () => {
           finalReport.year = data.year;
           finalReport.technicalSpecs = data.technicalSpecs;
           finalReport.rawApiResponses = { ...(finalReport.rawApiResponses as object || {}), vinLookup: (data.rawApiResponses as any)?.vinLookup };
+        }
+        const carsxeH = (reportData.rawApiResponses as Record<string, unknown>)?.carsxeHistory;
+        if (carsxeH && typeof carsxeH === 'object' && (carsxeH as { success?: boolean }).success) {
+          const result = (carsxeH as { result?: unknown }).result;
+          const fromH = mapCarsXeHistoryToReportFields(result as import('./services/carsxeApiService').CarsXeHistoryResponse);
+          if (fromH.mileageHistory?.length) finalReport.mileageHistory = fromH.mileageHistory;
+          if (fromH.damages?.length) finalReport.damages = fromH.damages;
+          if (fromH.theftStatus) finalReport.theftStatus = fromH.theftStatus;
+          finalReport.rawApiResponses = { ...(finalReport.rawApiResponses as object || {}), carsxeHistory: carsxeH };
         }
         if (rawData?.vehicleSpecs?.success) {
           finalReport.make = reportData.make;
@@ -410,8 +431,8 @@ const App: React.FC = () => {
   };
 
   const [supplementLoading, setSupplementLoading] = useState(false);
-  const handleSupplementReport = async (vin: string, opts: { useServiceHistory: boolean; useVinLookup: boolean; useVehicleSpecs?: boolean }) => {
-    if (!report || (!opts.useServiceHistory && !opts.useVinLookup && !opts.useVehicleSpecs)) return;
+  const handleSupplementReport = async (vin: string, opts: { useServiceHistory: boolean; useVinLookup: boolean; useVehicleSpecs?: boolean; useCarsXeHistory?: boolean }) => {
+    if (!report || (!opts.useServiceHistory && !opts.useVinLookup && !opts.useVehicleSpecs && !opts.useCarsXeHistory)) return;
     setSupplementLoading(true);
     try {
       const merged: CarReport = { ...report };
@@ -445,6 +466,17 @@ const App: React.FC = () => {
           const fromSpecs = mapVehicleSpecsToReportFields(specsRes.result.attributes);
           Object.assign(merged, fromSpecs);
           merged.rawApiResponses = { ...(merged.rawApiResponses as object || {}), vehicleSpecs: specsRes };
+        }
+      }
+
+      if (opts.useCarsXeHistory) {
+        const historyRes = await fetchVehicleHistory(vin);
+        if (historyRes.success && historyRes.result) {
+          const fromHistory = mapCarsXeHistoryToReportFields(historyRes.result);
+          if (fromHistory.mileageHistory?.length) merged.mileageHistory = fromHistory.mileageHistory;
+          if (fromHistory.damages?.length) merged.damages = fromHistory.damages;
+          if (fromHistory.theftStatus) merged.theftStatus = fromHistory.theftStatus;
+          merged.rawApiResponses = { ...(merged.rawApiResponses as object || {}), carsxeHistory: historyRes };
         }
       }
 
@@ -497,9 +529,11 @@ const App: React.FC = () => {
           useServiceHistory={useServiceHistory}
           useVinLookup={useVinLookup}
           useVehicleSpecs={useVehicleSpecs}
+          useCarsXeHistory={useCarsXeHistory}
           onUseServiceHistoryChange={setUseServiceHistory}
           onUseVinLookupChange={setUseVinLookup}
           onUseVehicleSpecsChange={setUseVehicleSpecs}
+          onUseCarsXeHistoryChange={setUseCarsXeHistory}
         />
 
         {loading && (

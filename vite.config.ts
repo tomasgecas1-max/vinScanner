@@ -8,8 +8,11 @@ function carsxeProxyPlugin(apiKey: string | undefined) {
     name: 'carsxe-proxy',
     configureServer(server: { middlewares: { use: (fn: (req: import('http').IncomingMessage, res: import('http').ServerResponse, next: () => void) => void) => void } }) {
       server.middlewares.use(async (req, res, next) => {
-        if (req.url?.startsWith('/api/carsxe-specs') && req.method === 'GET') {
-          const u = new URL(req.url, 'http://localhost');
+        const url = req.url ?? '';
+        const isSpecs = url.startsWith('/api/carsxe-specs') && req.method === 'GET';
+        const isHistory = url.startsWith('/api/carsxe-history') && req.method === 'GET';
+        if (isSpecs || isHistory) {
+          const u = new URL(url, 'http://localhost');
           const vin = u.searchParams.get('vin')?.trim();
           if (!vin || !apiKey) {
             res.statusCode = 400;
@@ -17,8 +20,9 @@ function carsxeProxyPlugin(apiKey: string | undefined) {
             res.end(JSON.stringify({ success: false, error: apiKey ? 'vin reikalingas' : 'CARSXE_API_KEY nenustatytas' }));
             return;
           }
+          const endpoint = isSpecs ? 'specs' : 'history';
           try {
-            const r = await fetch(`https://api.carsxe.com/specs?key=${encodeURIComponent(apiKey)}&vin=${encodeURIComponent(vin)}`);
+            const r = await fetch(`https://api.carsxe.com/${endpoint}?key=${encodeURIComponent(apiKey)}&vin=${encodeURIComponent(vin)}`);
             const data = await r.json();
             res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify(data));
