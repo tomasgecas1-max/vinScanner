@@ -461,28 +461,30 @@ const App: React.FC = () => {
       
       <main className="overflow-x-hidden">
         {purchaseToken && purchaseInfo && (
-          <div className="max-w-2xl mx-auto px-4 pt-8 pb-4">
-            <div
-              className={`rounded-2xl px-6 py-4 text-center ${
-                purchaseInfo.loading
-                  ? 'bg-indigo-50 border border-indigo-100 text-indigo-700'
-                  : purchaseInfo.error
-                  ? 'bg-rose-50 border border-rose-100 text-rose-700'
-                  : purchaseInfo.reportsRemaining === 0
-                  ? 'bg-amber-50 border border-amber-100 text-amber-800'
-                  : 'bg-indigo-50 border border-indigo-100 text-indigo-800'
-              }`}
-            >
-              {purchaseInfo.loading && <p className="font-bold">{t.tokenMode.loading}</p>}
-              {purchaseInfo.error && <p className="font-bold">{t.tokenMode.error}</p>}
-              {!purchaseInfo.loading && !purchaseInfo.error && purchaseInfo.reportsRemaining === 0 && (
-                <p className="font-bold">{t.tokenMode.noReports}</p>
-              )}
-              {!purchaseInfo.loading && !purchaseInfo.error && purchaseInfo.reportsRemaining > 0 && (
-                <p className="font-bold">
-                  {t.tokenMode.banner.replace('{n}', String(purchaseInfo.reportsRemaining)).replace('{total}', String(purchaseInfo.reportsTotal))}
-                </p>
-              )}
+          <div className="sticky top-20 z-[90] bg-slate-50/95 backdrop-blur-sm border-b border-slate-100">
+            <div className="max-w-2xl mx-auto px-4 py-3">
+              <div
+                className={`rounded-xl px-5 py-3 text-center ${
+                  purchaseInfo.loading
+                    ? 'bg-indigo-50 border border-indigo-100 text-indigo-700'
+                    : purchaseInfo.error
+                    ? 'bg-rose-50 border border-rose-100 text-rose-700'
+                    : purchaseInfo.reportsRemaining === 0
+                    ? 'bg-amber-50 border border-amber-100 text-amber-800'
+                    : 'bg-indigo-50 border border-indigo-100 text-indigo-800'
+                }`}
+              >
+                {purchaseInfo.loading && <p className="font-bold text-sm">{t.tokenMode.loading}</p>}
+                {purchaseInfo.error && <p className="font-bold text-sm">{t.tokenMode.error}</p>}
+                {!purchaseInfo.loading && !purchaseInfo.error && purchaseInfo.reportsRemaining === 0 && (
+                  <p className="font-bold text-sm">{t.tokenMode.noReports}</p>
+                )}
+                {!purchaseInfo.loading && !purchaseInfo.error && purchaseInfo.reportsRemaining > 0 && (
+                  <p className="font-bold text-sm">
+                    {t.tokenMode.banner.replace('{n}', String(purchaseInfo.reportsRemaining)).replace('{total}', String(purchaseInfo.reportsTotal))}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         )}
