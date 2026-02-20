@@ -81,15 +81,18 @@ export function mapVehicleSpecsToReportFields(attrs: Record<string, string> | un
 
 // ---- CarsXE History ----
 
+type OdometerRecord = {
+  VehicleOdometerReadingMeasure?: string;
+  VehicleOdometerReadingUnitCode?: string;
+  TitleIssueDate?: { Date?: string };
+};
+
 export interface CarsXeHistoryResponse {
   vin?: string;
   success?: boolean;
   error?: { code?: string; message?: string };
-  historyInformation?: Array<{
-    VehicleOdometerReadingMeasure?: string;
-    VehicleOdometerReadingUnitCode?: string;
-    TitleIssueDate?: { Date?: string };
-  }>;
+  historyInformation?: OdometerRecord[];
+  currentTitleInformation?: Array<OdometerRecord & { HistoricTitleAbstract?: OdometerRecord[] }>;
   brandsInformation?: Array<{
     code?: string;
     name?: string;
@@ -122,23 +125,39 @@ export async function fetchVehicleHistory(vin: string): Promise<CarsXeHistoryRes
   }
 }
 
+function extractOdometerPoint(x: OdometerRecord): { date: string; value: number } | null {
+  if (!x.VehicleOdometerReadingMeasure || !x.TitleIssueDate?.Date) return null;
+  const miles = parseInt(String(x.VehicleOdometerReadingMeasure).replace(/\D/g, ""), 10) || 0;
+  const km = Math.round(miles * 1.60934);
+  const dateStr = x.TitleIssueDate.Date.slice(0, 7);
+  return { date: dateStr, value: km };
+}
+
 /** Žemėlina CarsXE History į CarReport laukus: mileageHistory, damages, theftStatus */
 export function mapCarsXeHistoryToReportFields(h: CarsXeHistoryResponse | undefined): Partial<CarReport> {
   if (!h) return {};
 
+  const points: { date: string; value: number }[] = [];
+
+  const addRecord = (r: OdometerRecord) => {
+    const p = extractOdometerPoint(r);
+    if (p && p.value >= 0) points.push(p);
+  };
+
+  if (Array.isArray(h.historyInformation)) {
+    h.historyInformation.forEach(addRecord);
+  }
+  if (Array.isArray(h.currentTitleInformation)) {
+    for (const curr of h.currentTitleInformation) {
+      addRecord(curr);
+      if (Array.isArray(curr.HistoricTitleAbstract)) {
+        curr.HistoricTitleAbstract.forEach(addRecord);
+      }
+    }
+  }
+
   const mileageHistory: { date: string; value: number }[] = [];
-  const historyInfo = h.historyInformation;
-  if (Array.isArray(historyInfo) && historyInfo.length > 0) {
-    const MILES_TO_KM = 1.60934;
-    const points = historyInfo
-      .filter((x) => x.VehicleOdometerReadingMeasure != null && x.TitleIssueDate?.Date)
-      .map((x) => {
-        const miles = parseInt(String(x.VehicleOdometerReadingMeasure).replace(/\D/g, ""), 10) || 0;
-        const km = Math.round(miles * MILES_TO_KM);
-        const dateStr = x.TitleIssueDate?.Date?.slice(0, 7) ?? new Date().toISOString().slice(0, 7);
-        return { date: dateStr, value: km };
-      })
-      .filter((p) => p.value >= 0);
+  if (points.length > 0) {
     const byDate = new Map<string, number>();
     for (const p of points) {
       const existing = byDate.get(p.date);
