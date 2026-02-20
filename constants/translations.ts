@@ -133,6 +133,7 @@ export interface Translations {
     desc: string;
     privacyLink: string;
     termsLink: string;
+    usageInstructionsLink: string;
   };
   about: {
     body: string;
@@ -289,6 +290,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
       desc: 'Patikimas automobilių istorijos šaltinis Europoje. Mūsų misija – skaidrumas kiekviename kilometre.',
       privacyLink: 'Privatumo politika',
       termsLink: 'Naudojimo taisyklės',
+      usageInstructionsLink: 'Naudojimo instrukcija',
     },
     about: {
       body: 'Vinscanner.eu – patikima VIN ir automobilių istorijos patikra. Siūlome ataskaitas apie ridą, žalų įrašus ir rinkos vertę, kad galėtumėte įsigyti naudotą automobilį saugiai.',
@@ -448,6 +450,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
       desc: 'A reliable source of car history in Europe. Our mission is transparency in every kilometer.',
       privacyLink: 'Privacy Policy',
       termsLink: 'Terms of Use',
+      usageInstructionsLink: 'Usage instructions',
     },
     about: {
       body: 'Vinscanner.eu – reliable VIN and vehicle history checks. We provide reports on mileage, damage records and market value so you can buy a used car with confidence.',
@@ -607,6 +610,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
       desc: 'Eine zuverlässige Quelle für Fahrzeughistorie in Europa. Unsere Mission ist Transparenz bei jedem Kilometer.',
       privacyLink: 'Datenschutzrichtlinie',
       termsLink: 'Nutzungsbedingungen',
+      usageInstructionsLink: 'Nutzungsanleitung',
     },
     about: {
       body: 'Vinscanner.eu – zuverlässige VIN- und Fahrzeughistorie-Prüfungen. Wir liefern Berichte zu Laufleistung, Schadenshistorie und Marktwert für einen sicheren Gebrauchtwagenkauf.',

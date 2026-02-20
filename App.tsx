@@ -4,6 +4,7 @@ import Navbar from './components/Navbar';
 import MobilePlanSheet from './components/MobilePlanSheet';
 import OrderEmailStepModal from './components/OrderEmailStepModal';
 import PrivacyPolicyModal from './components/PrivacyPolicyModal';
+import UsageInstructionsModal from './components/UsageInstructionsModal';
 import PaymentModal from './components/PaymentModal';
 import Hero from './components/Hero';
 import ReportView from './components/ReportView';
@@ -46,6 +47,7 @@ const App: React.FC = () => {
   const [pendingEmailReport, setPendingEmailReport] = useState<{ email: string; vin: string; token?: string; reportsRemaining?: number } | null>(null);
   const [purchaseToken, setPurchaseToken] = useState<string | null>(null);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  const [showUsageInstructionsModal, setShowUsageInstructionsModal] = useState(false);
   const [purchaseInfo, setPurchaseInfo] = useState<{
     reportsRemaining: number;
     reportsTotal: number;
@@ -649,6 +651,13 @@ const App: React.FC = () => {
           <div className="flex flex-wrap justify-center gap-4 mb-8 text-sm font-bold">
             <button
               type="button"
+              onClick={() => setShowUsageInstructionsModal(true)}
+              className="text-indigo-600 hover:text-indigo-700 hover:underline focus:outline-none focus:ring-2 focus:ring-indigo-200 rounded"
+            >
+              {t.footer.usageInstructionsLink}
+            </button>
+            <button
+              type="button"
               onClick={() => setShowPrivacyModal(true)}
               className="text-indigo-600 hover:text-indigo-700 hover:underline focus:outline-none focus:ring-2 focus:ring-indigo-200 rounded"
             >
@@ -665,6 +674,14 @@ const App: React.FC = () => {
         <PrivacyPolicyModal
           open={showPrivacyModal}
           onClose={() => setShowPrivacyModal(false)}
+          lang={lang}
+          closeLabel={t.pricing.close}
+        />
+      )}
+      {showUsageInstructionsModal && (
+        <UsageInstructionsModal
+          open={showUsageInstructionsModal}
+          onClose={() => setShowUsageInstructionsModal(false)}
           lang={lang}
           closeLabel={t.pricing.close}
         />
