@@ -15,8 +15,11 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ lang, setLang, t, onMyReportsClick }) => {
-  const { user, loading, signInWithGoogle, signOut, isFirebaseEnabled } = useAuth();
+  const { user, loading, signInWithGoogle, signOut, deleteAccount, isFirebaseEnabled } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -90,8 +93,11 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, t, onMyReportsClick }) =
                           {t.nav.myReports}
                         </button>
                       )}
-                      <button onClick={() => { signOut(); setMenuOpen(false); }} className="w-full text-left px-4 py-2.5 text-[11px] font-bold text-rose-600 hover:bg-rose-50">
+                      <button onClick={() => { signOut(); setMenuOpen(false); }} className="w-full text-left px-4 py-2.5 text-[11px] font-bold text-slate-600 hover:bg-slate-50">
                         {t.nav.signOut}
+                      </button>
+                      <button onClick={() => { setMenuOpen(false); setDeleteModalOpen(true); setDeleteError(null); }} className="w-full text-left px-4 py-2.5 text-[11px] font-bold text-rose-600 hover:bg-rose-50">
+                        {t.nav.deleteAccount}
                       </button>
                     </div>
                   )}
@@ -145,7 +151,8 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, t, onMyReportsClick }) =
                     {onMyReportsClick && (
                       <button onClick={() => { onMyReportsClick(); setMenuOpen(false); }} className="w-full text-left px-4 py-2.5 text-[11px] font-bold text-slate-700 hover:bg-slate-50">{t.nav.myReports}</button>
                     )}
-                    <button onClick={() => { signOut(); setMenuOpen(false); }} className="w-full text-left px-4 py-2.5 text-[11px] font-bold text-rose-600 hover:bg-rose-50">{t.nav.signOut}</button>
+                    <button onClick={() => { signOut(); setMenuOpen(false); }} className="w-full text-left px-4 py-2.5 text-[11px] font-bold text-slate-600 hover:bg-slate-50">{t.nav.signOut}</button>
+                    <button onClick={() => { setMenuOpen(false); setDeleteModalOpen(true); setDeleteError(null); }} className="w-full text-left px-4 py-2.5 text-[11px] font-bold text-rose-600 hover:bg-rose-50">{t.nav.deleteAccount}</button>
                   </div>
                 )}
               </>
@@ -156,6 +163,45 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, t, onMyReportsClick }) =
           </div>
         </div>
       </div>
+
+      {deleteModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[200]" onClick={() => !deleteLoading && setDeleteModalOpen(false)}>
+          <div className="bg-white rounded-2xl shadow-xl max-w-md mx-4 p-6" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-slate-800 mb-3">{t.nav.deleteAccountConfirm}</h3>
+            <p className="text-slate-600 text-sm mb-6">{t.nav.deleteAccountConfirmText}</p>
+            {deleteError && (
+              <p className="text-rose-600 text-sm mb-4">{t.nav.deleteAccountError}</p>
+            )}
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => !deleteLoading && setDeleteModalOpen(false)}
+                disabled={deleteLoading}
+                className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-bold text-sm hover:bg-slate-50 disabled:opacity-50"
+              >
+                {t.pricing.close}
+              </button>
+              <button
+                onClick={async () => {
+                  setDeleteLoading(true);
+                  setDeleteError(null);
+                  const { success, error } = await deleteAccount();
+                  setDeleteLoading(false);
+                  if (success) {
+                    setDeleteModalOpen(false);
+                    signOut();
+                  } else {
+                    setDeleteError(error ?? t.nav.deleteAccountError);
+                  }
+                }}
+                disabled={deleteLoading}
+                className="px-4 py-2.5 rounded-xl bg-rose-600 text-white font-bold text-sm hover:bg-rose-700 disabled:opacity-70"
+              >
+                {deleteLoading ? t.nav.deleteAccountDeleting : t.nav.deleteAccountConfirm}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   );
 };

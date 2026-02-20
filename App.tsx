@@ -76,6 +76,22 @@ const App: React.FC = () => {
     }
   }, []);
 
+  // Kai prisijungęs vartotojas, bet nėra token iš URL – ieškome pirkimo pagal el. paštą
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const hasTokenInUrl = !!params.get('token')?.trim();
+    if (user?.email && !hasTokenInUrl && !purchaseToken) {
+      fetch(`/api/get-purchase-by-email?email=${encodeURIComponent(user.email)}`)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data?.token && (data.reportsRemaining ?? 0) > 0) {
+            setPurchaseToken(data.token);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [user?.email, purchaseToken]);
+
   useEffect(() => {
     if (!purchaseToken) {
       setPurchaseInfo(null);

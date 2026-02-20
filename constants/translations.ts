@@ -60,6 +60,11 @@ export interface Translations {
     login: string;
     myReports: string;
     signOut: string;
+    deleteAccount: string;
+    deleteAccountConfirm: string;
+    deleteAccountConfirmText: string;
+    deleteAccountDeleting: string;
+    deleteAccountError: string;
   };
   tokenMode: {
     banner: string;
@@ -217,7 +222,7 @@ export interface Translations {
 
 const translationsMap: Record<SupportedLang, Translations> = {
   lt: {
-    nav: { services: 'Paslaugos', pricing: 'Kainos', about: 'Apie mus', login: 'Prisijungti', myReports: 'Mano ataskaitos', signOut: 'Atsijungti' },
+    nav: { services: 'Paslaugos', pricing: 'Kainos', about: 'Apie mus', login: 'Prisijungti', myReports: 'Mano ataskaitos', signOut: 'Atsijungti', deleteAccount: 'Ištrinti paskyrą', deleteAccountConfirm: 'Ištrinti paskyrą', deleteAccountConfirmText: 'Ar tikrai norite ištrinti paskyrą? Visi išsaugoti ataskaitos bus pašalinti. Šio veiksmo negalima atšaukti.', deleteAccountDeleting: 'Trinama…', deleteAccountError: 'Nepavyko ištrinti. Bandykite dar kartą.' },
     tokenMode: {
       banner: 'Turite {n} iš {total} ataskaitų. Įveskite VIN žemiau.',
       noReports: 'Neturite likusių ataskaitų. Norėdami patikrinti kitą automobilį, įsigykite naują planą.',
@@ -377,7 +382,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
     },
   },
   en: {
-    nav: { services: 'Services', pricing: 'Pricing', about: 'About Us', login: 'Login', myReports: 'My reports', signOut: 'Sign out' },
+    nav: { services: 'Services', pricing: 'Pricing', about: 'About Us', login: 'Login', myReports: 'My reports', signOut: 'Sign out', deleteAccount: 'Delete account', deleteAccountConfirm: 'Delete account', deleteAccountConfirmText: 'Are you sure you want to delete your account? All saved reports will be removed. This action cannot be undone.', deleteAccountDeleting: 'Deleting…', deleteAccountError: 'Failed to delete. Please try again.' },
     tokenMode: {
       banner: 'You have {n} of {total} reports left. Enter VIN below.',
       noReports: 'No reports remaining. Purchase a new plan to check another vehicle.',
@@ -536,7 +541,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
     },
   },
   de: {
-    nav: { services: 'Leistungen', pricing: 'Preise', about: 'Über uns', login: 'Anmelden', myReports: 'Meine Berichte', signOut: 'Abmelden' },
+    nav: { services: 'Leistungen', pricing: 'Preise', about: 'Über uns', login: 'Anmelden', myReports: 'Meine Berichte', signOut: 'Abmelden', deleteAccount: 'Konto löschen', deleteAccountConfirm: 'Konto löschen', deleteAccountConfirmText: 'Sind Sie sicher, dass Sie Ihr Konto löschen möchten? Alle gespeicherten Berichte werden entfernt. Diese Aktion kann nicht rückgängig gemacht werden.', deleteAccountDeleting: 'Wird gelöscht…', deleteAccountError: 'Löschen fehlgeschlagen. Bitte versuchen Sie es erneut.' },
     tokenMode: {
       banner: 'Sie haben {n} von {total} Berichten übrig. FIN unten eingeben.',
       noReports: 'Keine Berichte übrig. Kaufen Sie einen neuen Plan für ein weiteres Fahrzeug.',

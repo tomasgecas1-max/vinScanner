@@ -1,4 +1,4 @@
-import { collection, doc, setDoc, getDocs, Timestamp } from 'firebase/firestore';
+import { collection, doc, setDoc, getDocs, deleteDoc, Timestamp } from 'firebase/firestore';
 import { db, isFirebaseEnabled } from './firebase';
 import type { CarReport } from '../types';
 
@@ -34,4 +34,11 @@ export async function getSavedReports(uid: string): Promise<SavedReport[]> {
   });
   list.sort((a, b) => b.createdAt - a.createdAt);
   return list;
+}
+
+/** Ištrina visus vartotojo išsaugotus ataskaitų dokumentus (prieš paskyros ištrynimą). */
+export async function deleteAllUserReports(uid: string): Promise<void> {
+  if (!db || !isFirebaseEnabled) return;
+  const snap = await getDocs(collection(db, 'users', uid, 'reports'));
+  await Promise.all(snap.docs.map((d) => deleteDoc(d.ref)));
 }

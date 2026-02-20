@@ -126,7 +126,6 @@ function formatValue(val: unknown, t?: { report: { yes: string; no: string } }):
 }
 
 const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave, onSaveReport, onSupplementReport, supplementLoading, pendingEmailReport, onEmailWithPdfSent }) => {
-  const [showRawApi, setShowRawApi] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [saveCloudLoading, setSaveCloudLoading] = useState(false);
   const [saveCloudDone, setSaveCloudDone] = useState(false);
@@ -247,24 +246,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
     }
   };
 
-  const raw = report.rawApiResponses != null && typeof report.rawApiResponses === 'object'
-    ? report.rawApiResponses as Record<string, { success?: boolean; result?: Record<string, unknown>; error?: string }>
-    : null;
-
-  const rawJson = report.rawApiResponses != null
-    ? JSON.stringify(report.rawApiResponses, null, 2)
-    : null;
-
-  const handleSaveRaw = () => {
-    if (!rawJson) return;
-    const blob = new Blob([rawJson], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `vinscanner-api-${report.vin}-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
+  const rawApi = report.rawApiResponses as Record<string, { success?: boolean }> | undefined;
 
   const handleDownloadPdf = async () => {
     const el = reportPdfRef.current;
@@ -429,7 +411,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
           <div className="lg:col-span-2 space-y-10 p-6 sm:p-8 lg:p-0">
             {/* Ridos sekcija */}
             <div>
-              {raw?.serviceHistory?.success === false && (
+              {rawApi?.serviceHistory?.success === false && (
                 <div className="mb-4 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-sm font-medium flex items-center gap-3">
                   <span className="shrink-0 w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
@@ -624,94 +606,6 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Visi API šaltiniai – skaitomai */}
-      {raw && Object.keys(raw).length > 0 && (
-        <div className="mt-8">
-          <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-            <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-600"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
-            {t.report.allApiSources}
-            </h3>
-            <a href="#api-raw-data" className="text-sm font-semibold text-amber-700 hover:text-amber-800 underline">
-              {t.report.showRawData}
-            </a>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {Object.entries(raw).map(([key, data]) => {
-              const title = SOURCE_LABELS[key] ?? key;
-              const success = data?.success === true;
-              const rawResult = data?.result && typeof data.result === 'object' ? data.result : null;
-              const result = key === 'vehicleSpecs' && rawResult && typeof (rawResult as { attributes?: object }).attributes === 'object'
-                ? (rawResult as { attributes: object }).attributes
-                : rawResult;
-              const error = data?.error;
-              return (
-                <div key={key} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                  <div className={`px-4 py-3 border-b border-slate-100 flex items-center justify-between ${success ? 'bg-emerald-50' : 'bg-slate-50'}`}>
-                    <span className="font-bold text-sm text-slate-800">{title}</span>
-                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${success ? 'bg-emerald-200 text-emerald-800' : 'bg-slate-200 text-slate-600'}`}>
-                      {success ? 'OK' : 'Klaida'}
-                    </span>
-                  </div>
-                  <div className="p-4">
-                    {!success && error && (
-                      <p className="text-sm text-rose-600 font-medium">{error}</p>
-                    )}
-                    {success && result && Object.keys(result).length > 0 && (
-                      <dl className="space-y-2">
-                        {Object.entries(result)
-                          .filter(([, v]) => v != null && v !== '')
-                          .map(([k, v]) => (
-                            <div key={k} className="flex justify-between gap-2 text-sm border-b border-slate-100 pb-2 last:border-0 last:pb-0">
-                              <dt className="text-slate-500 shrink-0">
-                                {FIELD_LABELS[k] ?? k.replace(/_/g, ' ')}
-                              </dt>
-                              <dd className="text-slate-900 font-medium text-right break-all">{formatValue(v, t)}</dd>
-                            </div>
-                          ))}
-                      </dl>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Visa informacija iš API – geltonas blokas (apačioje, scroll žemyn) */}
-      <div id="api-raw-data" className="mt-10 p-5 rounded-2xl border-2 border-amber-300 bg-amber-100/90 shadow-sm">
-        <button
-          type="button"
-          onClick={() => setShowRawApi((v) => !v)}
-          className="w-full flex items-center justify-between gap-2 text-left py-4 px-5 rounded-xl bg-amber-200/90 hover:bg-amber-300/90 transition-colors border border-amber-300/80"
-        >
-          <span className="text-base font-bold text-amber-900">
-              {rawJson ? t.report.showRawData : t.report.rawDataUnavailable}
-          </span>
-          {rawJson && (
-            <span className="text-amber-800 text-sm font-medium">
-              {showRawApi ? t.report.hide : t.report.show}
-            </span>
-          )}
-        </button>
-        {rawJson && showRawApi && (
-          <div className="mt-4 space-y-4">
-            <pre className="p-4 rounded-xl bg-slate-900 text-slate-100 text-xs overflow-x-auto max-h-[400px] overflow-y-auto font-mono whitespace-pre-wrap break-all">
-              {rawJson}
-            </pre>
-            <button
-              type="button"
-              onClick={handleSaveRaw}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-500 transition-colors shadow-lg"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-              {t.report.saveAsJson}
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
