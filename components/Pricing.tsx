@@ -84,12 +84,13 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect }) => {
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-3">
+                <div 
+                  className="flex flex-col gap-3"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <button
                     type="button"
-                    disabled={!isSelected}
-                    onClick={(e) => { 
-                      e.stopPropagation(); 
+                    onClick={() => { 
                       if (isSelected) {
                         pendingVin ? onPlanSelect(pendingVin, idx) : scrollToVinInput(); 
                       }
@@ -97,7 +98,7 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect }) => {
                     className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg ${
                       isSelected
                         ? 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-indigo-900/40 active:scale-95 cursor-pointer'
-                        : 'bg-slate-300 text-slate-500 shadow-slate-100 cursor-not-allowed'
+                        : 'bg-slate-300 text-slate-500 shadow-slate-100 cursor-not-allowed pointer-events-none'
                     }`}
                   >
                     {t.pricing.order}
