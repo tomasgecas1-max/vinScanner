@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { CarReport, type ReportAnalysis } from '../types';
-import { getReportAnalysis } from '../services/geminiService';
+import { CarReport, type ReportAnalysis, type ServiceEventRecord } from '../types';
+import { getReportAnalysis, translateServiceEventTexts } from '../services/geminiService';
 import type { Translations } from '../constants/translations';
 // @ts-expect-error html2pdf.js neturi TypeScript tipų
 import html2pdf from 'html2pdf.js';
@@ -139,11 +139,35 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
   const [reportAnalysisLoading, setReportAnalysisLoading] = useState(false);
   const [reportAnalysisError, setReportAnalysisError] = useState<string | null>(null);
   const [analysisCooldownSec, setAnalysisCooldownSec] = useState(0);
+  const [showOriginalServiceTexts, setShowOriginalServiceTexts] = useState(false);
+  const [translatedServiceEvents, setTranslatedServiceEvents] = useState<ServiceEventRecord[] | null>(null);
+  const [serviceTranslationLoading, setServiceTranslationLoading] = useState(false);
+  const [serviceTranslationError, setServiceTranslationError] = useState<string | null>(null);
   const reportPdfRef = useRef<HTMLDivElement>(null);
   const emailSentForRef = useRef<string | null>(null);
 
-  // Automatinis vertimas išjungtas dėl Gemini API kvotų ribų (Free tier).
-  // Serviso įrašai rodomi originalia kalba.
+  useEffect(() => {
+    if (!report.serviceEvents?.length || !lang) {
+      setTranslatedServiceEvents(null);
+      setServiceTranslationError(null);
+      return;
+    }
+    let cancelled = false;
+    setServiceTranslationLoading(true);
+    setServiceTranslationError(null);
+    translateServiceEventTexts(report.serviceEvents, lang).then((res) => {
+      if (cancelled) return;
+      setServiceTranslationLoading(false);
+      if (res.ok) {
+        setTranslatedServiceEvents(res.events);
+        setServiceTranslationError(null);
+      } else {
+        setTranslatedServiceEvents(null);
+        setServiceTranslationError(res.error ?? t.report.serviceTranslationFailed);
+      }
+    });
+    return () => { cancelled = true; };
+  }, [report.serviceEvents, lang]);
 
   useEffect(() => {
     if (!pendingEmailReport || !onEmailWithPdfSent || report.vin !== pendingEmailReport.vin) return;
@@ -472,12 +496,32 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
             {/* Serviso įrašai – pilna istorija iš API */}
             {report.serviceEvents && report.serviceEvents.length > 0 && (
               <div>
-                <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-600"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="M9 15h6"/></svg>
-                  {t.report.serviceEvents}
-                </h3>
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+                  <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-600"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="M9 15h6"/></svg>
+                    {t.report.serviceEvents}
+                  </h3>
+                  <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={showOriginalServiceTexts}
+                      onChange={(e) => setShowOriginalServiceTexts(e.target.checked)}
+                      className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                    />
+                    {t.report.showOriginal}
+                  </label>
+                </div>
+                {serviceTranslationLoading && (
+                  <p className="text-sm text-indigo-600 font-medium mb-4 animate-pulse">{t.report.translatingServiceComments}</p>
+                )}
+                {serviceTranslationError && !serviceTranslationLoading && (
+                  <div className="mb-4 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-sm flex items-start gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 mt-0.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <span>{t.report.serviceTranslationFailed}</span>
+                  </div>
+                )}
                 <div className="space-y-4">
-                  {report.serviceEvents.map((event, idx) => (
+                  {(showOriginalServiceTexts ? report.serviceEvents : (translatedServiceEvents ?? report.serviceEvents)).map((event, idx) => (
                     <div key={idx} className="p-5 rounded-2xl border border-slate-100 bg-slate-50/50 hover:border-slate-200 transition-colors">
                       <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                         <span className="font-mono text-sm font-bold text-slate-800">{event.date_of_service_event}</span>
