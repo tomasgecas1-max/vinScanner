@@ -95,7 +95,7 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect }) => {
                     className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg active:scale-95 ${
                       isSelected
                         ? 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-indigo-900/40'
-                        : 'bg-slate-900 text-white hover:bg-slate-800 shadow-slate-200'
+                        : 'bg-slate-300 text-slate-600 hover:bg-slate-900 hover:text-white shadow-slate-100'
                     }`}
                   >
                     {t.pricing.order}
