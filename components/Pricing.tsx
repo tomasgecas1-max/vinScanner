@@ -8,7 +8,7 @@ interface PricingProps {
 
 const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect }) => {
   const [refundModalOpen, setRefundModalOpen] = useState(false);
-  const [selectedPlanIdx, setSelectedPlanIdx] = useState(1); // default: 2 ataskaitos
+  const [selectedPlanIdx, setSelectedPlanIdx] = useState<number | null>(null); // pradžioje joks planas nepasirinktas
   const isLt = t.nav.services === 'Paslaugos';
 
   const plans = [
@@ -65,8 +65,10 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect }) => {
                     : 'bg-white text-slate-900 border-slate-200 shadow-xl shadow-slate-200/50 hover:-translate-y-2'
                 }`}
               >
-                {plan.bestValue && isSelected && (
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg">
+                {plan.bestValue && (
+                  <div className={`absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg ${
+                    isSelected ? 'bg-indigo-600 text-white' : 'bg-indigo-100 text-indigo-600'
+                  }`}>
                     {t.pricing.bestValue}
                   </div>
                 )}
@@ -85,11 +87,12 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect }) => {
                 <div className="flex flex-col gap-3">
                   <button
                     type="button"
-                    onClick={(e) => { e.stopPropagation(); pendingVin ? onPlanSelect(pendingVin, selectedPlanIdx) : scrollToVinInput(); }}
-                    className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all active:scale-95 shadow-lg ${
+                    disabled={!isSelected}
+                    onClick={(e) => { e.stopPropagation(); if (isSelected && selectedPlanIdx !== null) { pendingVin ? onPlanSelect(pendingVin, selectedPlanIdx) : scrollToVinInput(); } }}
+                    className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg ${
                       isSelected
-                        ? 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-indigo-900/40'
-                        : 'bg-slate-900 text-white hover:bg-slate-800 shadow-slate-200'
+                        ? 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-indigo-900/40 active:scale-95'
+                        : 'bg-slate-300 text-slate-500 cursor-not-allowed shadow-slate-100'
                     }`}
                   >
                     {t.pricing.order}
