@@ -8,7 +8,7 @@ interface PricingProps {
 
 const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect }) => {
   const [refundModalOpen, setRefundModalOpen] = useState(false);
-  const [selectedPlanIdx, setSelectedPlanIdx] = useState<number | null>(null); // pradžioje joks planas nepasirinktas
+  const [selectedPlanIdx, setSelectedPlanIdx] = useState<number>(1); // default: 2 ataskaitos (vidurinis planas)
   const isLt = t.nav.services === 'Paslaugos';
 
   const plans = [
@@ -87,12 +87,15 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect }) => {
                 <div className="flex flex-col gap-3">
                   <button
                     type="button"
-                    disabled={!isSelected}
-                    onClick={(e) => { e.stopPropagation(); if (isSelected && selectedPlanIdx !== null) { pendingVin ? onPlanSelect(pendingVin, selectedPlanIdx) : scrollToVinInput(); } }}
-                    className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg ${
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      setSelectedPlanIdx(idx); 
+                      pendingVin ? onPlanSelect(pendingVin, idx) : scrollToVinInput(); 
+                    }}
+                    className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg active:scale-95 ${
                       isSelected
-                        ? 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-indigo-900/40 active:scale-95'
-                        : 'bg-slate-300 text-slate-500 cursor-not-allowed shadow-slate-100'
+                        ? 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-indigo-900/40'
+                        : 'bg-slate-900 text-white hover:bg-slate-800 shadow-slate-200'
                     }`}
                   >
                     {t.pricing.order}
