@@ -206,6 +206,8 @@ export interface Translations {
     rawDataUnavailable: string;
     yes: string;
     no: string;
+    showOriginal: string;
+    translatingServiceComments: string;
   };
   myReports: {
     title: string;
@@ -369,6 +371,8 @@ const translationsMap: Record<SupportedLang, Translations> = {
       rawDataUnavailable: 'API duomenys neprieinami',
       yes: 'Taip',
       no: 'Ne',
+      showOriginal: 'Rodyti originalą',
+      translatingServiceComments: 'Verčiami serviso komentarai…',
     },
     myReports: {
       title: 'Mano ataskaitos',
@@ -529,6 +533,8 @@ const translationsMap: Record<SupportedLang, Translations> = {
       rawDataUnavailable: 'API data unavailable',
       yes: 'Yes',
       no: 'No',
+      showOriginal: 'Show original',
+      translatingServiceComments: 'Translating service comments…',
     },
     myReports: {
       title: 'My reports',
@@ -689,6 +695,8 @@ const translationsMap: Record<SupportedLang, Translations> = {
       rawDataUnavailable: 'API-Daten nicht verfügbar',
       yes: 'Ja',
       no: 'Nein',
+      showOriginal: 'Original anzeigen',
+      translatingServiceComments: 'Service-Kommentare werden übersetzt…',
     },
     myReports: {
       title: 'Meine Berichte',

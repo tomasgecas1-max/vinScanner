@@ -1,5 +1,5 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import type { CarReport, ReportAnalysis } from "../types";
+import type { CarReport, ReportAnalysis, ServiceEventRecord } from "../types";
 
 /** Lokali netikra ataskaita – naudojama be API rago arba kai API neprieinamas */
 function getLocalMockReport(vin: string) {
@@ -260,3 +260,102 @@ Ataskaitos santrauka: ${context}`;
 
   return { ok: false, error: "AI negrąžino atsakymo. Pabandykite vėliau." };
 };
+
+const LANG_NAMES: Record<string, string> = {
+  lt: "Lithuanian", en: "English", de: "German", fr: "French", es: "Spanish", it: "Italian",
+  pl: "Polish", nl: "Dutch", pt: "Portuguese", sv: "Swedish", uk: "Ukrainian", tr: "Turkish",
+};
+
+export type TranslateServiceEventsResult =
+  | { ok: true; events: ServiceEventRecord[] }
+  | { ok: false; error: string };
+
+/**
+ * Išverčia serviso istorijos komentarus (teikėjas, tipas, atlikti darbai) į pasirinktą kalbą su Gemini AI.
+ */
+export async function translateServiceEventTexts(
+  events: ServiceEventRecord[],
+  targetLang: string
+): Promise<TranslateServiceEventsResult> {
+  const apiKey = process.env.AI_API_KEY;
+  if (!apiKey) {
+    return { ok: false, error: "API raktas nenustatytas." };
+  }
+
+  if (!events.length) return { ok: true, events: [] };
+
+  const texts: string[] = [];
+  const mapping: { eventIdx: number; field: "service_provider" | "service_type"; textIdx: number }[] = [];
+  const actionsMapping: { eventIdx: number; actionIdx: number; textIdx: number }[] = [];
+
+  for (let i = 0; i < events.length; i++) {
+    const e = events[i];
+    if (e.service_provider) {
+      mapping.push({ eventIdx: i, field: "service_provider", textIdx: texts.length });
+      texts.push(e.service_provider);
+    }
+    if (e.service_type) {
+      mapping.push({ eventIdx: i, field: "service_type", textIdx: texts.length });
+      texts.push(e.service_type);
+    }
+    if (e.service_actions) {
+      for (let j = 0; j < e.service_actions.length; j++) {
+        const a = e.service_actions[j];
+        if (a) {
+          actionsMapping.push({ eventIdx: i, actionIdx: j, textIdx: texts.length });
+          texts.push(a);
+        }
+      }
+    }
+  }
+
+  if (texts.length === 0) return { ok: true, events: [...events] };
+
+  const langName = LANG_NAMES[targetLang];
+  if (!langName) return { ok: true, events: [...events] }; // Kalba nepalaikoma – rodyti originalą
+  const prompt = `Translate each of the following texts into ${langName}. They are automotive service history entries (provider names, service types, work descriptions). Preserve technical terms if they are commonly used in the target language. Return a JSON array with the translations in the SAME ORDER as the input. Only JSON array, no other text.
+
+Input texts:
+${texts.map((t, i) => `${i + 1}. ${t}`).join("\n")}`;
+
+  const ai = new GoogleGenAI({ apiKey });
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.ARRAY,
+          items: { type: Type.STRING },
+        },
+      },
+    });
+    const text = response.text?.trim();
+    if (!text) return { ok: false, error: "AI negrąžino vertimų." };
+
+    const translated = JSON.parse(text) as string[];
+    if (!Array.isArray(translated) || translated.length !== texts.length) {
+      return { ok: false, error: "Vertimų skaičius nesutampa." };
+    }
+
+    const result: ServiceEventRecord[] = events.map((e, idx) => ({
+      ...e,
+      service_provider: e.service_provider,
+      service_type: e.service_type,
+      service_actions: [...(e.service_actions || [])],
+    }));
+
+    for (const m of mapping) {
+      (result[m.eventIdx] as Record<string, string>)[m.field] = translated[m.textIdx] ?? events[m.eventIdx][m.field];
+    }
+    for (const m of actionsMapping) {
+      result[m.eventIdx].service_actions[m.actionIdx] = translated[m.textIdx] ?? events[m.eventIdx].service_actions[m.actionIdx];
+    }
+
+    return { ok: true, events: result };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return { ok: false, error: msg.slice(0, 200) };
+  }
+}

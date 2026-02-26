@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { CarReport, type ReportAnalysis } from '../types';
-import { getReportAnalysis } from '../services/geminiService';
+import { CarReport, type ReportAnalysis, type ServiceEventRecord } from '../types';
+import { getReportAnalysis, translateServiceEventTexts } from '../services/geminiService';
 import type { Translations } from '../constants/translations';
 // @ts-expect-error html2pdf.js neturi TypeScript tipų
 import html2pdf from 'html2pdf.js';
@@ -139,8 +139,27 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
   const [reportAnalysisLoading, setReportAnalysisLoading] = useState(false);
   const [reportAnalysisError, setReportAnalysisError] = useState<string | null>(null);
   const [analysisCooldownSec, setAnalysisCooldownSec] = useState(0);
+  const [showOriginalServiceTexts, setShowOriginalServiceTexts] = useState(false);
+  const [translatedServiceEvents, setTranslatedServiceEvents] = useState<ServiceEventRecord[] | null>(null);
+  const [serviceTranslationLoading, setServiceTranslationLoading] = useState(false);
   const reportPdfRef = useRef<HTMLDivElement>(null);
   const emailSentForRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!report.serviceEvents?.length || !lang) {
+      setTranslatedServiceEvents(null);
+      return;
+    }
+    let cancelled = false;
+    setServiceTranslationLoading(true);
+    translateServiceEventTexts(report.serviceEvents, lang).then((res) => {
+      if (cancelled) return;
+      setServiceTranslationLoading(false);
+      if (res.ok) setTranslatedServiceEvents(res.events);
+      else setTranslatedServiceEvents(null);
+    });
+    return () => { cancelled = true; };
+  }, [report.serviceEvents, lang]);
 
   useEffect(() => {
     if (!pendingEmailReport || !onEmailWithPdfSent || report.vin !== pendingEmailReport.vin) return;
@@ -469,12 +488,26 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
             {/* Serviso įrašai – pilna istorija iš API */}
             {report.serviceEvents && report.serviceEvents.length > 0 && (
               <div>
-                <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-600"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="M9 15h6"/></svg>
-                  {t.report.serviceEvents}
-                </h3>
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+                  <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-600"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="M9 15h6"/></svg>
+                    {t.report.serviceEvents}
+                  </h3>
+                  <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={showOriginalServiceTexts}
+                      onChange={(e) => setShowOriginalServiceTexts(e.target.checked)}
+                      className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                    />
+                    {t.report.showOriginal}
+                  </label>
+                </div>
+                {serviceTranslationLoading && (
+                  <p className="text-sm text-indigo-600 font-medium mb-4 animate-pulse">{t.report.translatingServiceComments}</p>
+                )}
                 <div className="space-y-4">
-                  {report.serviceEvents.map((event, idx) => (
+                  {(showOriginalServiceTexts ? report.serviceEvents : (translatedServiceEvents ?? report.serviceEvents)).map((event, idx) => (
                     <div key={idx} className="p-5 rounded-2xl border border-slate-100 bg-slate-50/50 hover:border-slate-200 transition-colors">
                       <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                         <span className="font-mono text-sm font-bold text-slate-800">{event.date_of_service_event}</span>
