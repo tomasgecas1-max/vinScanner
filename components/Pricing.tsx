@@ -93,12 +93,14 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect }) => {
                     onClick={() => { 
                       if (isSelected) {
                         pendingVin ? onPlanSelect(pendingVin, idx) : scrollToVinInput(); 
+                      } else {
+                        setSelectedPlanIdx(idx);
                       }
                     }}
-                    className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg ${
+                    className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg active:scale-95 cursor-pointer ${
                       isSelected
-                        ? 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-indigo-900/40 active:scale-95 cursor-pointer'
-                        : 'bg-slate-300 text-slate-500 shadow-slate-100 cursor-not-allowed pointer-events-none'
+                        ? 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-indigo-900/40'
+                        : 'bg-slate-300 text-slate-500 shadow-slate-100 hover:bg-slate-400'
                     }`}
                   >
                     {t.pricing.order}
