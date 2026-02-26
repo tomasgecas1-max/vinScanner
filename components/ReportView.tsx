@@ -142,21 +142,29 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
   const [showOriginalServiceTexts, setShowOriginalServiceTexts] = useState(false);
   const [translatedServiceEvents, setTranslatedServiceEvents] = useState<ServiceEventRecord[] | null>(null);
   const [serviceTranslationLoading, setServiceTranslationLoading] = useState(false);
+  const [serviceTranslationError, setServiceTranslationError] = useState<string | null>(null);
   const reportPdfRef = useRef<HTMLDivElement>(null);
   const emailSentForRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!report.serviceEvents?.length || !lang) {
       setTranslatedServiceEvents(null);
+      setServiceTranslationError(null);
       return;
     }
     let cancelled = false;
     setServiceTranslationLoading(true);
+    setServiceTranslationError(null);
     translateServiceEventTexts(report.serviceEvents, lang).then((res) => {
       if (cancelled) return;
       setServiceTranslationLoading(false);
-      if (res.ok) setTranslatedServiceEvents(res.events);
-      else setTranslatedServiceEvents(null);
+      if (res.ok) {
+        setTranslatedServiceEvents(res.events);
+        setServiceTranslationError(null);
+      } else {
+        setTranslatedServiceEvents(null);
+        setServiceTranslationError(res.error ?? t.report.serviceTranslationFailed);
+      }
     });
     return () => { cancelled = true; };
   }, [report.serviceEvents, lang]);
@@ -505,6 +513,12 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                 </div>
                 {serviceTranslationLoading && (
                   <p className="text-sm text-indigo-600 font-medium mb-4 animate-pulse">{t.report.translatingServiceComments}</p>
+                )}
+                {serviceTranslationError && !serviceTranslationLoading && (
+                  <div className="mb-4 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-sm flex items-start gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 mt-0.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <span>{t.report.serviceTranslationFailed} {serviceTranslationError !== t.report.serviceTranslationFailed && `(${serviceTranslationError})`}</span>
+                  </div>
                 )}
                 <div className="space-y-4">
                   {(showOriginalServiceTexts ? report.serviceEvents : (translatedServiceEvents ?? report.serviceEvents)).map((event, idx) => (

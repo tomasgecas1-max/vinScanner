@@ -208,6 +208,7 @@ export interface Translations {
     no: string;
     showOriginal: string;
     translatingServiceComments: string;
+    serviceTranslationFailed: string;
   };
   myReports: {
     title: string;
@@ -373,6 +374,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
       no: 'Ne',
       showOriginal: 'Rodyti originalą',
       translatingServiceComments: 'Verčiami serviso komentarai…',
+      serviceTranslationFailed: 'Nepavyko išversti serviso komentarų. Rodoma originali kalba.',
     },
     myReports: {
       title: 'Mano ataskaitos',
@@ -535,6 +537,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
       no: 'No',
       showOriginal: 'Show original',
       translatingServiceComments: 'Translating service comments…',
+      serviceTranslationFailed: 'Failed to translate service comments. Showing original language.',
     },
     myReports: {
       title: 'My reports',
@@ -697,6 +700,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
       no: 'Nein',
       showOriginal: 'Original anzeigen',
       translatingServiceComments: 'Service-Kommentare werden übersetzt…',
+      serviceTranslationFailed: 'Service-Kommentare konnten nicht übersetzt werden. Originale Sprache wird angezeigt.',
     },
     myReports: {
       title: 'Meine Berichte',
