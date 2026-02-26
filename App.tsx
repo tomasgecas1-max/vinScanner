@@ -132,6 +132,17 @@ const App: React.FC = () => {
     return () => mq.removeEventListener('change', handler);
   }, []);
 
+  // Auto-scroll prie ataskaitos, kai ji sugeneruojama arba pasirenkama iš istorijos
+  useEffect(() => {
+    if (!report || loading) return;
+    const el = document.getElementById('car-report');
+    if (el) {
+      requestAnimationFrame(() => {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+  }, [report, loading]);
+
   const t = getTranslations(lang);
   const steps = t.loading.steps;
 
@@ -260,8 +271,6 @@ const App: React.FC = () => {
             setPendingEmailReport({ email: customerEmail, vin, token, reportsRemaining: planIndex >= 1 ? planIndex : undefined });
           }
           await new Promise((resolve) => setTimeout(resolve, 400));
-          const reportElement = document.getElementById('car-report');
-          if (reportElement) reportElement.scrollIntoView({ behavior: 'smooth' });
           setTimeout(() => setLoading(false), 500);
           return;
         }
@@ -415,8 +424,6 @@ const App: React.FC = () => {
         body: JSON.stringify({ vin, report: finalReport }),
       }).catch(() => {});
       await new Promise(resolve => setTimeout(resolve, 400));
-      const reportElement = document.getElementById('car-report');
-      if (reportElement) reportElement.scrollIntoView({ behavior: 'smooth' });
     } catch (err) {
       console.error(err);
       setError(t.errors.networkFailed);
