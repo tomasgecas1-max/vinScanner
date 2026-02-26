@@ -46,7 +46,7 @@ export const getCarExpertResponse = async (userPrompt: string, carContext?: any)
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-1.5-flash-latest",
       contents: userPrompt,
       config: { systemInstruction, temperature: 0.7 },
     });
@@ -71,7 +71,7 @@ export const generateMockReport = async (vin: string): Promise<any> => {
   const ai = new GoogleGenAI({ apiKey });
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-1.5-flash-latest",
       contents: `Sugeneruok detalią automobilių patikros ataskaitą VIN: ${vin}. 
         SVARBU: 
         1. Ataskaita turi būti LIETUVIŲ kalba.
@@ -217,7 +217,7 @@ Ataskaitos santrauka: ${context}`;
   };
 
   const ai = new GoogleGenAI({ apiKey });
-  const modelsToTry = ["gemini-1.5-flash"];
+  const modelsToTry = ["gemini-1.5-flash-latest"];
 
   for (const model of modelsToTry) {
     try {
@@ -321,7 +321,7 @@ ${texts.map((t, i) => `${i + 1}. ${t}`).join("\n")}`;
   const ai = new GoogleGenAI({ apiKey });
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-1.5-flash-latest",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
