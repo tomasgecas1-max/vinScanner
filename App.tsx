@@ -180,6 +180,7 @@ const App: React.FC = () => {
     if (purchaseToken && purchaseInfo && purchaseInfo.reportsRemaining > 0 && !purchaseInfo.loading) {
       setLoading(true);
       setReport(null);
+      const userEmail = user?.email;
       fetch('/api/use-report', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -188,9 +189,13 @@ const App: React.FC = () => {
         .then((res) => res.json())
         .then((data) => {
           if (data.success !== true) throw new Error(data.error || 'Failed');
+          const newRemaining = data.reportsRemaining ?? purchaseInfo.reportsRemaining - 1;
           setPurchaseInfo((prev) =>
-            prev ? { ...prev, reportsRemaining: data.reportsRemaining ?? prev.reportsRemaining - 1 } : null
+            prev ? { ...prev, reportsRemaining: newRemaining } : null
           );
+          if (userEmail) {
+            setPendingEmailReport({ email: userEmail, vin: vinTrimmed, token: purchaseToken, reportsRemaining: newRemaining });
+          }
           return handleSearch(vinTrimmed);
         })
         .catch(() => {
