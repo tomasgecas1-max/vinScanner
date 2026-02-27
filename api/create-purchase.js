@@ -1,11 +1,20 @@
 /**
  * Sukuria pirkimą – neprisijungusiam vartotojui, kuris įsigijo kelias ataskaitas.
- * POST { email, planIndex, vin }
+ * POST { email, planIndex, vin, paymentIntentId? }
  * planIndex: 0=1 ataskaita, 1=2, 2=3. reportsTotal = planIndex + 1.
- * Grąžina { token } – nuoroda: /?token=XXX
+ * Grąžina { token, orderId } – nuoroda: /?token=XXX
  */
 import admin from 'firebase-admin';
 import crypto from 'crypto';
+
+function generateOrderId() {
+  const now = new Date();
+  const yy = String(now.getFullYear()).slice(-2);
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  const random = crypto.randomBytes(3).toString('hex').toUpperCase().slice(0, 4);
+  return `VS-${yy}${mm}${dd}-${random}`;
+}
 
 function getDb() {
   if (admin.apps.length === 0) {
@@ -34,7 +43,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid JSON' });
   }
 
-  const { email, planIndex, vin } = body;
+  const { email, planIndex, vin, paymentIntentId } = body;
   if (!email || typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return res.status(400).json({ error: 'Valid email required' });
   }
@@ -53,20 +62,23 @@ export default async function handler(req, res) {
 
   try {
     const token = crypto.randomBytes(24).toString('base64url');
-    console.log('[create-purchase] Generated token, saving to Firestore...');
+    const orderId = generateOrderId();
+    console.log('[create-purchase] Generated token and orderId:', orderId);
     
     const col = getDb().collection('purchases');
 
     await col.doc(token).set({
+      orderId,
       email: String(email).trim(),
       reportsTotal,
       reportsUsed: 1,
       usedVins: [String(vin).trim()],
+      paymentIntentId: paymentIntentId || null,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    console.log('[create-purchase] SUCCESS - saved purchase for:', email, 'token:', token);
-    return res.status(200).json({ token });
+    console.log('[create-purchase] SUCCESS - saved purchase for:', email, 'orderId:', orderId);
+    return res.status(200).json({ token, orderId });
   } catch (err) {
     console.error('[create-purchase] FIREBASE ERROR:', err.message, err.code);
     return res.status(500).json({ error: 'Failed to create purchase: ' + err.message });

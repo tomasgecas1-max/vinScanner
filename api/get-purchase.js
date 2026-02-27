@@ -39,10 +39,12 @@ export default async function handler(req, res) {
   const reportsRemaining = Math.max(0, reportsTotal - reportsUsed);
 
   return res.status(200).json({
+    orderId: d?.orderId ?? null,
     email: d?.email ?? '',
     reportsTotal,
     reportsUsed,
     reportsRemaining,
     usedVins: Array.isArray(d?.usedVins) ? d.usedVins : [],
+    paymentIntentId: d?.paymentIntentId ?? null,
   });
 }

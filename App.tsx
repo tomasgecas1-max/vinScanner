@@ -45,13 +45,14 @@ const App: React.FC = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [orderEmail, setOrderEmail] = useState<string | null>(null);
   const [redirectOrder, setRedirectOrder] = useState<{ vin: string; email?: string; planIndex?: number } | null>(null);
-  const [pendingEmailReport, setPendingEmailReport] = useState<{ email: string; vin: string; token?: string; reportsRemaining?: number } | null>(null);
+  const [pendingEmailReport, setPendingEmailReport] = useState<{ email: string; vin: string; token?: string; reportsRemaining?: number; orderId?: string } | null>(null);
   const [purchaseToken, setPurchaseToken] = useState<string | null>(null);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [showUsageInstructionsModal, setShowUsageInstructionsModal] = useState(false);
   const [purchaseInfo, setPurchaseInfo] = useState<{
     reportsRemaining: number;
     reportsTotal: number;
+    orderId: string | null;
     loading: boolean;
     error: boolean;
   } | null>(null);
@@ -100,7 +101,7 @@ const App: React.FC = () => {
       setPurchaseInfo(null);
       return;
     }
-    setPurchaseInfo((p) => ({ reportsRemaining: p?.reportsRemaining ?? 0, reportsTotal: p?.reportsTotal ?? 1, loading: true, error: false }));
+    setPurchaseInfo((p) => ({ reportsRemaining: p?.reportsRemaining ?? 0, reportsTotal: p?.reportsTotal ?? 1, orderId: p?.orderId ?? null, loading: true, error: false }));
     fetch(`/api/get-purchase?token=${encodeURIComponent(purchaseToken)}`)
       .then((res) => {
         if (!res.ok) throw new Error('Failed');
@@ -110,6 +111,7 @@ const App: React.FC = () => {
         setPurchaseInfo({
           reportsRemaining: data.reportsRemaining ?? 0,
           reportsTotal: data.reportsTotal ?? 1,
+          orderId: data.orderId ?? null,
           loading: false,
           error: false,
         });
@@ -118,6 +120,7 @@ const App: React.FC = () => {
         setPurchaseInfo((p) => ({
           reportsRemaining: p?.reportsRemaining ?? 0,
           reportsTotal: p?.reportsTotal ?? 0,
+          orderId: p?.orderId ?? null,
           loading: false,
           error: true,
         }));
@@ -194,7 +197,7 @@ const App: React.FC = () => {
             prev ? { ...prev, reportsRemaining: newRemaining } : null
           );
           if (userEmail) {
-            setPendingEmailReport({ email: userEmail, vin: vinTrimmed, token: purchaseToken, reportsRemaining: newRemaining });
+            setPendingEmailReport({ email: userEmail, vin: vinTrimmed, token: purchaseToken, reportsRemaining: newRemaining, orderId: purchaseInfo.orderId ?? undefined });
           }
           return handleSearch(vinTrimmed);
         })
@@ -262,6 +265,7 @@ const App: React.FC = () => {
           }
           if (customerEmail) {
             let token: string | undefined;
+            let orderId: string | undefined;
             if (planIndex >= 1) {
               try {
                 console.log('[App/cached] Creating purchase for:', customerEmail, 'planIndex:', planIndex, 'vin:', vin);
@@ -274,12 +278,13 @@ const App: React.FC = () => {
                 console.log('[App/cached] create-purchase response:', pr.status, prData);
                 if (pr.ok && prData?.token) {
                   token = prData.token;
+                  orderId = prData.orderId;
                 }
               } catch (e) {
                 console.error('[App/cached] create-purchase error:', e);
               }
             }
-            setPendingEmailReport({ email: customerEmail, vin, token, reportsRemaining: planIndex >= 1 ? planIndex : undefined });
+            setPendingEmailReport({ email: customerEmail, vin, token, reportsRemaining: planIndex >= 1 ? planIndex : undefined, orderId });
           }
           await new Promise((resolve) => setTimeout(resolve, 400));
           setTimeout(() => setLoading(false), 500);
@@ -414,6 +419,7 @@ const App: React.FC = () => {
       }
       if (customerEmail) {
         let token: string | undefined;
+        let orderId: string | undefined;
         if (planIndex >= 1) {
           try {
             console.log('[App] Creating purchase for:', customerEmail, 'planIndex:', planIndex, 'vin:', vin);
@@ -426,12 +432,13 @@ const App: React.FC = () => {
             console.log('[App] create-purchase response:', pr.status, prData);
             if (pr.ok && prData?.token) {
               token = prData.token;
+              orderId = prData.orderId;
             }
           } catch (e) {
             console.error('[App] create-purchase error:', e);
           }
         }
-        setPendingEmailReport({ email: customerEmail, vin, token, reportsRemaining: planIndex >= 1 ? planIndex : undefined });
+        setPendingEmailReport({ email: customerEmail, vin, token, reportsRemaining: planIndex >= 1 ? planIndex : undefined, orderId });
       }
       fetch('/api/report-cache', {
         method: 'POST',
@@ -616,6 +623,7 @@ const App: React.FC = () => {
               supplementLoading={supplementLoading}
               pendingEmailReport={pendingEmailReport}
               onEmailWithPdfSent={() => setPendingEmailReport(null)}
+              orderId={purchaseInfo?.orderId ?? pendingEmailReport?.orderId ?? null}
             />
           )}
         </div>

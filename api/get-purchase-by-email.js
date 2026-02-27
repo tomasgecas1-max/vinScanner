@@ -60,10 +60,12 @@ export default async function handler(req, res) {
         bestRemaining = reportsRemaining;
         best = {
           token: doc.id,
+          orderId: d?.orderId ?? null,
           reportsTotal,
           reportsUsed,
           reportsRemaining,
           usedVins: Array.isArray(d?.usedVins) ? d.usedVins : [],
+          paymentIntentId: d?.paymentIntentId ?? null,
         };
       }
     });
@@ -73,14 +75,16 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: 'No purchase with remaining reports' });
     }
 
-    console.log('[get-purchase-by-email] SUCCESS - returning:', best.token, 'remaining:', best.reportsRemaining);
+    console.log('[get-purchase-by-email] SUCCESS - returning:', best.token, 'orderId:', best.orderId, 'remaining:', best.reportsRemaining);
     return res.status(200).json({
       token: best.token,
+      orderId: best.orderId,
       email,
       reportsTotal: best.reportsTotal,
       reportsUsed: best.reportsUsed,
       reportsRemaining: best.reportsRemaining,
       usedVins: best.usedVins,
+      paymentIntentId: best.paymentIntentId,
     });
   } catch (err) {
     console.error('[get-purchase-by-email] ERROR:', err.message, err.code);

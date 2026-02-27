@@ -14,8 +14,9 @@ interface ReportViewProps {
   onSaveReport?: () => Promise<void>;
   onSupplementReport?: (vin: string, opts: { useServiceHistory: boolean; useVinLookup: boolean; useVehicleSpecs?: boolean; useCarsXeHistory?: boolean }) => Promise<void>;
   supplementLoading?: boolean;
-  pendingEmailReport?: { email: string; vin: string; token?: string; reportsRemaining?: number } | null;
+  pendingEmailReport?: { email: string; vin: string; token?: string; reportsRemaining?: number; orderId?: string } | null;
   onEmailWithPdfSent?: () => void;
+  orderId?: string | null;
 }
 
 /** Pavadinimai API šaltiniams ir žinomų laukų etiketės (VIN Lookup, Cartell ir kt.) */
@@ -126,7 +127,7 @@ function formatValue(val: unknown, t?: { report: { yes: string; no: string } }):
   return String(val);
 }
 
-const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave, onSaveReport, onSupplementReport, supplementLoading, pendingEmailReport, onEmailWithPdfSent }) => {
+const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave, onSaveReport, onSupplementReport, supplementLoading, pendingEmailReport, onEmailWithPdfSent, orderId }) => {
   const [showRawApi, setShowRawApi] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [saveCloudLoading, setSaveCloudLoading] = useState(false);
@@ -193,7 +194,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
           await fetch('/api/send-order-email', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ to: pendingEmailReport.email, vin: report.vin, token: pendingEmailReport.token, reportsRemaining: pendingEmailReport.reportsRemaining }),
+            body: JSON.stringify({ to: pendingEmailReport.email, vin: report.vin, token: pendingEmailReport.token, reportsRemaining: pendingEmailReport.reportsRemaining, orderId: pendingEmailReport.orderId ?? orderId }),
           });
         } catch (_) {}
         return;
@@ -223,7 +224,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
         const emailRes = await fetch('/api/send-order-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ to: pendingEmailReport.email, vin: report.vin, pdfBase64, token: pendingEmailReport.token, reportsRemaining: pendingEmailReport.reportsRemaining }),
+          body: JSON.stringify({ to: pendingEmailReport.email, vin: report.vin, pdfBase64, token: pendingEmailReport.token, reportsRemaining: pendingEmailReport.reportsRemaining, orderId: pendingEmailReport.orderId ?? orderId }),
         });
         console.log('[ReportView] Email API response:', emailRes.status);
       } catch (e) {
@@ -234,7 +235,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
           await fetch('/api/send-order-email', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ to: pendingEmailReport.email, vin: report.vin, token: pendingEmailReport.token, reportsRemaining: pendingEmailReport.reportsRemaining }),
+            body: JSON.stringify({ to: pendingEmailReport.email, vin: report.vin, token: pendingEmailReport.token, reportsRemaining: pendingEmailReport.reportsRemaining, orderId: pendingEmailReport.orderId ?? orderId }),
           });
         } catch (_) {}
       }
@@ -336,6 +337,12 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
               <span className="font-mono text-sm break-all">{report.vin}</span>
             </div>
+            {orderId && (
+              <div className="flex items-center gap-2 mt-1 opacity-70">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                <span className="font-mono text-sm">{lang === 'lt' ? 'Užsakymo Nr.' : 'Order No.'} {orderId}</span>
+              </div>
+            )}
           </div>
           <div className="flex flex-wrap items-center gap-3 sm:gap-4 w-full md:w-auto">
             <div

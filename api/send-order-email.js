@@ -35,11 +35,12 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid JSON' });
   }
 
-  const { to, vin, pdfBase64, token, reportsRemaining } = body;
+  const { to, vin, pdfBase64, token, reportsRemaining, orderId } = body;
   if (!to || typeof to !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
     return res.status(400).json({ error: 'Valid email required' });
   }
   const vinStr = String(vin || '').trim().slice(0, 50);
+  const orderIdStr = orderId ? String(orderId).trim() : null;
 
   const attachments = [];
   if (pdfBase64 && typeof pdfBase64 === 'string' && pdfBase64.length > 0) {
@@ -61,7 +62,7 @@ export default async function handler(req, res) {
     auth: { user, pass },
   });
 
-  const subject = `Jūsų VIN ataskaita paruošta – vinscanner.eu${vinStr ? ` (${vinStr})` : ''}`;
+  const subject = `Jūsų VIN ataskaita paruošta – vinscanner.eu${orderIdStr ? ` [${orderIdStr}]` : ''}${vinStr ? ` (${vinStr})` : ''}`;
   const baseUrl = 'https://vinscanner.eu';
   const n = Math.max(0, Number(reportsRemaining) || 0);
   const reportsLink = token && n > 0
@@ -79,8 +80,12 @@ export default async function handler(req, res) {
       <p style="margin:0;font-size:15px;color:#92400e;">Deja, techninės klaidos dėka nuoroda negali būti rodoma. Susisiekite su mumis: <a href="mailto:info@vinscanner.eu" style="color:#d97706;font-weight:bold;">info@vinscanner.eu</a> – mes padėsime pasiekti likusias ataskaitas.</p>
     </div>`
     : '';
+  const orderInfo = orderIdStr
+    ? `<p style="margin:0 0 8px 0;font-size:14px;color:#64748b;">Užsakymo Nr.: <strong style="color:#1e293b;">${orderIdStr}</strong></p>`
+    : '';
   const html = `
     <p>Sveikiname!</p>
+    ${orderInfo}
     <p>Jūsų VIN <strong>${vinStr || '–'}</strong> ataskaita paruošta${attachments.length > 0 ? ' – PDF prisegtas prie šio laiško.' : '.'}</p>
     <p>Peržiūrėkite ją svetainėje <a href="${baseUrl}">vinscanner.eu</a>.</p>
     ${reportsLink}
