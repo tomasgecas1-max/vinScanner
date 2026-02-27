@@ -20,9 +20,11 @@ import { saveReport } from './services/reportsFirestore';
 import { CarReport } from './types';
 import { getTranslations } from './constants/translations';
 import type { LangCode } from './constants/translations';
+import { useGoogleAnalytics, trackPurchase, trackVinSearch } from './hooks/useGoogleAnalytics';
 
 const App: React.FC = () => {
   const { user } = useAuth();
+  useGoogleAnalytics();
   const [lang, setLang] = useState<LangCode>('lt');
   const [report, setReport] = useState<CarReport | null>(null);
   const [loading, setLoading] = useState(false);
@@ -240,6 +242,10 @@ const App: React.FC = () => {
   }, [redirectOrder]);
 
   const handlePaymentPay = (vin: string, customerEmail?: string, orderId?: string, paymentIntentId?: string) => {
+    if (orderId) {
+      const prices = [0.50, 0.50, 0.50]; // TODO: atnaujinti su tikromis kainomis
+      trackPurchase(orderId, prices[planIndexForOrder] ?? 0.50);
+    }
     setShowPaymentModal(false);
     setVinForOrder(null);
     setOrderEmail(null);
@@ -259,6 +265,7 @@ const App: React.FC = () => {
     }
     try {
       const vinNorm = vin.trim().toUpperCase();
+      trackVinSearch(vinNorm);
       const cacheRes = await fetch(`/api/report-cache?vin=${encodeURIComponent(vinNorm)}`);
       if (cacheRes.ok) {
         const cacheData = await cacheRes.json();

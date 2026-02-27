@@ -51,6 +51,7 @@ export default defineConfig(({ mode }) => {
     const firebaseAppId = env.FIREBASE_APP_ID ?? env.VITE_FIREBASE_APP_ID;
     const hasFirebase = !!(firebaseApiKey && firebaseProjectId);
     const aiApiKey = env.AI_API_KEY ?? env.VITE_AI_API_KEY ?? env.GEMINI_API_KEY;
+    const gaMeasurementId = env.GA_MEASUREMENT_ID ?? env.VITE_GA_MEASUREMENT_ID;
     console.log('[vite] Firebase env:', hasFirebase ? 'present (Prisijungti bus rodomas)' : 'MISSING – pridėk FIREBASE_* arba VITE_FIREBASE_* Vercel');
     console.log('[vite] AI_API_KEY:', aiApiKey ? 'present' : 'MISSING – pridėk AI_API_KEY arba VITE_AI_API_KEY (Vercel Environment Variables)');
     console.log('[vite] CARSXE_API_KEY:', carsxeApiKey ? 'present (proxy įjungtas)' : 'MISSING – Automobilio specifikacijos neveiks');
@@ -72,6 +73,7 @@ export default defineConfig(({ mode }) => {
         'process.env.FIREBASE_STORAGE_BUCKET': JSON.stringify(firebaseStorageBucket),
         'process.env.FIREBASE_MESSAGING_SENDER_ID': JSON.stringify(firebaseMessagingSenderId),
         'process.env.FIREBASE_APP_ID': JSON.stringify(firebaseAppId),
+        'import.meta.env.VITE_GA_MEASUREMENT_ID': JSON.stringify(gaMeasurementId),
         // CARSXE_API_KEY – tik serveryje (proxy / Vercel api), į klientą NĖRA perduodamas
       },
       resolve: {
