@@ -230,6 +230,7 @@ const App: React.FC = () => {
   }, [redirectOrder]);
 
   const handlePaymentPay = (vin: string, customerEmail?: string) => {
+    console.log('[handlePaymentPay] Called with:', { vin, customerEmail, planIndexForOrder });
     setShowPaymentModal(false);
     setVinForOrder(null);
     setOrderEmail(null);
@@ -238,6 +239,7 @@ const App: React.FC = () => {
   };
 
   const handleSearch = async (vin: string, customerEmail?: string, planIndex: number = 1) => {
+    console.log('[handleSearch] Called with:', { vin, customerEmail, planIndex });
     const previousReport = report;
     setLoading(true);
     setReport(null);

@@ -181,6 +181,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   };
 
   const handleStripeSuccess = () => {
+    console.log('[PaymentModal] handleStripeSuccess - email:', email, 'vin:', vin);
     setStripeClientSecret(null);
     setStripeError(null);
     setDiscountInput('');
