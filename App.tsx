@@ -46,6 +46,7 @@ const App: React.FC = () => {
   const [orderEmail, setOrderEmail] = useState<string | null>(null);
   const [redirectOrder, setRedirectOrder] = useState<{ vin: string; email?: string; planIndex?: number } | null>(null);
   const [pendingEmailReport, setPendingEmailReport] = useState<{ email: string; vin: string; token?: string; reportsRemaining?: number; orderId?: string } | null>(null);
+  const [currentReportOrderId, setCurrentReportOrderId] = useState<string | null>(null);
   const [purchaseToken, setPurchaseToken] = useState<string | null>(null);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [showUsageInstructionsModal, setShowUsageInstructionsModal] = useState(false);
@@ -198,6 +199,7 @@ const App: React.FC = () => {
           );
           if (userEmail) {
             setPendingEmailReport({ email: userEmail, vin: vinTrimmed, token: purchaseToken, reportsRemaining: newRemaining, orderId: purchaseInfo.orderId ?? undefined });
+            if (purchaseInfo.orderId) setCurrentReportOrderId(purchaseInfo.orderId);
           }
           return handleSearch(vinTrimmed);
         })
@@ -252,6 +254,11 @@ const App: React.FC = () => {
     setLoading(true);
     setReport(null);
     setError(null);
+    if (orderId) {
+      setCurrentReportOrderId(orderId);
+    } else if (!customerEmail) {
+      setCurrentReportOrderId(null);
+    }
     try {
       const vinNorm = vin.trim().toUpperCase();
       const cacheRes = await fetch(`/api/report-cache?vin=${encodeURIComponent(vinNorm)}`);
@@ -286,6 +293,7 @@ const App: React.FC = () => {
               }
             }
             setPendingEmailReport({ email: customerEmail, vin, token, reportsRemaining: planIndex >= 1 ? planIndex : undefined, orderId: finalOrderId });
+            if (finalOrderId) setCurrentReportOrderId(finalOrderId);
           }
           await new Promise((resolve) => setTimeout(resolve, 400));
           setTimeout(() => setLoading(false), 500);
@@ -441,6 +449,7 @@ const App: React.FC = () => {
           }
         }
         setPendingEmailReport({ email: customerEmail, vin, token, reportsRemaining: planIndex >= 1 ? planIndex : undefined, orderId: finalOrderId });
+        if (finalOrderId) setCurrentReportOrderId(finalOrderId);
       }
       fetch('/api/report-cache', {
         method: 'POST',
@@ -625,7 +634,7 @@ const App: React.FC = () => {
               supplementLoading={supplementLoading}
               pendingEmailReport={pendingEmailReport}
               onEmailWithPdfSent={() => setPendingEmailReport(null)}
-              orderId={purchaseInfo?.orderId ?? pendingEmailReport?.orderId ?? null}
+              orderId={currentReportOrderId ?? purchaseInfo?.orderId ?? pendingEmailReport?.orderId ?? null}
             />
           )}
         </div>
