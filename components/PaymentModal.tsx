@@ -187,7 +187,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   };
 
   const handleStripeSuccess = () => {
-    console.log('[PaymentModal] handleStripeSuccess - email:', email, 'vin:', vin, 'orderId:', currentOrderId);
     const savedOrderId = currentOrderId;
     const savedPaymentIntentId = currentPaymentIntentId;
     setStripeClientSecret(null);

@@ -31,8 +31,6 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  console.log('[create-purchase] Request received:', req.method);
-
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
@@ -53,18 +51,14 @@ export default async function handler(req, res) {
 
   const pi = Math.max(0, Math.min(2, Number(planIndex) || 0));
   const reportsTotal = pi + 1;
-  console.log('[create-purchase] planIndex:', planIndex, 'pi:', pi, 'reportsTotal:', reportsTotal);
   
   if (reportsTotal <= 1) {
-    console.log('[create-purchase] Rejected: only for 2+ reports');
     return res.status(400).json({ error: 'Only for plans with 2+ reports' });
   }
 
   try {
     const token = crypto.randomBytes(24).toString('base64url');
     const orderId = generateOrderId();
-    console.log('[create-purchase] Generated token and orderId:', orderId);
-    
     const col = getDb().collection('purchases');
 
     await col.doc(token).set({
@@ -77,7 +71,6 @@ export default async function handler(req, res) {
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    console.log('[create-purchase] SUCCESS - saved purchase for:', email, 'orderId:', orderId);
     return res.status(200).json({ token, orderId });
   } catch (err) {
     console.error('[create-purchase] FIREBASE ERROR:', err.message, err.code);

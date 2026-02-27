@@ -171,17 +171,8 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
   }, [report.serviceEvents, lang]);
 
   useEffect(() => {
-    console.log('[ReportView] Email effect check:', {
-      hasPendingEmailReport: !!pendingEmailReport,
-      pendingEmail: pendingEmailReport?.email,
-      pendingVin: pendingEmailReport?.vin,
-      reportVin: report.vin,
-      vinMatch: report.vin === pendingEmailReport?.vin,
-      emailSentFor: emailSentForRef.current,
-    });
     if (!pendingEmailReport || !onEmailWithPdfSent || report.vin !== pendingEmailReport.vin) return;
     if (emailSentForRef.current === pendingEmailReport.vin) return;
-    console.log('[ReportView] Starting email send for:', pendingEmailReport.email);
     const run = async () => {
       emailSentForRef.current = pendingEmailReport.vin;
       reportPdfRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -220,13 +211,11 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
             reader.readAsDataURL(blob);
           });
         }
-        console.log('[ReportView] Sending email with PDF to:', pendingEmailReport.email, 'pdfSize:', pdfBase64.length);
-        const emailRes = await fetch('/api/send-order-email', {
+        await fetch('/api/send-order-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ to: pendingEmailReport.email, vin: report.vin, pdfBase64, token: pendingEmailReport.token, reportsRemaining: pendingEmailReport.reportsRemaining, orderId: pendingEmailReport.orderId ?? orderId }),
         });
-        console.log('[ReportView] Email API response:', emailRes.status);
       } catch (e) {
         console.error('[ReportView] Email su PDF klaida:', e);
       }
