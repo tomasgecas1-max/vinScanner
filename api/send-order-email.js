@@ -4,6 +4,7 @@
  * POST: { to, vin }
  */
 import nodemailer from 'nodemailer';
+import { captureError } from './_sentry.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -105,6 +106,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ success: true });
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
+    captureError(e, { context: 'send-order-email', to, vin: vinStr });
     return res.status(502).json({ error: message });
   }
 }

@@ -6,6 +6,7 @@
  */
 import admin from 'firebase-admin';
 import crypto from 'crypto';
+import { captureError } from './_sentry.js';
 
 function generateOrderId() {
   const now = new Date();
@@ -74,6 +75,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ token, orderId });
   } catch (err) {
     console.error('[create-purchase] FIREBASE ERROR:', err.message, err.code);
+    captureError(err, { context: 'create-purchase', email, planIndex });
     return res.status(500).json({ error: 'Failed to create purchase: ' + err.message });
   }
 }

@@ -4,6 +4,7 @@ import Navbar from './components/Navbar';
 import MobilePlanSheet from './components/MobilePlanSheet';
 import OrderEmailStepModal from './components/OrderEmailStepModal';
 import PrivacyPolicyModal from './components/PrivacyPolicyModal';
+import CookieConsent from './components/CookieConsent';
 import UsageInstructionsModal from './components/UsageInstructionsModal';
 import PaymentModal from './components/PaymentModal';
 import Hero from './components/Hero';
@@ -21,6 +22,7 @@ import { CarReport } from './types';
 import { getTranslations } from './constants/translations';
 import type { LangCode } from './constants/translations';
 import { useGoogleAnalytics, trackPurchase, trackVinSearch } from './hooks/useGoogleAnalytics';
+import { captureError } from './services/sentry';
 
 const App: React.FC = () => {
   const { user } = useAuth();
@@ -81,6 +83,13 @@ const App: React.FC = () => {
     if (token && token.length >= 10 && !params.get('redirect_status')) {
       setPurchaseToken(token);
     }
+  }, []);
+
+  // Listen for privacy policy open event from CookieConsent
+  useEffect(() => {
+    const handleOpenPrivacy = () => setShowPrivacyModal(true);
+    window.addEventListener('openPrivacyPolicy', handleOpenPrivacy);
+    return () => window.removeEventListener('openPrivacyPolicy', handleOpenPrivacy);
   }, []);
 
   // Kai prisijungęs vartotojas, bet nėra token iš URL – ieškome pirkimo pagal el. paštą
@@ -293,6 +302,7 @@ const App: React.FC = () => {
                 }
               } catch (e) {
                 console.error('[App/cached] create-purchase error:', e);
+                captureError(e as Error, { context: 'cached-create-purchase', email: customerEmail });
               }
             }
             setPendingEmailReport({ email: customerEmail, vin, token, reportsRemaining: planIndex >= 1 ? planIndex : undefined, orderId: finalOrderId });
@@ -445,22 +455,24 @@ const App: React.FC = () => {
               token = prData.token;
               finalOrderId = prData.orderId ?? finalOrderId;
             }
-          } catch (e) {
-            console.error('[App] create-purchase error:', e);
-          }
+        } catch (e) {
+          console.error('[App] create-purchase error:', e);
+          captureError(e as Error, { context: 'create-purchase', email: customerEmail });
         }
-        setPendingEmailReport({ email: customerEmail, vin, token, reportsRemaining: planIndex >= 1 ? planIndex : undefined, orderId: finalOrderId });
-        if (finalOrderId) setCurrentReportOrderId(finalOrderId);
       }
-      fetch('/api/report-cache', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ vin, report: finalReport }),
-      }).catch(() => {});
-      await new Promise(resolve => setTimeout(resolve, 400));
-    } catch (err) {
-      console.error(err);
-      setError(t.errors.networkFailed);
+      setPendingEmailReport({ email: customerEmail, vin, token, reportsRemaining: planIndex >= 1 ? planIndex : undefined, orderId: finalOrderId });
+      if (finalOrderId) setCurrentReportOrderId(finalOrderId);
+    }
+    fetch('/api/report-cache', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ vin, report: finalReport }),
+    }).catch(() => {});
+    await new Promise(resolve => setTimeout(resolve, 400));
+  } catch (err) {
+    console.error(err);
+    captureError(err as Error, { context: 'handleSearch', vin });
+    setError(t.errors.networkFailed);
     } finally {
       setTimeout(() => setLoading(false), 500);
     }
@@ -525,6 +537,7 @@ const App: React.FC = () => {
       if (user) saveReport(user.uid, merged).then(() => setMyReportsRefreshKey((k) => k + 1)).catch(() => {});
     } catch (e) {
       if (typeof console !== 'undefined' && console.error) console.error('Papildymas:', e);
+      captureError(e as Error, { context: 'supplementReport' });
     } finally {
       setSupplementLoading(false);
     }
@@ -763,6 +776,7 @@ const App: React.FC = () => {
         />
       )}
       <AIChat key={lang} t={t} />
+      <CookieConsent lang={lang} />
     </div>
   );
 };

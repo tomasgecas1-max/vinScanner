@@ -6,6 +6,7 @@
  */
 import Stripe from 'stripe';
 import crypto from 'crypto';
+import { captureError } from './_sentry.js';
 
 function generateOrderId() {
   const now = new Date();
@@ -74,6 +75,7 @@ export default async function handler(req, res) {
     });
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
+    captureError(e, { context: 'create-payment-intent', vin, amountCents });
     return res.status(502).json({ error: message });
   }
 }
