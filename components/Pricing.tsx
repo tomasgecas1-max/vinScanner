@@ -11,10 +11,11 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect }) => {
   const [selectedPlanIdx, setSelectedPlanIdx] = useState<number>(1); // default: 2 ataskaitos (vidurinis planas)
   const isLt = t.nav.services === 'Paslaugos';
 
+  // TESTAVIMUI: kainos sumažintos iki 0.50 EUR (grąžinti prieš production!)
   const plans = [
-    { name: isLt ? "Vienkartinė" : "Single", count: isLt ? "1 ataskaita" : "1 Report", price: 14, oldPrice: 19, bestValue: false },
-    { name: isLt ? "Populiariausias" : "Most Popular", count: isLt ? "2 ataskaitos" : "2 Reports", price: 20, oldPrice: 25, bestValue: false },
-    { name: isLt ? "Geriausia vertė" : "Best Value", count: isLt ? "3 ataskaitos" : "3 Reports", price: 26, oldPrice: 31, bestValue: true },
+    { name: isLt ? "Vienkartinė" : "Single", count: isLt ? "1 ataskaita" : "1 Report", price: 0.50, oldPrice: 1.00, bestValue: false },
+    { name: isLt ? "Populiariausias" : "Most Popular", count: isLt ? "2 ataskaitos" : "2 Reports", price: 0.50, oldPrice: 1.00, bestValue: false },
+    { name: isLt ? "Geriausia vertė" : "Best Value", count: isLt ? "3 ataskaitos" : "3 Reports", price: 0.50, oldPrice: 1.00, bestValue: true },
   ];
 
   const scrollToVinInput = () => {

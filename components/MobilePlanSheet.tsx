@@ -12,9 +12,10 @@ const MobilePlanSheet: React.FC<MobilePlanSheetProps> = ({ pendingVin, t, onPlan
   const [refundModalOpen, setRefundModalOpen] = React.useState(false);
   const isLt = t.nav.services === 'Paslaugos';
   const plans = [
-    { name: isLt ? "Vienkartinė" : "Single", count: isLt ? "1 ataskaita" : "1 Report", price: 14, oldPrice: 19, highlight: false },
-    { name: isLt ? "Populiariausias" : "Most Popular", count: isLt ? "2 ataskaitos" : "2 Reports", price: 20, oldPrice: 25, highlight: false },
-    { name: isLt ? "Geriausia vertė" : "Best Value", count: isLt ? "3 ataskaitos" : "3 Reports", price: 26, oldPrice: 31, highlight: true },
+    // TESTAVIMUI: kainos sumažintos iki 0.50 EUR (grąžinti prieš production!)
+    { name: isLt ? "Vienkartinė" : "Single", count: isLt ? "1 ataskaita" : "1 Report", price: 0.50, oldPrice: 1.00, highlight: false },
+    { name: isLt ? "Populiariausias" : "Most Popular", count: isLt ? "2 ataskaitos" : "2 Reports", price: 0.50, oldPrice: 1.00, highlight: false },
+    { name: isLt ? "Geriausia vertė" : "Best Value", count: isLt ? "3 ataskaitos" : "3 Reports", price: 0.50, oldPrice: 1.00, highlight: true },
   ];
 
   const handleConfirm = () => {
