@@ -19,7 +19,7 @@ const DISCOUNT_CODES: Record<string, { type: 'percent' | 'fixed'; value: number 
 interface PaymentModalProps {
   open: boolean;
   onClose: () => void;
-  onPay: (vin: string, email?: string) => void;
+  onPay: (vin: string, email?: string, orderId?: string, paymentIntentId?: string) => void;
   vin: string;
   planIndex: number;
   email?: string;
@@ -71,6 +71,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   const [stripeClientSecret, setStripeClientSecret] = useState<string | null>(null);
   const [stripeError, setStripeError] = useState<string | null>(null);
   const [stripeLoading, setStripeLoading] = useState(false);
+  const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
+  const [currentPaymentIntentId, setCurrentPaymentIntentId] = useState<string | null>(null);
 
   // Kai Stripe įjungtas – iš karto kuriame PaymentIntent ir rodom Stripe formą kaip pirmą langą
   useEffect(() => {
@@ -94,6 +96,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       .then((data) => {
         if (data.clientSecret) {
           setStripeClientSecret(data.clientSecret);
+          setCurrentOrderId(data.orderId ?? null);
+          setCurrentPaymentIntentId(data.paymentIntentId ?? null);
         } else {
           setStripeError(data.error ?? t.pricing.paymentApiUnavailable);
         }
@@ -107,6 +111,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     if (!open) {
       setStripeClientSecret(null);
       setStripeError(null);
+      setCurrentOrderId(null);
+      setCurrentPaymentIntentId(null);
     }
   }, [open]);
 
@@ -181,12 +187,16 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   };
 
   const handleStripeSuccess = () => {
-    console.log('[PaymentModal] handleStripeSuccess - email:', email, 'vin:', vin);
+    console.log('[PaymentModal] handleStripeSuccess - email:', email, 'vin:', vin, 'orderId:', currentOrderId);
+    const savedOrderId = currentOrderId;
+    const savedPaymentIntentId = currentPaymentIntentId;
     setStripeClientSecret(null);
     setStripeError(null);
     setDiscountInput('');
     setAppliedCode(null);
-    onPay(vin, email ?? undefined);
+    setCurrentOrderId(null);
+    setCurrentPaymentIntentId(null);
+    onPay(vin, email ?? undefined, savedOrderId ?? undefined, savedPaymentIntentId ?? undefined);
     onClose();
   };
 

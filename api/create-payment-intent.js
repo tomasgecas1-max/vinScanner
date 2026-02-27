@@ -1,10 +1,20 @@
 /**
  * Vercel serverless – Stripe PaymentIntent kūrimas.
  * Frontend kviečia su amount (EUR), vin, planIndex, email.
- * Grąžina client_secret Payment Element / confirmPayment naudojimui.
+ * Grąžina client_secret ir orderId Payment Element / confirmPayment naudojimui.
  * @see https://docs.stripe.com/api/payment_intents/create
  */
 import Stripe from 'stripe';
+import crypto from 'crypto';
+
+function generateOrderId() {
+  const now = new Date();
+  const yy = String(now.getFullYear()).slice(-2);
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  const random = crypto.randomBytes(3).toString('hex').toUpperCase().slice(0, 4);
+  return `VS-${yy}${mm}${dd}-${random}`;
+}
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -42,6 +52,7 @@ export default async function handler(req, res) {
   }
 
   const stripe = new Stripe(secretKey);
+  const orderId = generateOrderId();
 
   try {
     const paymentIntent = await stripe.paymentIntents.create({
@@ -52,11 +63,14 @@ export default async function handler(req, res) {
         vin: String(vin).trim().slice(0, 100),
         planIndex: String(planIndex ?? ''),
         email: String(email || '').slice(0, 500),
+        orderId,
       },
     });
 
     return res.status(200).json({
       clientSecret: paymentIntent.client_secret,
+      orderId,
+      paymentIntentId: paymentIntent.id,
     });
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);

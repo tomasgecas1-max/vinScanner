@@ -237,17 +237,17 @@ const App: React.FC = () => {
     setRedirectOrder(null);
   }, [redirectOrder]);
 
-  const handlePaymentPay = (vin: string, customerEmail?: string) => {
-    console.log('[handlePaymentPay] Called with:', { vin, customerEmail, planIndexForOrder });
+  const handlePaymentPay = (vin: string, customerEmail?: string, orderId?: string, paymentIntentId?: string) => {
+    console.log('[handlePaymentPay] Called with:', { vin, customerEmail, planIndexForOrder, orderId, paymentIntentId });
     setShowPaymentModal(false);
     setVinForOrder(null);
     setOrderEmail(null);
     setPendingVin(null);
-    handleSearch(vin, customerEmail, planIndexForOrder);
+    handleSearch(vin, customerEmail, planIndexForOrder, orderId, paymentIntentId);
   };
 
-  const handleSearch = async (vin: string, customerEmail?: string, planIndex: number = 1) => {
-    console.log('[handleSearch] Called with:', { vin, customerEmail, planIndex });
+  const handleSearch = async (vin: string, customerEmail?: string, planIndex: number = 1, orderId?: string, paymentIntentId?: string) => {
+    console.log('[handleSearch] Called with:', { vin, customerEmail, planIndex, orderId, paymentIntentId });
     const previousReport = report;
     setLoading(true);
     setReport(null);
@@ -265,26 +265,27 @@ const App: React.FC = () => {
           }
           if (customerEmail) {
             let token: string | undefined;
-            let orderId: string | undefined;
+            let finalOrderId: string | undefined = orderId;
+            let finalPaymentIntentId: string | undefined = paymentIntentId;
             if (planIndex >= 1) {
               try {
                 console.log('[App/cached] Creating purchase for:', customerEmail, 'planIndex:', planIndex, 'vin:', vin);
                 const pr = await fetch('/api/create-purchase', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ email: customerEmail, planIndex, vin }),
+                  body: JSON.stringify({ email: customerEmail, planIndex, vin, paymentIntentId: finalPaymentIntentId }),
                 });
                 const prData = await pr.json();
                 console.log('[App/cached] create-purchase response:', pr.status, prData);
                 if (pr.ok && prData?.token) {
                   token = prData.token;
-                  orderId = prData.orderId;
+                  finalOrderId = prData.orderId ?? finalOrderId;
                 }
               } catch (e) {
                 console.error('[App/cached] create-purchase error:', e);
               }
             }
-            setPendingEmailReport({ email: customerEmail, vin, token, reportsRemaining: planIndex >= 1 ? planIndex : undefined, orderId });
+            setPendingEmailReport({ email: customerEmail, vin, token, reportsRemaining: planIndex >= 1 ? planIndex : undefined, orderId: finalOrderId });
           }
           await new Promise((resolve) => setTimeout(resolve, 400));
           setTimeout(() => setLoading(false), 500);
@@ -419,26 +420,27 @@ const App: React.FC = () => {
       }
       if (customerEmail) {
         let token: string | undefined;
-        let orderId: string | undefined;
+        let finalOrderId: string | undefined = orderId;
+        let finalPaymentIntentId: string | undefined = paymentIntentId;
         if (planIndex >= 1) {
           try {
             console.log('[App] Creating purchase for:', customerEmail, 'planIndex:', planIndex, 'vin:', vin);
             const pr = await fetch('/api/create-purchase', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email: customerEmail, planIndex, vin }),
+              body: JSON.stringify({ email: customerEmail, planIndex, vin, paymentIntentId: finalPaymentIntentId }),
             });
             const prData = await pr.json();
             console.log('[App] create-purchase response:', pr.status, prData);
             if (pr.ok && prData?.token) {
               token = prData.token;
-              orderId = prData.orderId;
+              finalOrderId = prData.orderId ?? finalOrderId;
             }
           } catch (e) {
             console.error('[App] create-purchase error:', e);
           }
         }
-        setPendingEmailReport({ email: customerEmail, vin, token, reportsRemaining: planIndex >= 1 ? planIndex : undefined, orderId });
+        setPendingEmailReport({ email: customerEmail, vin, token, reportsRemaining: planIndex >= 1 ? planIndex : undefined, orderId: finalOrderId });
       }
       fetch('/api/report-cache', {
         method: 'POST',
