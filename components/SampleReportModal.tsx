@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import type { Translations } from '../constants/translations';
+import type { Translations, LangCode } from '../constants/translations';
 
 interface SampleReportModalProps {
   open: boolean;
   onClose: () => void;
   t: Translations;
+  lang: LangCode;
 }
 
 const SAMPLE_VIN = 'WBA8E1100XK477XXX';
@@ -46,150 +47,73 @@ const MILEAGE_HISTORY = [
   { date: '2024-12-06', value: 201986 },
 ];
 
-const SERVICE_EVENTS_ORIGINAL = [
-  {
-    date: '2024-12-06',
-    mileage: 201986,
-    provider: null,
-    type: 'service',
-    actions: [],
+const SERVICE_PROVIDERS: Record<string, Record<string, string>> = {
+  pl: {
+    lt: 'Oficialus BMW Servisas, Lenkija',
+    en: 'Official BMW Service, Poland',
+    de: 'Offizieller BMW Service, Polen',
   },
-  {
-    date: '2024-10-24',
-    mileage: 200220,
-    provider: null,
-    type: 'service',
-    actions: [],
+  nl: {
+    lt: 'Oficialus BMW Dileris, Olandija',
+    en: 'Official BMW Dealer, Netherlands',
+    de: 'Offizieller BMW Händler, Niederlande',
   },
-  {
-    date: '2023-04-28',
-    mileage: 170975,
-    provider: 'Oficialus BMW Servisas, Lenkija',
-    type: 'service',
-    actions: ['Engine oil.', 'Brake fluid service.', 'Microfilter (consider further additional job(s) if appropriate).'],
+  nl2: {
+    lt: 'BMW Dileris, Olandija',
+    en: 'BMW Dealer, Netherlands',
+    de: 'BMW Händler, Niederlande',
   },
-  {
-    date: '2021-10-22',
-    mileage: 131468,
-    provider: 'Oficialus BMW Servisas, Lenkija',
-    type: 'service',
-    actions: ['Engine oil.', 'Air filter element.', 'Vehicle check.', 'Microfilter (consider further additional job(s) if appropriate).', 'unknown.'],
-  },
-  {
-    date: '2021-05-04',
-    mileage: 118007,
-    provider: 'Oficialus BMW Servisas, Lenkija',
-    type: 'service',
-    actions: ['Brake fluid service.'],
-  },
-  {
-    date: '2020-09-03',
-    mileage: 101944,
-    provider: 'BMW Dileris, Olandija',
-    type: 'service',
-    actions: ['Statutory vehicle inspection.'],
-  },
-  {
-    date: '2020-02-10',
-    mileage: 99074,
-    provider: 'Oficialus BMW Dileris, Olandija',
-    type: 'service',
-    actions: ['Engine oil.', 'Microfilter (consider further additional job(s) if appropriate).'],
-  },
-  {
-    date: '2019-04-19',
-    mileage: 80772,
-    provider: 'Oficialus BMW Dileris, Olandija',
-    type: 'service',
-    actions: ['Brake fluid service.'],
-  },
-  {
-    date: '2018-08-23',
-    mileage: 65781,
-    provider: 'Oficialus BMW Dileris, Olandija',
-    type: 'service',
-    actions: ['Engine oil.', 'Air filter element.', 'Vehicle check.', 'Microfilter (consider further additional job(s) if appropriate).', 'unknown.'],
-  },
-  {
-    date: '2017-05-09',
-    mileage: 33204,
-    provider: 'Oficialus BMW Dileris, Olandija',
-    type: 'service',
-    actions: ['Engine oil.', 'Microfilter (consider further additional job(s) if appropriate).'],
-  },
-];
+};
 
-const SERVICE_EVENTS_TRANSLATED = [
-  {
-    date: '2024-12-06',
-    mileage: 201986,
-    provider: null,
-    type: 'service',
-    actions: [],
+const SERVICE_ACTIONS: Record<string, Record<string, string>> = {
+  'Engine oil.': {
+    lt: 'Variklio alyva.',
+    en: 'Engine oil.',
+    de: 'Motoröl.',
   },
-  {
-    date: '2024-10-24',
-    mileage: 200220,
-    provider: null,
-    type: 'service',
-    actions: [],
+  'Brake fluid service.': {
+    lt: 'Stabdžių skysčio keitimas.',
+    en: 'Brake fluid service.',
+    de: 'Bremsflüssigkeitswechsel.',
   },
-  {
-    date: '2023-04-28',
-    mileage: 170975,
-    provider: 'Oficialus BMW Servisas, Lenkija',
-    type: 'service',
-    actions: ['Variklio alyva.', 'Stabdžių skysčio keitimas.', 'Salono filtras (jei reikia, atlikti papildomus darbus).'],
+  'Microfilter (consider further additional job(s) if appropriate).': {
+    lt: 'Salono filtras (jei reikia, atlikti papildomus darbus).',
+    en: 'Microfilter (consider further additional job(s) if appropriate).',
+    de: 'Innenraumfilter (ggf. weitere Arbeiten durchführen).',
   },
-  {
-    date: '2021-10-22',
-    mileage: 131468,
-    provider: 'Oficialus BMW Servisas, Lenkija',
-    type: 'service',
-    actions: ['Variklio alyva.', 'Oro filtro elementas.', 'Automobilio patikra.', 'Salono filtras (jei reikia, atlikti papildomus darbus).', 'Nežinoma.'],
+  'Air filter element.': {
+    lt: 'Oro filtro elementas.',
+    en: 'Air filter element.',
+    de: 'Luftfilterelement.',
   },
-  {
-    date: '2021-05-04',
-    mileage: 118007,
-    provider: 'Oficialus BMW Servisas, Lenkija',
-    type: 'service',
-    actions: ['Stabdžių skysčio keitimas.'],
+  'Vehicle check.': {
+    lt: 'Automobilio patikra.',
+    en: 'Vehicle check.',
+    de: 'Fahrzeugprüfung.',
   },
-  {
-    date: '2020-09-03',
-    mileage: 101944,
-    provider: 'BMW Dileris, Olandija',
-    type: 'service',
-    actions: ['Privaloma techninė apžiūra.'],
+  'unknown.': {
+    lt: 'Nežinoma.',
+    en: 'Unknown.',
+    de: 'Unbekannt.',
   },
-  {
-    date: '2020-02-10',
-    mileage: 99074,
-    provider: 'Oficialus BMW Dileris, Olandija',
-    type: 'service',
-    actions: ['Variklio alyva.', 'Salono filtras (jei reikia, atlikti papildomus darbus).'],
+  'Statutory vehicle inspection.': {
+    lt: 'Privaloma techninė apžiūra.',
+    en: 'Statutory vehicle inspection.',
+    de: 'Hauptuntersuchung.',
   },
-  {
-    date: '2019-04-19',
-    mileage: 80772,
-    provider: 'Oficialus BMW Dileris, Olandija',
-    type: 'service',
-    actions: ['Stabdžių skysčio keitimas.'],
-  },
-  {
-    date: '2018-08-23',
-    mileage: 65781,
-    provider: 'Oficialus BMW Dileris, Olandija',
-    type: 'service',
-    actions: ['Variklio alyva.', 'Oro filtro elementas.', 'Automobilio patikra.', 'Salono filtras (jei reikia, atlikti papildomus darbus).', 'Nežinoma.'],
-  },
-  {
-    date: '2017-05-09',
-    mileage: 33204,
-    provider: 'Oficialus BMW Dileris, Olandija',
-    type: 'service',
-    actions: ['Variklio alyva.', 'Salono filtras (jei reikia, atlikti papildomus darbus).'],
-  },
+};
+
+const SERVICE_EVENTS = [
+  { date: '2024-12-06', mileage: 201986, providerKey: null, type: 'service', actionKeys: [] },
+  { date: '2024-10-24', mileage: 200220, providerKey: null, type: 'service', actionKeys: [] },
+  { date: '2023-04-28', mileage: 170975, providerKey: 'pl', type: 'service', actionKeys: ['Engine oil.', 'Brake fluid service.', 'Microfilter (consider further additional job(s) if appropriate).'] },
+  { date: '2021-10-22', mileage: 131468, providerKey: 'pl', type: 'service', actionKeys: ['Engine oil.', 'Air filter element.', 'Vehicle check.', 'Microfilter (consider further additional job(s) if appropriate).', 'unknown.'] },
+  { date: '2021-05-04', mileage: 118007, providerKey: 'pl', type: 'service', actionKeys: ['Brake fluid service.'] },
+  { date: '2020-09-03', mileage: 101944, providerKey: 'nl2', type: 'service', actionKeys: ['Statutory vehicle inspection.'] },
+  { date: '2020-02-10', mileage: 99074, providerKey: 'nl', type: 'service', actionKeys: ['Engine oil.', 'Microfilter (consider further additional job(s) if appropriate).'] },
+  { date: '2019-04-19', mileage: 80772, providerKey: 'nl', type: 'service', actionKeys: ['Brake fluid service.'] },
+  { date: '2018-08-23', mileage: 65781, providerKey: 'nl', type: 'service', actionKeys: ['Engine oil.', 'Air filter element.', 'Vehicle check.', 'Microfilter (consider further additional job(s) if appropriate).', 'unknown.'] },
+  { date: '2017-05-09', mileage: 33204, providerKey: 'nl', type: 'service', actionKeys: ['Engine oil.', 'Microfilter (consider further additional job(s) if appropriate).'] },
 ];
 
 const TECHNICAL_SPECS: Record<string, string> = {
@@ -210,50 +134,115 @@ const TECHNICAL_SPECS: Record<string, string> = {
   oem_interior_trim_desc: 'Leather Dakota sattelbraun/accent brown (PLCDJ)',
 };
 
-const FIELD_LABELS: Record<string, string> = {
-  oem_vehicle_desc: 'OE aprašymas',
-  vehicle_desc: 'Aprašymas',
-  manufacturer_desc: 'Gamintojas',
-  oem_model_range_desc: 'Serija / modelis',
-  oem_derivative_desc: 'Derivatyvas',
-  manufactured_year: 'Gamybos metai',
-  power_kw: 'Galia (kW)',
-  power_bhp: 'Galia (AG)',
-  oem_engine_desc: 'Variklis',
-  oem_fuel_type_desc: 'Kuras',
-  oem_transmission_type_desc: 'Pavarų dėžė',
-  oem_drivetrain_desc: 'Pavara',
-  oem_body_type_desc: 'Kėbulo tipas',
-  oem_colour_desc: 'Spalva',
-  oem_interior_trim_desc: 'Interjero apdaila',
+const FIELD_LABELS: Record<string, Record<string, string>> = {
+  oem_vehicle_desc: { lt: 'OE aprašymas', en: 'OE description', de: 'OE Beschreibung' },
+  vehicle_desc: { lt: 'Aprašymas', en: 'Description', de: 'Beschreibung' },
+  manufacturer_desc: { lt: 'Gamintojas', en: 'Manufacturer', de: 'Hersteller' },
+  oem_model_range_desc: { lt: 'Serija / modelis', en: 'Series / Model', de: 'Serie / Modell' },
+  oem_derivative_desc: { lt: 'Derivatyvas', en: 'Derivative', de: 'Derivat' },
+  manufactured_year: { lt: 'Gamybos metai', en: 'Year of manufacture', de: 'Baujahr' },
+  power_kw: { lt: 'Galia (kW)', en: 'Power (kW)', de: 'Leistung (kW)' },
+  power_bhp: { lt: 'Galia (AG)', en: 'Power (HP)', de: 'Leistung (PS)' },
+  oem_engine_desc: { lt: 'Variklis', en: 'Engine', de: 'Motor' },
+  oem_fuel_type_desc: { lt: 'Kuras', en: 'Fuel type', de: 'Kraftstoff' },
+  oem_transmission_type_desc: { lt: 'Pavarų dėžė', en: 'Transmission', de: 'Getriebe' },
+  oem_drivetrain_desc: { lt: 'Pavara', en: 'Drivetrain', de: 'Antrieb' },
+  oem_body_type_desc: { lt: 'Kėbulo tipas', en: 'Body type', de: 'Karosserietyp' },
+  oem_colour_desc: { lt: 'Spalva', en: 'Colour', de: 'Farbe' },
+  oem_interior_trim_desc: { lt: 'Interjero apdaila', en: 'Interior trim', de: 'Innenausstattung' },
 };
 
-const MARKET_VALUE = {
-  min: 9500,
-  average: 12500,
-  max: 15500,
+const MARKET_VALUE = { min: 9500, average: 12500, max: 15500 };
+
+const AI_ANALYSIS: Record<string, { problemAreas: string[]; strongPoints: string[] }> = {
+  lt: {
+    problemAreas: [
+      'Didelė rida (201 986 km) – gali reikėti papildomų patikrinimų',
+      'Paskutiniai serviso įrašai be detalių apie atliktus darbus',
+    ],
+    strongPoints: [
+      'Reguliariai prižiūrėtas oficialiuose BMW servisuose',
+      'Nuosekli ridos istorija be manipuliacijų požymių',
+      'Pilna serviso istorija nuo pirmos dienos',
+      'Stabdžių skysčio keitimas atliktas reguliariai',
+    ],
+  },
+  en: {
+    problemAreas: [
+      'High mileage (201,986 km) – may require additional checks',
+      'Recent service records without details about work performed',
+    ],
+    strongPoints: [
+      'Regularly maintained at official BMW service centers',
+      'Consistent mileage history with no signs of tampering',
+      'Complete service history from day one',
+      'Brake fluid changed regularly',
+    ],
+  },
+  de: {
+    problemAreas: [
+      'Hohe Laufleistung (201.986 km) – zusätzliche Prüfungen können erforderlich sein',
+      'Letzte Serviceeinträge ohne Details zu durchgeführten Arbeiten',
+    ],
+    strongPoints: [
+      'Regelmäßig bei offiziellen BMW-Servicezentren gewartet',
+      'Konsistente Kilometerhistorie ohne Manipulationsanzeichen',
+      'Vollständige Servicehistorie ab dem ersten Tag',
+      'Bremsflüssigkeit regelmäßig gewechselt',
+    ],
+  },
 };
 
-const AI_ANALYSIS = {
-  problemAreas: [
-    'Didelė rida (201 986 km) – gali reikėti papildomų patikrinimų',
-    'Paskutiniai serviso įrašai be detalių apie atliktus darbus',
-  ],
-  strongPoints: [
-    'Reguliariai prižiūrėtas oficialiuose BMW servisuose',
-    'Nuosekli ridos istorija be manipuliacijų požymių',
-    'Pilna serviso istorija nuo pirmos dienos',
-    'Stabdžių skysčio keitimas atliktas reguliariai',
-  ],
+const ORDER_LABEL: Record<string, string> = {
+  lt: 'Užsakymo Nr.',
+  en: 'Order No.',
+  de: 'Bestell-Nr.',
 };
 
-const SampleReportModal: React.FC<SampleReportModalProps> = ({ open, onClose, t }) => {
+const NO_DAMAGES: Record<string, string> = {
+  lt: 'Žalų įrašų nerasta',
+  en: 'No damage records found',
+  de: 'Keine Schadenseinträge gefunden',
+};
+
+const MILEAGE_LABEL: Record<string, string> = {
+  lt: 'Rida',
+  en: 'Mileage',
+  de: 'Kilometerstand',
+};
+
+function getLangGroup(lang: LangCode): 'lt' | 'en' | 'de' {
+  if (lang === 'lt') return 'lt';
+  if (lang === 'de' || lang === 'lb') return 'de';
+  return 'en';
+}
+
+const SampleReportModal: React.FC<SampleReportModalProps> = ({ open, onClose, t, lang }) => {
   const [showOriginalServiceTexts, setShowOriginalServiceTexts] = useState(false);
 
   if (!open) return null;
 
+  const langGroup = getLangGroup(lang);
   const chartData = MILEAGE_HISTORY.filter((_, i) => i % 4 === 0 || i === MILEAGE_HISTORY.length - 1);
-  const serviceEvents = showOriginalServiceTexts ? SERVICE_EVENTS_ORIGINAL : SERVICE_EVENTS_TRANSLATED;
+
+  const getServiceProvider = (key: string | null) => {
+    if (!key) return null;
+    return showOriginalServiceTexts 
+      ? SERVICE_PROVIDERS[key]?.en 
+      : (SERVICE_PROVIDERS[key]?.[langGroup] || SERVICE_PROVIDERS[key]?.en);
+  };
+
+  const getServiceAction = (actionKey: string) => {
+    return showOriginalServiceTexts 
+      ? actionKey 
+      : (SERVICE_ACTIONS[actionKey]?.[langGroup] || actionKey);
+  };
+
+  const getFieldLabel = (key: string) => {
+    return FIELD_LABELS[key]?.[langGroup] || FIELD_LABELS[key]?.en || key.replace(/_/g, ' ');
+  };
+
+  const analysis = AI_ANALYSIS[langGroup] || AI_ANALYSIS.en;
 
   return (
     <div
@@ -264,7 +253,7 @@ const SampleReportModal: React.FC<SampleReportModalProps> = ({ open, onClose, t 
         className="relative w-full max-w-5xl max-h-[95vh] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Ataskaitos antraštė - identiškai kaip ReportView */}
+        {/* Ataskaitos antraštė */}
         <div className="bg-slate-900 p-6 sm:p-8 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shrink-0">
           <div className="w-full md:w-auto">
             <div className="text-indigo-400 text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-1">{t.report.fullReport}</div>
@@ -275,7 +264,7 @@ const SampleReportModal: React.FC<SampleReportModalProps> = ({ open, onClose, t 
             </div>
             <div className="flex items-center gap-2 mt-1 opacity-70">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-              <span className="font-mono text-sm">{t.lang === 'lt' ? 'Užsakymo Nr.' : 'Order No.'} {SAMPLE_ORDER_ID}</span>
+              <span className="font-mono text-sm">{ORDER_LABEL[langGroup] || ORDER_LABEL.en} {SAMPLE_ORDER_ID}</span>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-3 sm:gap-4 w-full md:w-auto">
@@ -303,15 +292,13 @@ const SampleReportModal: React.FC<SampleReportModalProps> = ({ open, onClose, t 
 
         {/* Content */}
         <div className="overflow-y-auto flex-1">
-          {/* Techniniai duomenys – viršuje, viso ekrano plotis, 2 stulpeliai */}
+          {/* Techniniai duomenys */}
           <div className="w-full px-6 sm:px-8 py-6 sm:py-8 border-b border-slate-100">
             <h4 className="text-slate-900 font-bold text-sm sm:text-base mb-4">{t.report.technicalSpecs}</h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
               {Object.entries(TECHNICAL_SPECS).map(([key, val]) => (
                 <div key={key} className="flex justify-between py-3 border-b border-slate-200/50">
-                  <span className="text-slate-500 text-xs sm:text-sm capitalize">
-                    {FIELD_LABELS[key] || key.replace(/_/g, ' ')}
-                  </span>
+                  <span className="text-slate-500 text-xs sm:text-sm capitalize">{getFieldLabel(key)}</span>
                   <span className="text-slate-900 text-xs sm:text-sm font-semibold text-right">{val}</span>
                 </div>
               ))}
@@ -339,7 +326,7 @@ const SampleReportModal: React.FC<SampleReportModalProps> = ({ open, onClose, t 
                       <Tooltip 
                         contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '12px' }}
                         labelStyle={{ fontWeight: 'bold', marginBottom: '4px' }}
-                        formatter={(value: number) => [`${value.toLocaleString()} km`, 'Rida']}
+                        formatter={(value: number) => [`${value.toLocaleString()} km`, MILEAGE_LABEL[langGroup] || MILEAGE_LABEL.en]}
                       />
                       <Line type="monotone" dataKey="value" stroke="#4f46e5" strokeWidth={3} dot={{ r: 4, fill: '#4f46e5', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} />
                     </LineChart>
@@ -347,7 +334,7 @@ const SampleReportModal: React.FC<SampleReportModalProps> = ({ open, onClose, t 
                 </div>
               </div>
 
-              {/* Serviso įrašai – pilna istorija su AI vertimu */}
+              {/* Serviso įrašai */}
               <div>
                 <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
                   <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
@@ -365,7 +352,7 @@ const SampleReportModal: React.FC<SampleReportModalProps> = ({ open, onClose, t 
                   </label>
                 </div>
                 <div className="space-y-4">
-                  {serviceEvents.map((event, idx) => (
+                  {SERVICE_EVENTS.map((event, idx) => (
                     <div key={idx} className="p-5 rounded-2xl border border-slate-100 bg-slate-50/50 hover:border-slate-200 transition-colors">
                       <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                         <span className="font-mono text-sm font-bold text-slate-800">{event.date}</span>
@@ -373,18 +360,18 @@ const SampleReportModal: React.FC<SampleReportModalProps> = ({ open, onClose, t 
                           {event.mileage.toLocaleString()} km
                         </span>
                       </div>
-                      {event.provider && (
-                        <p className="text-xs sm:text-sm text-slate-600 mb-2">{event.provider}</p>
+                      {event.providerKey && (
+                        <p className="text-xs sm:text-sm text-slate-600 mb-2">{getServiceProvider(event.providerKey)}</p>
                       )}
                       {event.type && (
                         <span className="inline-block px-2 py-0.5 rounded-lg bg-indigo-100 text-indigo-700 text-xs font-bold uppercase tracking-wider mb-3">
                           {event.type}
                         </span>
                       )}
-                      {event.actions && event.actions.length > 0 && (
+                      {event.actionKeys && event.actionKeys.length > 0 && (
                         <ul className="list-disc list-inside space-y-1 text-sm text-slate-700">
-                          {event.actions.map((action, i) => (
-                            <li key={i}>{action}</li>
+                          {event.actionKeys.map((actionKey, i) => (
+                            <li key={i}>{getServiceAction(actionKey)}</li>
                           ))}
                         </ul>
                       )}
@@ -403,7 +390,7 @@ const SampleReportModal: React.FC<SampleReportModalProps> = ({ open, onClose, t 
                   <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-emerald-100 flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-emerald-600"><polyline points="20 6 9 17 4 12"/></svg>
                   </div>
-                  <p className="text-sm font-semibold text-emerald-800">{t.report.noDamages || 'Žalų įrašų nerasta'}</p>
+                  <p className="text-sm font-semibold text-emerald-800">{NO_DAMAGES[langGroup] || NO_DAMAGES.en}</p>
                 </div>
               </div>
             </div>
@@ -437,17 +424,15 @@ const SampleReportModal: React.FC<SampleReportModalProps> = ({ open, onClose, t 
                 <div className="absolute top-0 right-0 p-4 opacity-10">
                   <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
                 </div>
-                <h4 className="font-bold mb-4 text-sm">
-                  {t.report.aiInsights}
-                </h4>
+                <h4 className="font-bold mb-4 text-sm">{t.report.aiInsights}</h4>
                 <div className="space-y-4 mb-4">
-                  {AI_ANALYSIS.problemAreas.length > 0 && (
+                  {analysis.problemAreas.length > 0 && (
                     <div>
                       <h5 className="text-[11px] font-bold uppercase tracking-wider text-amber-400/90 mb-2">
                         {t.report.problemAreas}
                       </h5>
                       <ul className="space-y-1.5">
-                        {AI_ANALYSIS.problemAreas.map((item, i) => (
+                        {analysis.problemAreas.map((item, i) => (
                           <li key={i} className="text-[13px] text-slate-300 flex items-start gap-2">
                             <span className="text-amber-400 mt-0.5">•</span>
                             <span>{item}</span>
@@ -456,13 +441,13 @@ const SampleReportModal: React.FC<SampleReportModalProps> = ({ open, onClose, t 
                       </ul>
                     </div>
                   )}
-                  {AI_ANALYSIS.strongPoints.length > 0 && (
+                  {analysis.strongPoints.length > 0 && (
                     <div>
                       <h5 className="text-[11px] font-bold uppercase tracking-wider text-emerald-400/90 mb-2">
                         {t.report.strongPoints}
                       </h5>
                       <ul className="space-y-1.5">
-                        {AI_ANALYSIS.strongPoints.map((item, i) => (
+                        {analysis.strongPoints.map((item, i) => (
                           <li key={i} className="text-[13px] text-slate-300 flex items-start gap-2">
                             <span className="text-emerald-400 mt-0.5">•</span>
                             <span>{item}</span>

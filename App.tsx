@@ -784,6 +784,7 @@ const App: React.FC = () => {
           open={showSampleReport}
           onClose={() => setShowSampleReport(false)}
           t={t}
+          lang={lang}
         />
       )}
       <AIChat key={lang} t={t} />
