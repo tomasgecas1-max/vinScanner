@@ -700,6 +700,20 @@ const App: React.FC = () => {
         )}
         <Pricing t={t} pendingVin={pendingVin} onPlanSelect={handlePlanSelect} />
 
+        <section className="max-w-3xl mx-auto px-4 py-16 md:py-24">
+          <h2 className="text-2xl md:text-3xl font-black text-slate-900 mb-6 tracking-tight">
+            {t.about.title || 'About Us'}
+          </h2>
+          <p className="text-slate-600 font-medium leading-relaxed mb-6">
+            {t.about.body}
+          </p>
+          <p className="text-sm font-bold text-slate-500 uppercase tracking-wide mb-1">
+            {t.about.contactLabel}
+          </p>
+          <a href="mailto:info@vinscanner.eu" className="text-indigo-600 font-bold hover:text-indigo-700 hover:underline focus:outline-none focus:ring-2 focus:ring-indigo-200 rounded">
+            info@vinscanner.eu
+          </a>
+        </section>
 
         {!report && !loading && (
           <section className="max-w-7xl mx-auto px-4 py-20">
