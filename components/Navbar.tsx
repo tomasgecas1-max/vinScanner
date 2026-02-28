@@ -12,9 +12,10 @@ interface NavbarProps {
   setLang: (lang: LangCode) => void;
   t: import('../constants/translations').Translations;
   onMyReportsClick?: () => void;
+  onSampleReportClick?: () => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ lang, setLang, t, onMyReportsClick }) => {
+const Navbar: React.FC<NavbarProps> = ({ lang, setLang, t, onMyReportsClick, onSampleReportClick }) => {
   const { user, loading, signInWithGoogle, signOut, deleteAccount, isFirebaseEnabled } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -48,7 +49,7 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, t, onMyReportsClick }) =
 
           <div className="hidden md:flex items-center gap-8 lg:gap-10">
             <button onClick={() => scrollToSection('pricing')} className="text-[11px] font-[900] text-slate-400 hover:text-indigo-600 transition-colors uppercase tracking-[0.2em]">{t.nav.pricing}</button>
-            <button type="button" onClick={() => scrollToSection('about')} className="text-[11px] font-[900] text-slate-400 hover:text-indigo-600 transition-colors uppercase tracking-[0.2em]">{t.nav.about}</button>
+            <button type="button" onClick={() => { onSampleReportClick?.(); setMenuOpen(false); }} className="text-[11px] font-[900] text-slate-400 hover:text-indigo-600 transition-colors uppercase tracking-[0.2em]">{t.nav.sampleReport}</button>
 
             <div className="relative">
               <button

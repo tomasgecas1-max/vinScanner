@@ -6,6 +6,7 @@ import OrderEmailStepModal from './components/OrderEmailStepModal';
 import PrivacyPolicyModal from './components/PrivacyPolicyModal';
 import CookieConsent from './components/CookieConsent';
 import UsageInstructionsModal from './components/UsageInstructionsModal';
+import SampleReportModal from './components/SampleReportModal';
 import PaymentModal from './components/PaymentModal';
 import Hero from './components/Hero';
 import ReportView from './components/ReportView';
@@ -55,6 +56,7 @@ const App: React.FC = () => {
   const [purchaseToken, setPurchaseToken] = useState<string | null>(null);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [showUsageInstructionsModal, setShowUsageInstructionsModal] = useState(false);
+  const [showSampleReport, setShowSampleReport] = useState(false);
   const [purchaseInfo, setPurchaseInfo] = useState<{
     reportsRemaining: number;
     reportsTotal: number;
@@ -547,7 +549,7 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 selection:bg-indigo-100 selection:text-indigo-900">
-      <Navbar lang={lang} setLang={setLang} t={t} onMyReportsClick={() => setShowMyReports(true)} />
+      <Navbar lang={lang} setLang={setLang} t={t} onMyReportsClick={() => setShowMyReports(true)} onSampleReportClick={() => setShowSampleReport(true)} />
       
       <main className="overflow-x-hidden">
         {purchaseToken && purchaseInfo && (
@@ -698,20 +700,6 @@ const App: React.FC = () => {
         )}
         <Pricing t={t} pendingVin={pendingVin} onPlanSelect={handlePlanSelect} />
 
-        <section id="about" className="max-w-3xl mx-auto px-4 py-16 md:py-24 scroll-mt-24">
-          <h2 className="text-2xl md:text-3xl font-black text-slate-900 mb-6 tracking-tight">
-            {t.nav.about}
-          </h2>
-          <p className="text-slate-600 font-medium leading-relaxed mb-6">
-            {t.about.body}
-          </p>
-          <p className="text-sm font-bold text-slate-500 uppercase tracking-wide mb-1">
-            {t.about.contactLabel}
-          </p>
-          <a href="mailto:info@vinscanner.eu" className="text-indigo-600 font-bold hover:text-indigo-700 hover:underline focus:outline-none focus:ring-2 focus:ring-indigo-200 rounded">
-            info@vinscanner.eu
-          </a>
-        </section>
 
         {!report && !loading && (
           <section className="max-w-7xl mx-auto px-4 py-20">
@@ -775,6 +763,13 @@ const App: React.FC = () => {
           onClose={() => setShowUsageInstructionsModal(false)}
           lang={lang}
           closeLabel={t.pricing.close}
+        />
+      )}
+      {showSampleReport && (
+        <SampleReportModal
+          open={showSampleReport}
+          onClose={() => setShowSampleReport(false)}
+          t={t}
         />
       )}
       <AIChat key={lang} t={t} />
