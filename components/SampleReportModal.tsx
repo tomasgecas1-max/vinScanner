@@ -559,6 +559,19 @@ const SampleReportModal: React.FC<SampleReportModalProps> = ({ open, onClose, t,
               <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-400" />
               {t.report.theftClear}
             </div>
+            <button
+              type="button"
+              onClick={() => setShowOriginalServiceTexts(!showOriginalServiceTexts)}
+              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-colors ${
+                showOriginalServiceTexts
+                  ? 'bg-amber-500/20 text-amber-400 border border-amber-500/50'
+                  : 'bg-white/10 text-white/70 border border-white/20 hover:bg-white/20'
+              }`}
+              title={t.report.showOriginal}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>
+              {showOriginalServiceTexts ? 'EN' : lang.toUpperCase()}
+            </button>
             <button type="button" className="p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors" title={t.report.downloadPdf}>
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
             </button>
@@ -609,16 +622,10 @@ const SampleReportModal: React.FC<SampleReportModalProps> = ({ open, onClose, t,
 
               {/* Service history */}
               <div>
-                <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-                  <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-600"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="M9 15h6"/></svg>
-                    {t.report.serviceEvents}
-                  </h3>
-                  <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer select-none">
-                    <input type="checkbox" checked={showOriginalServiceTexts} onChange={(e) => setShowOriginalServiceTexts(e.target.checked)} className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
-                    {t.report.showOriginal}
-                  </label>
-                </div>
+                <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2 mb-6">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-600"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="M9 15h6"/></svg>
+                  {t.report.serviceEvents}
+                </h3>
                 <div className="space-y-4">
                   {SERVICE_EVENTS.map((event, idx) => (
                     <div key={idx} className="p-5 rounded-2xl border border-slate-100 bg-slate-50/50 hover:border-slate-200 transition-colors">
