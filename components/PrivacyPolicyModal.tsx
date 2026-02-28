@@ -2,7 +2,7 @@ import React from 'react';
 import { PRIVACY_POLICY } from '../content/privacy-policy';
 import type { LangCode } from '../constants/translations';
 
-const POLICY_LANGS = ['lt', 'en', 'de'] as const;
+const POLICY_LANGS = ['lt', 'en', 'de', 'pl', 'fr', 'es', 'it', 'nl', 'cs', 'uk', 'ro', 'sv', 'el', 'pt', 'hu', 'bg', 'sr', 'da', 'no', 'fi', 'sk', 'hr', 'bs', 'sq', 'sl', 'lv', 'mk', 'et', 'ca', 'lb', 'cnr', 'mt', 'is', 'tr'] as const;
 
 interface PrivacyPolicyModalProps {
   open: boolean;
@@ -63,13 +63,11 @@ const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({ open, onClose, 
       >
         <div className="p-6 border-b border-slate-100 shrink-0">
           <h2 className="text-xl font-black text-slate-900">
-            {policyLang === 'lt' ? 'Privatumo politika' : policyLang === 'en' ? 'Privacy Policy' : 'Datenschutzrichtlinie'}
+            {policyLang === 'lt' ? 'Privatumo politika' : policyLang === 'de' ? 'Datenschutzrichtlinie' : 'Privacy Policy'}
           </h2>
           <p className="text-xs text-slate-500 mt-1">
-            vinscanner.eu – BDAR / GDPR atitikmuo
-            {policyLang === 'lt' && ' · Paskutinis atnaujinimas: 2025-02-20'}
-            {policyLang === 'en' && ' · Last updated: 2025-02-20'}
-            {policyLang === 'de' && ' · Letzte Aktualisierung: 20.02.2025'}
+            vinscanner.eu – GDPR
+            {' · '}{policyLang === 'lt' ? 'Paskutinis atnaujinimas' : policyLang === 'de' ? 'Letzte Aktualisierung' : 'Last updated'}: 2026-02-28
           </p>
         </div>
         <div

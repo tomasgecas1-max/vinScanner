@@ -192,4 +192,190 @@ Wir wenden technische und organisatorische Maßnahmen an: HTTPS, beschränkter Z
 
 Wir können diese Richtlinie aktualisieren. Wesentliche Änderungen werden auf der Webseite bekanntgegeben. „Letzte Aktualisierung“ – oben auf der Seite.
 `,
+
+  pl: `
+**POLITYKA PRYWATNOŚCI - vinscanner.eu**
+
+Zbieramy: VIN (raporty), e-mail, dane Google (logowanie), dane techniczne. Odbiorcy: pośrednicy płatności, dostawcy chmury, API VIN. Przechowywanie: VIN 3 lata, e-mail 10 lat. Prawa: dostęp, sprostowanie, usunięcie. Kontakt: info@vinscanner.eu. HTTPS, cookies, transfer poza UE z SCC.
+`,
+
+  fr: `
+**POLITIQUE DE CONFIDENTIALITÉ - vinscanner.eu**
+
+Données collectées: VIN (rapports), e-mail, données Google (connexion), données techniques. Destinataires: intermédiaires de paiement, fournisseurs cloud, API VIN. Conservation: VIN 3 ans, e-mail 10 ans. Droits: accès, rectification, effacement. Contact: info@vinscanner.eu. HTTPS, cookies, transfert hors UE avec CCT.
+`,
+
+  es: `
+**POLÍTICA DE PRIVACIDAD - vinscanner.eu**
+
+Datos recopilados: VIN (informes), correo, datos Google (inicio sesión), datos técnicos. Destinatarios: intermediarios pago, proveedores cloud, API VIN. Conservación: VIN 3 años, correo 10 años. Derechos: acceso, rectificación, supresión. Contacto: info@vinscanner.eu. HTTPS, cookies, transferencia fuera UE con CCT.
+`,
+
+  it: `
+**INFORMATIVA SULLA PRIVACY - vinscanner.eu**
+
+Dati raccolti: VIN (rapporti), e-mail, dati Google (accesso), dati tecnici. Destinatari: intermediari pagamento, fornitori cloud, API VIN. Conservazione: VIN 3 anni, e-mail 10 anni. Diritti: accesso, rettifica, cancellazione. Contatto: info@vinscanner.eu. HTTPS, cookie, trasferimento fuori UE con SCC.
+`,
+
+  nl: `
+**PRIVACYBELEID - vinscanner.eu**
+
+Verzamelde gegevens: VIN (rapporten), e-mail, Google-gegevens (inloggen), technische gegevens. Ontvangers: betalingstussenpersonen, cloudproviders, VIN API. Bewaring: VIN 3 jaar, e-mail 10 jaar. Rechten: inzage, rectificatie, wissing. Contact: info@vinscanner.eu. HTTPS, cookies, doorgifte buiten EU met SCC.
+`,
+
+  cs: `
+**ZÁSADY OCHRANY OSOBNÍCH ÚDAJŮ - vinscanner.eu**
+
+Shromažďované údaje: VIN (reporty), e-mail, Google údaje (přihlášení), technické údaje. Příjemci: platební zprostředkovatelé, poskytovatelé cloudu, VIN API. Uchovávání: VIN 3 roky, e-mail 10 let. Práva: přístup, oprava, výmaz. Kontakt: info@vinscanner.eu. HTTPS, cookies, předání mimo EU s SCC.
+`,
+
+  uk: `
+**ПОЛІТИКА КОНФІДЕНЦІЙНОСТІ - vinscanner.eu**
+
+Зібрані дані: VIN (звіти), email, дані Google (вхід), технічні дані. Одержувачі: платіжні посередники, хмарні провайдери, VIN API. Зберігання: VIN 3 роки, email 10 років. Права: доступ, виправлення, видалення. Контакт: info@vinscanner.eu. HTTPS, cookies, передача за межі ЄС з SCC.
+`,
+
+  ro: `
+**POLITICA DE CONFIDENȚIALITATE - vinscanner.eu**
+
+Date colectate: VIN (rapoarte), e-mail, date Google (conectare), date tehnice. Destinatari: intermediari plăți, furnizori cloud, VIN API. Păstrare: VIN 3 ani, e-mail 10 ani. Drepturi: acces, rectificare, ștergere. Contact: info@vinscanner.eu. HTTPS, cookies, transfer în afara UE cu SCC.
+`,
+
+  sv: `
+**INTEGRITETSPOLICY - vinscanner.eu**
+
+Insamlade uppgifter: VIN (rapporter), e-post, Google-uppgifter (inloggning), tekniska uppgifter. Mottagare: betalningsförmedlare, molnleverantörer, VIN API. Lagring: VIN 3 år, e-post 10 år. Rättigheter: tillgång, rättelse, radering. Kontakt: info@vinscanner.eu. HTTPS, cookies, överföring utanför EU med SCC.
+`,
+
+  el: `
+**ΠΟΛΙΤΙΚΉ ΑΠΟΡΡΉΤΟΥ - vinscanner.eu**
+
+Συλλεγμένα δεδομένα: VIN (αναφορές), email, δεδομένα Google (σύνδεση), τεχνικά δεδομένα. Αποδέκτες: διαμεσολαβητές πληρωμών, πάροχοι cloud, VIN API. Διατήρηση: VIN 3 χρόνια, email 10 χρόνια. Δικαιώματα: πρόσβαση, διόρθωση, διαγραφή. Επικοινωνία: info@vinscanner.eu. HTTPS, cookies, μεταφορά εκτός ΕΕ με SCC.
+`,
+
+  pt: `
+**POLÍTICA DE PRIVACIDADE - vinscanner.eu**
+
+Dados recolhidos: VIN (relatórios), e-mail, dados Google (login), dados técnicos. Destinatários: intermediários pagamento, fornecedores cloud, VIN API. Retenção: VIN 3 anos, e-mail 10 anos. Direitos: acesso, retificação, apagamento. Contacto: info@vinscanner.eu. HTTPS, cookies, transferência fora UE com CCT.
+`,
+
+  hu: `
+**ADATVÉDELMI SZABÁLYZAT - vinscanner.eu**
+
+Gyűjtött adatok: VIN (jelentések), e-mail, Google adatok (bejelentkezés), technikai adatok. Címzettek: fizetési közvetítők, felhő szolgáltatók, VIN API. Megőrzés: VIN 3 év, e-mail 10 év. Jogok: hozzáférés, helyesbítés, törlés. Kapcsolat: info@vinscanner.eu. HTTPS, sütik, EU-n kívüli továbbítás SCC-vel.
+`,
+
+  bg: `
+**ПОЛИТИКА ЗА ПОВЕРИТЕЛНОСТ - vinscanner.eu**
+
+Събирани данни: VIN (справки), имейл, Google данни (вход), технически данни. Получатели: платежни посредници, облачни доставчици, VIN API. Съхранение: VIN 3 години, имейл 10 години. Права: достъп, коригиране, изтриване. Контакт: info@vinscanner.eu. HTTPS, бисквитки, прехвърляне извън ЕС със SCC.
+`,
+
+  sr: `
+**ПОЛИТИКА ПРИВАТНОСТИ - vinscanner.eu**
+
+Прикупљени подаци: VIN (извештаји), е-пошта, Google подаци (пријава), технички подаци. Примаоци: посредници за плаћање, провајдери облака, VIN API. Чување: VIN 3 године, е-пошта 10 година. Права: приступ, исправка, брисање. Контакт: info@vinscanner.eu. HTTPS, колачићи, пренос ван ЕУ са SCC.
+`,
+
+  da: `
+**PRIVATLIVSPOLITIK - vinscanner.eu**
+
+Indsamlede data: VIN (rapporter), e-mail, Google-data (login), tekniske data. Modtagere: betalingsformidlere, cloud-udbydere, VIN API. Opbevaring: VIN 3 år, e-mail 10 år. Rettigheder: indsigt, berigtigelse, sletning. Kontakt: info@vinscanner.eu. HTTPS, cookies, overførsel uden for EU med SCC.
+`,
+
+  no: `
+**PERSONVERNPOLICY - vinscanner.eu**
+
+Innsamlede data: VIN (rapporter), e-post, Google-data (innlogging), tekniske data. Mottakere: betalingsformidlere, skyleverandører, VIN API. Lagring: VIN 3 år, e-post 10 år. Rettigheter: innsyn, retting, sletting. Kontakt: info@vinscanner.eu. HTTPS, informasjonskapsler, overføring utenfor EU med SCC.
+`,
+
+  fi: `
+**TIETOSUOJAKÄYTÄNTÖ - vinscanner.eu**
+
+Kerätyt tiedot: VIN (raportit), sähköposti, Google-tiedot (kirjautuminen), tekniset tiedot. Vastaanottajat: maksuvälittäjät, pilvipalveluntarjoajat, VIN API. Säilytys: VIN 3 vuotta, sähköposti 10 vuotta. Oikeudet: pääsy, oikaisu, poisto. Yhteys: info@vinscanner.eu. HTTPS, evästeet, siirto EU:n ulkopuolelle SCC:llä.
+`,
+
+  sk: `
+**ZÁSADY OCHRANY OSOBNÝCH ÚDAJOV - vinscanner.eu**
+
+Zhromažďované údaje: VIN (reporty), e-mail, Google údaje (prihlásenie), technické údaje. Príjemcovia: platoví sprostredkovatelia, poskytovatelia cloudu, VIN API. Uchovávanie: VIN 3 roky, e-mail 10 rokov. Práva: prístup, oprava, vymazanie. Kontakt: info@vinscanner.eu. HTTPS, cookies, prenos mimo EÚ so SCC.
+`,
+
+  hr: `
+**POLITIKA PRIVATNOSTI - vinscanner.eu**
+
+Prikupljeni podaci: VIN (izvješća), e-pošta, Google podaci (prijava), tehnički podaci. Primatelji: posrednici za plaćanje, pružatelji oblaka, VIN API. Čuvanje: VIN 3 godine, e-pošta 10 godina. Prava: pristup, ispravak, brisanje. Kontakt: info@vinscanner.eu. HTTPS, kolačići, prijenos izvan EU sa SCC.
+`,
+
+  bs: `
+**POLITIKA PRIVATNOSTI - vinscanner.eu**
+
+Prikupljeni podaci: VIN (izvještaji), e-pošta, Google podaci (prijava), tehnički podaci. Primatelji: posrednici za plaćanje, pružatelji oblaka, VIN API. Čuvanje: VIN 3 godine, e-pošta 10 godina. Prava: pristup, ispravak, brisanje. Kontakt: info@vinscanner.eu. HTTPS, kolačići, prijenos izvan EU sa SCC.
+`,
+
+  sq: `
+**POLITIKA E PRIVATËSISË - vinscanner.eu**
+
+Të dhëna të mbledhura: VIN (raporte), email, të dhëna Google (hyrje), të dhëna teknike. Marrës: ndërmjetës pagesash, ofrues cloud, VIN API. Ruajtje: VIN 3 vjet, email 10 vjet. Të drejta: akses, ndreqje, fshirje. Kontakt: info@vinscanner.eu. HTTPS, cookies, transferim jashtë BE me SCC.
+`,
+
+  sl: `
+**POLITIKA ZASEBNOSTI - vinscanner.eu**
+
+Zbrani podatki: VIN (poročila), e-pošta, Google podatki (prijava), tehnični podatki. Prejemniki: plačilni posredniki, ponudniki oblaka, VIN API. Hramba: VIN 3 leta, e-pošta 10 let. Pravice: dostop, popravek, izbris. Kontakt: info@vinscanner.eu. HTTPS, piškotki, prenos izven EU s SCC.
+`,
+
+  lv: `
+**PRIVĀTUMA POLITIKA - vinscanner.eu**
+
+Savāktie dati: VIN (pārskati), e-pasts, Google dati (pieteikšanās), tehniskie dati. Saņēmēji: maksājumu starpnieki, mākoņa nodrošinātāji, VIN API. Glabāšana: VIN 3 gadi, e-pasts 10 gadi. Tiesības: piekļuve, labošana, dzēšana. Kontakts: info@vinscanner.eu. HTTPS, sīkfaili, pārsūtīšana ārpus ES ar SCC.
+`,
+
+  mk: `
+**ПОЛИТИКА ЗА ПРИВАТНОСТ - vinscanner.eu**
+
+Собрани податоци: VIN (извештаи), е-пошта, Google податоци (најава), технички податоци. Приматели: посредници за плаќање, провајдери на облак, VIN API. Чување: VIN 3 години, е-пошта 10 години. Права: пристап, исправка, бришење. Контакт: info@vinscanner.eu. HTTPS, колачиња, пренос надвор од ЕУ со SCC.
+`,
+
+  et: `
+**PRIVAATSUSPOLIITIKA - vinscanner.eu**
+
+Kogutud andmed: VIN (aruanded), e-post, Google andmed (sisselogimine), tehnilised andmed. Saajad: maksevahendajad, pilveteenuse pakkujad, VIN API. Säilitamine: VIN 3 aastat, e-post 10 aastat. Õigused: juurdepääs, parandamine, kustutamine. Kontakt: info@vinscanner.eu. HTTPS, küpsised, edastamine väljapoole EL-i SCC-ga.
+`,
+
+  ca: `
+**POLÍTICA DE PRIVADESA - vinscanner.eu**
+
+Dades recollides: VIN (informes), correu, dades Google (inici sessió), dades tècniques. Destinataris: intermediaris pagament, proveïdors núvol, VIN API. Retenció: VIN 3 anys, correu 10 anys. Drets: accés, rectificació, supressió. Contacte: info@vinscanner.eu. HTTPS, galetes, transferència fora UE amb CCT.
+`,
+
+  lb: `
+**DATESCHUTZRICHTLINN - vinscanner.eu**
+
+Gesammelt Daten: VIN (Berichter), E-Mail, Google-Daten (Aloggen), technesch Daten. Empfänger: Bezuelmëttelsmänner, Cloud-Provider, VIN API. Späicherung: VIN 3 Joer, E-Mail 10 Joer. Rechter: Zougang, Korrektur, Läschen. Kontakt: info@vinscanner.eu. HTTPS, Cookien, Transfer ausserhalb EU mat SCC.
+`,
+
+  cnr: `
+**POLITIKA PRIVATNOSTI - vinscanner.eu**
+
+Prikupljeni podaci: VIN (izvještaji), e-pošta, Google podaci (prijava), tehnički podaci. Primatelji: posrednici za plaćanje, pružatelji oblaka, VIN API. Čuvanje: VIN 3 godine, e-pošta 10 godina. Prava: pristup, ispravak, brisanje. Kontakt: info@vinscanner.eu. HTTPS, kolačići, prijenos izvan EU sa SCC.
+`,
+
+  mt: `
+**POLITIKA TAL-PRIVATEZZA - vinscanner.eu**
+
+Data miġbur: VIN (rapporti), email, data Google (dħul), data teknika. Riċevituri: intermedjarji tal-ħlas, provdituri cloud, VIN API. Żamma: VIN 3 snin, email 10 snin. Drittijiet: aċċess, rettifika, tħassir. Kuntatt: info@vinscanner.eu. HTTPS, cookies, trasferiment barra mill-UE b'SCC.
+`,
+
+  is: `
+**PERSÓNUVERNDARSTEFNA - vinscanner.eu**
+
+Söfnuð gögn: VIN (skýrslur), tölvupóstur, Google-gögn (innskráning), tæknileg gögn. Viðtakendur: greiðslumilliliðir, skýjaþjónustur, VIN API. Geymsla: VIN 3 ár, tölvupóstur 10 ár. Réttindi: aðgangur, leiðrétting, eyðing. Samband: info@vinscanner.eu. HTTPS, kökur, flutningur utan ESB með SCC.
+`,
+
+  tr: `
+**GİZLİLİK POLİTİKASI - vinscanner.eu**
+
+Toplanan veriler: VIN (raporlar), e-posta, Google verileri (giriş), teknik veriler. Alıcılar: ödeme aracıları, bulut sağlayıcıları, VIN API. Saklama: VIN 3 yıl, e-posta 10 yıl. Haklar: erişim, düzeltme, silme. İletişim: info@vinscanner.eu. HTTPS, çerezler, AB dışı aktarım SCC ile.
+`,
 } as const;
