@@ -9,13 +9,12 @@ interface PricingProps {
 const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect }) => {
   const [refundModalOpen, setRefundModalOpen] = useState(false);
   const [selectedPlanIdx, setSelectedPlanIdx] = useState<number>(1); // default: 2 ataskaitos (vidurinis planas)
-  const isLt = t.nav.services === 'Paslaugos';
 
   // TESTAVIMUI: kainos sumažintos iki 0.50 EUR (grąžinti prieš production!)
   const plans = [
-    { name: isLt ? "Vienkartinė" : "Single", count: isLt ? "1 ataskaita" : "1 Report", price: 0.50, oldPrice: 1.00, bestValue: false },
-    { name: isLt ? "Populiariausias" : "Most Popular", count: isLt ? "2 ataskaitos" : "2 Reports", price: 0.50, oldPrice: 1.00, bestValue: false },
-    { name: isLt ? "Geriausia vertė" : "Best Value", count: isLt ? "3 ataskaitos" : "3 Reports", price: 0.50, oldPrice: 1.00, bestValue: true },
+    { name: t.pricing.planSingle, count: t.pricing.report1, price: 0.50, oldPrice: 1.00, bestValue: false },
+    { name: t.pricing.planPopular, count: t.pricing.reports2, price: 0.50, oldPrice: 1.00, bestValue: false },
+    { name: t.pricing.planBestValue, count: t.pricing.reports3, price: 0.50, oldPrice: 1.00, bestValue: true },
   ];
 
   const scrollToVinInput = () => {

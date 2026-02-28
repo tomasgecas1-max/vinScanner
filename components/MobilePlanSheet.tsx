@@ -2,7 +2,7 @@ import React from 'react';
 
 interface MobilePlanSheetProps {
   pendingVin: string;
-  t: { pricing: { selectPlanForVin: string; order: string; confirm: string; bestValue: string; close: string; refundPolicy: string; refundPolicyText: string; perReport: string }; nav: { services: string } };
+  t: { pricing: { selectPlanForVin: string; order: string; confirm: string; bestValue: string; close: string; refundPolicy: string; refundPolicyText: string; perReport: string; planSingle: string; planPopular: string; planBestValue: string; report1: string; reports2: string; reports3: string }; nav: { services: string } };
   onPlanSelect: (vin: string, planIndex: number) => void;
   onClose: () => void;
 }
@@ -10,12 +10,11 @@ interface MobilePlanSheetProps {
 const MobilePlanSheet: React.FC<MobilePlanSheetProps> = ({ pendingVin, t, onPlanSelect, onClose }) => {
   const [selectedIdx, setSelectedIdx] = React.useState<number>(1);
   const [refundModalOpen, setRefundModalOpen] = React.useState(false);
-  const isLt = t.nav.services === 'Paslaugos';
   const plans = [
     // TESTAVIMUI: kainos sumažintos iki 0.50 EUR (grąžinti prieš production!)
-    { name: isLt ? "Vienkartinė" : "Single", count: isLt ? "1 ataskaita" : "1 Report", price: 0.50, oldPrice: 1.00, highlight: false },
-    { name: isLt ? "Populiariausias" : "Most Popular", count: isLt ? "2 ataskaitos" : "2 Reports", price: 0.50, oldPrice: 1.00, highlight: false },
-    { name: isLt ? "Geriausia vertė" : "Best Value", count: isLt ? "3 ataskaitos" : "3 Reports", price: 0.50, oldPrice: 1.00, highlight: true },
+    { name: t.pricing.planSingle, count: t.pricing.report1, price: 0.50, oldPrice: 1.00, highlight: false },
+    { name: t.pricing.planPopular, count: t.pricing.reports2, price: 0.50, oldPrice: 1.00, highlight: false },
+    { name: t.pricing.planBestValue, count: t.pricing.reports3, price: 0.50, oldPrice: 1.00, highlight: true },
   ];
 
   const handleConfirm = () => {
