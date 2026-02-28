@@ -22,6 +22,7 @@ import { CarReport } from './types';
 import { getTranslations } from './constants/translations';
 import type { LangCode } from './constants/translations';
 import { useGoogleAnalytics, trackPurchase, trackVinSearch } from './hooks/useGoogleAnalytics';
+import { useMetaTags } from './hooks/useMetaTags';
 import { captureError } from './services/sentry';
 
 const App: React.FC = () => {
@@ -159,6 +160,7 @@ const App: React.FC = () => {
   }, [report, loading]);
 
   const t = getTranslations(lang);
+  useMetaTags(t, lang);
   const steps = t.loading.steps;
 
   const LOAD_DURATION_MS = 20000;

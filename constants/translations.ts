@@ -53,6 +53,12 @@ export const ALL_LANGUAGES = [
 export type LangCode = (typeof ALL_LANGUAGES)[number]['code'];
 
 export interface Translations {
+  seo: {
+    title: string;
+    description: string;
+    ogTitle: string;
+    ogDescription: string;
+  };
   nav: {
     services: string;
     pricing: string;
@@ -232,6 +238,12 @@ export interface Translations {
 
 const translationsMap: Record<SupportedLang, Translations> = {
   lt: {
+    seo: {
+      title: 'VinScanner - Automobilių istorijos patikra',
+      description: 'Patikrinkite VIN kodą ir sužinokite automobilio istoriją: rida, avarijos, remontai, nuosavybės istorija. Greita ir patikima automobilių patikra.',
+      ogTitle: 'VinScanner - Automobilių istorijos patikra',
+      ogDescription: 'Patikrinkite VIN kodą ir sužinokite automobilio istoriją: rida, avarijos, remontai, nuosavybės istorija.',
+    },
     nav: { services: 'Paslaugos', pricing: 'Kainos', about: 'Apie mus', login: 'Prisijungti', myReports: 'Mano ataskaitos', signOut: 'Atsijungti', deleteAccount: 'Ištrinti paskyrą', deleteAccountConfirm: 'Ištrinti paskyrą', deleteAccountConfirmText: 'Ar tikrai norite ištrinti paskyrą? Visi išsaugoti ataskaitos bus pašalinti. Šio veiksmo negalima atšaukti.', deleteAccountDeleting: 'Trinama…', deleteAccountError: 'Nepavyko ištrinti. Bandykite dar kartą.' },
     tokenMode: {
       banner: 'Turite {n} iš {total} ataskaitų. Įveskite VIN žemiau.',
@@ -402,6 +414,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
     },
   },
   en: {
+    seo: {
+      title: 'VinScanner - Vehicle History Check',
+      description: 'Check VIN code and discover vehicle history: mileage, accidents, repairs, ownership history. Fast and reliable car check.',
+      ogTitle: 'VinScanner - Vehicle History Check',
+      ogDescription: 'Check VIN code and discover vehicle history: mileage, accidents, repairs, ownership history.',
+    },
     nav: { services: 'Services', pricing: 'Pricing', about: 'About Us', login: 'Login', myReports: 'My reports', signOut: 'Sign out', deleteAccount: 'Delete account', deleteAccountConfirm: 'Delete account', deleteAccountConfirmText: 'Are you sure you want to delete your account? All saved reports will be removed. This action cannot be undone.', deleteAccountDeleting: 'Deleting…', deleteAccountError: 'Failed to delete. Please try again.' },
     tokenMode: {
       banner: 'You have {n} of {total} reports left. Enter VIN below.',
@@ -571,6 +589,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
     },
   },
   de: {
+    seo: {
+      title: 'VinScanner - Fahrzeughistorie prüfen',
+      description: 'FIN-Code prüfen und Fahrzeughistorie entdecken: Kilometerstand, Unfälle, Reparaturen, Besitzerverlauf. Schnelle und zuverlässige Fahrzeugprüfung.',
+      ogTitle: 'VinScanner - Fahrzeughistorie prüfen',
+      ogDescription: 'FIN-Code prüfen und Fahrzeughistorie entdecken: Kilometerstand, Unfälle, Reparaturen, Besitzerverlauf.',
+    },
     nav: { services: 'Leistungen', pricing: 'Preise', about: 'Über uns', login: 'Anmelden', myReports: 'Meine Berichte', signOut: 'Abmelden', deleteAccount: 'Konto löschen', deleteAccountConfirm: 'Konto löschen', deleteAccountConfirmText: 'Sind Sie sicher, dass Sie Ihr Konto löschen möchten? Alle gespeicherten Berichte werden entfernt. Diese Aktion kann nicht rückgängig gemacht werden.', deleteAccountDeleting: 'Wird gelöscht…', deleteAccountError: 'Löschen fehlgeschlagen. Bitte versuchen Sie es erneut.' },
     tokenMode: {
       banner: 'Sie haben {n} von {total} Berichten übrig. FIN unten eingeben.',
@@ -740,6 +764,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
     },
   },
   pl: {
+    seo: {
+      title: 'VinScanner - Sprawdź historię pojazdu',
+      description: 'Sprawdź numer VIN i poznaj historię pojazdu: przebieg, wypadki, naprawy, historia właścicieli. Szybka i niezawodna weryfikacja samochodu.',
+      ogTitle: 'VinScanner - Sprawdź historię pojazdu',
+      ogDescription: 'Sprawdź numer VIN i poznaj historię pojazdu: przebieg, wypadki, naprawy, historia właścicieli.',
+    },
     nav: { services: 'Usługi', pricing: 'Cennik', about: 'O nas', login: 'Zaloguj się', myReports: 'Moje raporty', signOut: 'Wyloguj się', deleteAccount: 'Usuń konto', deleteAccountConfirm: 'Usuń konto', deleteAccountConfirmText: 'Czy na pewno chcesz usunąć swoje konto? Wszystkie zapisane raporty zostaną usunięte. Tej operacji nie można cofnąć.', deleteAccountDeleting: 'Usuwanie…', deleteAccountError: 'Usunięcie nie powiodło się. Spróbuj ponownie.' },
     tokenMode: { banner: 'Masz {n} z {total} raportów. Wpisz VIN poniżej.', noReports: 'Brak pozostałych raportów. Kup nowy plan, aby sprawdzić kolejny pojazd.', loading: 'Ładowanie…', error: 'Nie udało się załadować zakupu. Sprawdź link.' },
     hero: { title: 'Poznaj historię pojazdu', titleAccent: 'według numeru VIN', desc: 'Sprawdź historię przebiegu, zapisy szkód i wartość rynkową w kilka sekund. Profesjonalna weryfikacja dostępna dla każdego.', placeholder: 'Wpisz numer VIN...', button: 'Sprawdź', sample: 'Wypróbuj z przykładem' },
@@ -754,6 +784,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
     aiChat: { welcome: 'Cześć! Jestem ekspertem AI VinScanner. Jak mogę Ci dzisiaj pomóc?', cantRespond: 'Przepraszam, nie mogę teraz odpowiedzieć.', expertTitle: 'Ekspert AI', online: 'Online', placeholder: 'Wpisz swoje pytanie...' },
   },
   fr: {
+    seo: {
+      title: 'VinScanner - Vérification historique véhicule',
+      description: 'Vérifiez le code VIN et découvrez l\'historique du véhicule: kilométrage, accidents, réparations, historique de propriété. Vérification rapide et fiable.',
+      ogTitle: 'VinScanner - Vérification historique véhicule',
+      ogDescription: 'Vérifiez le code VIN et découvrez l\'historique du véhicule: kilométrage, accidents, réparations.',
+    },
     nav: { services: 'Services', pricing: 'Tarifs', about: 'À propos', login: 'Connexion', myReports: 'Mes rapports', signOut: 'Déconnexion', deleteAccount: 'Supprimer le compte', deleteAccountConfirm: 'Supprimer le compte', deleteAccountConfirmText: 'Êtes-vous sûr de vouloir supprimer votre compte ? Tous les rapports enregistrés seront supprimés. Cette action est irréversible.', deleteAccountDeleting: 'Suppression…', deleteAccountError: 'Échec de la suppression. Veuillez réessayer.' },
     tokenMode: { banner: 'Vous avez {n} sur {total} rapports. Entrez le VIN ci-dessous.', noReports: 'Aucun rapport restant. Achetez un nouveau forfait pour vérifier un autre véhicule.', loading: 'Chargement…', error: 'Échec du chargement de l\'achat. Vérifiez le lien.' },
     hero: { title: 'Découvrez l\'historique du véhicule', titleAccent: 'par code VIN', desc: 'Vérifiez l\'historique du kilométrage, les dommages et la valeur marchande en quelques secondes. Vérification professionnelle accessible à tous.', placeholder: 'Entrez le numéro VIN...', button: 'Vérifier', sample: 'Essayer avec un exemple' },
@@ -768,6 +804,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
     aiChat: { welcome: 'Bonjour ! Je suis l\'expert IA VinScanner. Comment puis-je vous aider aujourd\'hui ?', cantRespond: 'Désolé, je ne peux pas répondre pour le moment.', expertTitle: 'Expert IA', online: 'En ligne', placeholder: 'Tapez votre question...' },
   },
   es: {
+    seo: {
+      title: 'VinScanner - Verificación de historial de vehículo',
+      description: 'Verifique el código VIN y descubra el historial del vehículo: kilometraje, accidentes, reparaciones, historial de propiedad. Verificación rápida y confiable.',
+      ogTitle: 'VinScanner - Verificación de historial de vehículo',
+      ogDescription: 'Verifique el código VIN y descubra el historial del vehículo: kilometraje, accidentes, reparaciones.',
+    },
     nav: { services: 'Servicios', pricing: 'Precios', about: 'Sobre nosotros', login: 'Iniciar sesión', myReports: 'Mis informes', signOut: 'Cerrar sesión', deleteAccount: 'Eliminar cuenta', deleteAccountConfirm: 'Eliminar cuenta', deleteAccountConfirmText: '¿Está seguro de que desea eliminar su cuenta? Todos los informes guardados serán eliminados. Esta acción no se puede deshacer.', deleteAccountDeleting: 'Eliminando…', deleteAccountError: 'Error al eliminar. Inténtelo de nuevo.' },
     tokenMode: { banner: 'Tiene {n} de {total} informes. Ingrese el VIN abajo.', noReports: 'No quedan informes. Compre un nuevo plan para verificar otro vehículo.', loading: 'Cargando…', error: 'Error al cargar la compra. Verifique el enlace.' },
     hero: { title: 'Descubra el historial del vehículo', titleAccent: 'por código VIN', desc: 'Verifique el historial de kilometraje, registros de daños y valor de mercado en segundos. Verificación profesional disponible para todos.', placeholder: 'Ingrese el número VIN...', button: 'Verificar', sample: 'Probar con un ejemplo' },
@@ -782,6 +824,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
     aiChat: { welcome: '¡Hola! Soy el experto IA de VinScanner. ¿Cómo puedo ayudarte hoy?', cantRespond: 'Lo siento, no puedo responder ahora.', expertTitle: 'Experto IA', online: 'En línea', placeholder: 'Escriba su pregunta...' },
   },
   it: {
+    seo: {
+      title: 'VinScanner - Verifica storico veicolo',
+      description: 'Verifica il codice VIN e scopri lo storico del veicolo: chilometraggio, incidenti, riparazioni, storico proprietari. Verifica rapida e affidabile.',
+      ogTitle: 'VinScanner - Verifica storico veicolo',
+      ogDescription: 'Verifica il codice VIN e scopri lo storico del veicolo: chilometraggio, incidenti, riparazioni.',
+    },
     nav: { services: 'Servizi', pricing: 'Prezzi', about: 'Chi siamo', login: 'Accedi', myReports: 'I miei report', signOut: 'Esci', deleteAccount: 'Elimina account', deleteAccountConfirm: 'Elimina account', deleteAccountConfirmText: 'Sei sicuro di voler eliminare il tuo account? Tutti i report salvati verranno rimossi. Questa azione non può essere annullata.', deleteAccountDeleting: 'Eliminazione…', deleteAccountError: 'Eliminazione fallita. Riprova.' },
     tokenMode: { banner: 'Hai {n} di {total} report. Inserisci il VIN qui sotto.', noReports: 'Nessun report rimanente. Acquista un nuovo piano per verificare un altro veicolo.', loading: 'Caricamento…', error: 'Impossibile caricare l\'acquisto. Controlla il link.' },
     hero: { title: 'Scopri la storia del veicolo', titleAccent: 'tramite codice VIN', desc: 'Verifica lo storico chilometrico, i danni e il valore di mercato in pochi secondi. Verifica professionale accessibile a tutti.', placeholder: 'Inserisci il numero VIN...', button: 'Verifica', sample: 'Prova con un esempio' },
@@ -796,6 +844,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
     aiChat: { welcome: 'Ciao! Sono l\'esperto IA di VinScanner. Come posso aiutarti oggi?', cantRespond: 'Mi dispiace, non posso rispondere ora.', expertTitle: 'Esperto IA', online: 'Online', placeholder: 'Scrivi la tua domanda...' },
   },
   nl: {
+    seo: {
+      title: 'VinScanner - Voertuiggeschiedenis controleren',
+      description: 'Controleer de VIN-code en ontdek de voertuiggeschiedenis: kilometerstand, ongevallen, reparaties, eigendomsgeschiedenis. Snelle en betrouwbare controle.',
+      ogTitle: 'VinScanner - Voertuiggeschiedenis controleren',
+      ogDescription: 'Controleer de VIN-code en ontdek de voertuiggeschiedenis: kilometerstand, ongevallen, reparaties.',
+    },
     nav: { services: 'Diensten', pricing: 'Prijzen', about: 'Over ons', login: 'Inloggen', myReports: 'Mijn rapporten', signOut: 'Uitloggen', deleteAccount: 'Account verwijderen', deleteAccountConfirm: 'Account verwijderen', deleteAccountConfirmText: 'Weet u zeker dat u uw account wilt verwijderen? Alle opgeslagen rapporten worden verwijderd. Deze actie kan niet ongedaan worden gemaakt.', deleteAccountDeleting: 'Verwijderen…', deleteAccountError: 'Verwijderen mislukt. Probeer opnieuw.' },
     tokenMode: { banner: 'U heeft {n} van {total} rapporten. Voer hieronder het VIN in.', noReports: 'Geen rapporten meer. Koop een nieuw plan om een ander voertuig te controleren.', loading: 'Laden…', error: 'Kan aankoop niet laden. Controleer de link.' },
     hero: { title: 'Ontdek de voertuiggeschiedenis', titleAccent: 'via VIN-code', desc: 'Controleer kilometerstand, schaderegistratie en marktwaarde in seconden. Professionele verificatie voor iedereen beschikbaar.', placeholder: 'Voer VIN-nummer in...', button: 'Controleren', sample: 'Probeer met een voorbeeld' },
@@ -810,6 +864,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
     aiChat: { welcome: 'Hallo! Ik ben de VinScanner AI-expert. Hoe kan ik u vandaag helpen?', cantRespond: 'Sorry, ik kan nu niet reageren.', expertTitle: 'AI-expert', online: 'Online', placeholder: 'Typ uw vraag...' },
   },
   cs: {
+    seo: {
+      title: 'VinScanner - Kontrola historie vozidla',
+      description: 'Zkontrolujte VIN kód a zjistěte historii vozidla: kilometry, nehody, opravy, historie vlastníků. Rychlá a spolehlivá kontrola vozidla.',
+      ogTitle: 'VinScanner - Kontrola historie vozidla',
+      ogDescription: 'Zkontrolujte VIN kód a zjistěte historii vozidla: kilometry, nehody, opravy, historie vlastníků.',
+    },
     nav: { services: 'Služby', pricing: 'Ceník', about: 'O nás', login: 'Přihlásit se', myReports: 'Moje reporty', signOut: 'Odhlásit se', deleteAccount: 'Smazat účet', deleteAccountConfirm: 'Smazat účet', deleteAccountConfirmText: 'Opravdu chcete smazat svůj účet? Všechny uložené reporty budou odstraněny. Tuto akci nelze vrátit.', deleteAccountDeleting: 'Mazání…', deleteAccountError: 'Smazání se nezdařilo. Zkuste to znovu.' },
     tokenMode: { banner: 'Máte {n} z {total} reportů. Zadejte VIN níže.', noReports: 'Žádné zbývající reporty. Kupte si nový plán pro kontrolu dalšího vozidla.', loading: 'Načítání…', error: 'Nepodařilo se načíst nákup. Zkontrolujte odkaz.' },
     hero: { title: 'Zjistěte historii vozidla', titleAccent: 'podle VIN kódu', desc: 'Zkontrolujte historii kilometrů, záznamy o poškození a tržní hodnotu během několika sekund. Profesionální ověření dostupné pro každého.', placeholder: 'Zadejte číslo VIN...', button: 'Zkontrolovat', sample: 'Vyzkoušet s příkladem' },
@@ -824,6 +884,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
     aiChat: { welcome: 'Ahoj! Jsem AI expert VinScanner. Jak vám mohu dnes pomoci?', cantRespond: 'Omlouvám se, nemohu nyní odpovědět.', expertTitle: 'AI expert', online: 'Online', placeholder: 'Napište svůj dotaz...' },
   },
   uk: {
+    seo: {
+      title: 'VinScanner - Перевірка історії автомобіля',
+      description: 'Перевірте VIN-код та дізнайтесь історію автомобіля: пробіг, аварії, ремонти, історія власників. Швидка та надійна перевірка.',
+      ogTitle: 'VinScanner - Перевірка історії автомобіля',
+      ogDescription: 'Перевірте VIN-код та дізнайтесь історію автомобіля: пробіг, аварії, ремонти, історія власників.',
+    },
     nav: { services: 'Послуги', pricing: 'Ціни', about: 'Про нас', login: 'Увійти', myReports: 'Мої звіти', signOut: 'Вийти', deleteAccount: 'Видалити акаунт', deleteAccountConfirm: 'Видалити акаунт', deleteAccountConfirmText: 'Ви впевнені, що хочете видалити свій акаунт? Усі збережені звіти будуть видалені. Цю дію не можна скасувати.', deleteAccountDeleting: 'Видалення…', deleteAccountError: 'Не вдалося видалити. Спробуйте ще раз.' },
     tokenMode: { banner: 'У вас {n} з {total} звітів. Введіть VIN нижче.', noReports: 'Звітів не залишилось. Придбайте новий план для перевірки іншого автомобіля.', loading: 'Завантаження…', error: 'Не вдалося завантажити покупку. Перевірте посилання.' },
     hero: { title: 'Дізнайтеся історію автомобіля', titleAccent: 'за VIN-кодом', desc: 'Перевірте історію пробігу, записи про пошкодження та ринкову вартість за кілька секунд. Професійна перевірка доступна кожному.', placeholder: 'Введіть номер VIN...', button: 'Перевірити', sample: 'Спробувати з прикладом' },
@@ -838,6 +904,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
     aiChat: { welcome: 'Привіт! Я AI-експерт VinScanner. Як я можу допомогти вам сьогодні?', cantRespond: 'Вибачте, зараз не можу відповісти.', expertTitle: 'AI-експерт', online: 'Онлайн', placeholder: 'Напишіть ваше питання...' },
   },
   ro: {
+    seo: {
+      title: 'VinScanner - Verificare istoric vehicul',
+      description: 'Verificați codul VIN și descoperiți istoricul vehiculului: kilometraj, accidente, reparații, istoric proprietari. Verificare rapidă și fiabilă.',
+      ogTitle: 'VinScanner - Verificare istoric vehicul',
+      ogDescription: 'Verificați codul VIN și descoperiți istoricul vehiculului: kilometraj, accidente, reparații.',
+    },
     nav: { services: 'Servicii', pricing: 'Prețuri', about: 'Despre noi', login: 'Autentificare', myReports: 'Rapoartele mele', signOut: 'Deconectare', deleteAccount: 'Șterge contul', deleteAccountConfirm: 'Șterge contul', deleteAccountConfirmText: 'Sunteți sigur că doriți să ștergeți contul? Toate rapoartele salvate vor fi șterse. Această acțiune nu poate fi anulată.', deleteAccountDeleting: 'Se șterge…', deleteAccountError: 'Ștergerea a eșuat. Încercați din nou.' },
     tokenMode: { banner: 'Aveți {n} din {total} rapoarte. Introduceți VIN-ul mai jos.', noReports: 'Nu mai aveți rapoarte. Cumpărați un plan nou pentru a verifica alt vehicul.', loading: 'Se încarcă…', error: 'Nu s-a putut încărca achiziția. Verificați linkul.' },
     hero: { title: 'Descoperiți istoricul vehiculului', titleAccent: 'după codul VIN', desc: 'Verificați istoricul kilometrajului, daunele și valoarea de piață în câteva secunde. Verificare profesională disponibilă pentru toți.', placeholder: 'Introduceți numărul VIN...', button: 'Verifică', sample: 'Încearcă cu un exemplu' },
@@ -852,6 +924,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
     aiChat: { welcome: 'Bună! Sunt expertul AI VinScanner. Cum vă pot ajuta astăzi?', cantRespond: 'Îmi pare rău, nu pot răspunde acum.', expertTitle: 'Expert AI', online: 'Online', placeholder: 'Scrieți întrebarea dvs...' },
   },
   sv: {
+    seo: {
+      title: 'VinScanner - Fordonshistorik kontroll',
+      description: 'Kontrollera VIN-koden och upptäck fordonshistoriken: mätarställning, olyckor, reparationer, ägarhistorik. Snabb och pålitlig kontroll.',
+      ogTitle: 'VinScanner - Fordonshistorik kontroll',
+      ogDescription: 'Kontrollera VIN-koden och upptäck fordonshistoriken: mätarställning, olyckor, reparationer.',
+    },
     nav: { services: 'Tjänster', pricing: 'Priser', about: 'Om oss', login: 'Logga in', myReports: 'Mina rapporter', signOut: 'Logga ut', deleteAccount: 'Radera konto', deleteAccountConfirm: 'Radera konto', deleteAccountConfirmText: 'Är du säker på att du vill radera ditt konto? Alla sparade rapporter kommer att tas bort. Denna åtgärd kan inte ångras.', deleteAccountDeleting: 'Raderar…', deleteAccountError: 'Radering misslyckades. Försök igen.' },
     tokenMode: { banner: 'Du har {n} av {total} rapporter. Ange VIN nedan.', noReports: 'Inga rapporter kvar. Köp en ny plan för att kontrollera ett annat fordon.', loading: 'Laddar…', error: 'Kunde inte ladda köpet. Kontrollera länken.' },
     hero: { title: 'Upptäck fordonets historia', titleAccent: 'via VIN-kod', desc: 'Kontrollera mätarställning, skaderegister och marknadsvärde på några sekunder. Professionell verifiering tillgänglig för alla.', placeholder: 'Ange VIN-nummer...', button: 'Kontrollera', sample: 'Prova med ett exempel' },
@@ -866,6 +944,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
     aiChat: { welcome: 'Hej! Jag är VinScanner AI-expert. Hur kan jag hjälpa dig idag?', cantRespond: 'Tyvärr kan jag inte svara just nu.', expertTitle: 'AI-expert', online: 'Online', placeholder: 'Skriv din fråga...' },
   },
   el: {
+    seo: {
+      title: 'VinScanner - Έλεγχος ιστορικού οχήματος',
+      description: 'Ελέγξτε τον κωδικό VIN και ανακαλύψτε το ιστορικό του οχήματος: χιλιόμετρα, ατυχήματα, επισκευές, ιστορικό ιδιοκτησίας. Γρήγορος και αξιόπιστος έλεγχος.',
+      ogTitle: 'VinScanner - Έλεγχος ιστορικού οχήματος',
+      ogDescription: 'Ελέγξτε τον κωδικό VIN και ανακαλύψτε το ιστορικό του οχήματος: χιλιόμετρα, ατυχήματα, επισκευές.',
+    },
     nav: { services: 'Υπηρεσίες', pricing: 'Τιμές', about: 'Σχετικά', login: 'Σύνδεση', myReports: 'Οι αναφορές μου', signOut: 'Αποσύνδεση', deleteAccount: 'Διαγραφή λογαριασμού', deleteAccountConfirm: 'Διαγραφή λογαριασμού', deleteAccountConfirmText: 'Είστε σίγουροι ότι θέλετε να διαγράψετε τον λογαριασμό σας; Όλες οι αποθηκευμένες αναφορές θα διαγραφούν. Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.', deleteAccountDeleting: 'Διαγραφή…', deleteAccountError: 'Η διαγραφή απέτυχε. Δοκιμάστε ξανά.' },
     tokenMode: { banner: 'Έχετε {n} από {total} αναφορές. Εισάγετε VIN παρακάτω.', noReports: 'Δεν απομένουν αναφορές. Αγοράστε νέο πλάνο για έλεγχο άλλου οχήματος.', loading: 'Φόρτωση…', error: 'Αποτυχία φόρτωσης αγοράς. Ελέγξτε τον σύνδεσμο.' },
     hero: { title: 'Ανακαλύψτε το ιστορικό του οχήματος', titleAccent: 'με κωδικό VIN', desc: 'Ελέγξτε ιστορικό χιλιομέτρων, ζημιές και αξία αγοράς σε δευτερόλεπτα. Επαγγελματική επαλήθευση διαθέσιμη σε όλους.', placeholder: 'Εισάγετε αριθμό VIN...', button: 'Έλεγχος', sample: 'Δοκιμή με παράδειγμα' },
@@ -880,6 +964,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
     aiChat: { welcome: 'Γεια! Είμαι ο ειδικός AI του VinScanner. Πώς μπορώ να σας βοηθήσω σήμερα;', cantRespond: 'Λυπάμαι, δεν μπορώ να απαντήσω τώρα.', expertTitle: 'Ειδικός AI', online: 'Online', placeholder: 'Γράψτε την ερώτησή σας...' },
   },
   pt: {
+    seo: {
+      title: 'VinScanner - Verificação de histórico de veículo',
+      description: 'Verifique o código VIN e descubra o histórico do veículo: quilometragem, acidentes, reparos, histórico de propriedade. Verificação rápida e confiável.',
+      ogTitle: 'VinScanner - Verificação de histórico de veículo',
+      ogDescription: 'Verifique o código VIN e descubra o histórico do veículo: quilometragem, acidentes, reparos.',
+    },
     nav: { services: 'Serviços', pricing: 'Preços', about: 'Sobre nós', login: 'Entrar', myReports: 'Meus relatórios', signOut: 'Sair', deleteAccount: 'Excluir conta', deleteAccountConfirm: 'Excluir conta', deleteAccountConfirmText: 'Tem certeza de que deseja excluir sua conta? Todos os relatórios salvos serão removidos. Esta ação não pode ser desfeita.', deleteAccountDeleting: 'Excluindo…', deleteAccountError: 'Falha ao excluir. Tente novamente.' },
     tokenMode: { banner: 'Você tem {n} de {total} relatórios. Digite o VIN abaixo.', noReports: 'Sem relatórios restantes. Compre um novo plano para verificar outro veículo.', loading: 'Carregando…', error: 'Falha ao carregar a compra. Verifique o link.' },
     hero: { title: 'Descubra o histórico do veículo', titleAccent: 'pelo código VIN', desc: 'Verifique histórico de quilometragem, danos e valor de mercado em segundos. Verificação profissional disponível para todos.', placeholder: 'Digite o número VIN...', button: 'Verificar', sample: 'Testar com exemplo' },
@@ -894,6 +984,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
     aiChat: { welcome: 'Olá! Sou o especialista IA do VinScanner. Como posso ajudá-lo hoje?', cantRespond: 'Desculpe, não posso responder agora.', expertTitle: 'Especialista IA', online: 'Online', placeholder: 'Escreva a sua pergunta...' },
   },
   hu: {
+    seo: {
+      title: 'VinScanner - Jármű előzményellenőrzés',
+      description: 'Ellenőrizze a VIN kódot és fedezze fel a jármű előzményeit: kilométeróra, balesetek, javítások, tulajdonosi előzmények. Gyors és megbízható ellenőrzés.',
+      ogTitle: 'VinScanner - Jármű előzményellenőrzés',
+      ogDescription: 'Ellenőrizze a VIN kódot és fedezze fel a jármű előzményeit: kilométeróra, balesetek, javítások.',
+    },
     nav: { services: 'Szolgáltatások', pricing: 'Árak', about: 'Rólunk', login: 'Bejelentkezés', myReports: 'Jelentéseim', signOut: 'Kijelentkezés', deleteAccount: 'Fiók törlése', deleteAccountConfirm: 'Fiók törlése', deleteAccountConfirmText: 'Biztosan törölni szeretné fiókját? Minden mentett jelentés törlődik. Ez a művelet nem vonható vissza.', deleteAccountDeleting: 'Törlés…', deleteAccountError: 'A törlés sikertelen. Próbálja újra.' },
     tokenMode: { banner: 'Önnek {n} jelentése van a {total}-ból. Adja meg a VIN-t alább.', noReports: 'Nincs több jelentés. Vásároljon új csomagot másik jármű ellenőrzéséhez.', loading: 'Betöltés…', error: 'A vásárlás betöltése sikertelen. Ellenőrizze a linket.' },
     hero: { title: 'Fedezze fel a jármű történetét', titleAccent: 'VIN-kód alapján', desc: 'Ellenőrizze a kilométer-történetet, káreseményeket és piaci értéket másodpercek alatt. Professzionális ellenőrzés mindenki számára.', placeholder: 'Adja meg a VIN számot...', button: 'Ellenőrzés', sample: 'Próba mintával' },
@@ -908,6 +1004,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
     aiChat: { welcome: 'Üdv! Én vagyok a VinScanner AI szakértője. Miben segíthetek ma?', cantRespond: 'Sajnálom, most nem tudok válaszolni.', expertTitle: 'AI szakértő', online: 'Online', placeholder: 'Írja be kérdését...' },
   },
   bg: {
+    seo: {
+      title: 'VinScanner - Проверка на история на превозно средство',
+      description: 'Проверете VIN кода и открийте историята на превозното средство: пробег, инциденти, ремонти, история на собствеността. Бърза и надеждна проверка.',
+      ogTitle: 'VinScanner - Проверка на история на превозно средство',
+      ogDescription: 'Проверете VIN кода и открийте историята на превозното средство: пробег, инциденти, ремонти.',
+    },
     nav: { services: 'Услуги', pricing: 'Цени', about: 'За нас', login: 'Вход', myReports: 'Моите справки', signOut: 'Изход', deleteAccount: 'Изтриване на акаунт', deleteAccountConfirm: 'Изтриване на акаунт', deleteAccountConfirmText: 'Сигурни ли сте, че искате да изтриете акаунта си? Всички запазени справки ще бъдат премахнати. Това действие не може да бъде отменено.', deleteAccountDeleting: 'Изтриване…', deleteAccountError: 'Неуспешно изтриване. Опитайте отново.' },
     tokenMode: { banner: 'Имате {n} от {total} справки. Въведете VIN по-долу.', noReports: 'Няма останали справки. Купете нов план за проверка на друго превозно средство.', loading: 'Зареждане…', error: 'Неуспешно зареждане на покупката. Проверете линка.' },
     hero: { title: 'Открийте историята на превозното средство', titleAccent: 'по VIN код', desc: 'Проверете история на километража, щети и пазарна стойност за секунди. Професионална проверка достъпна за всеки.', placeholder: 'Въведете VIN номер...', button: 'Провери', sample: 'Опитай с пример' },
@@ -922,6 +1024,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
     aiChat: { welcome: 'Здравейте! Аз съм AI експерт на VinScanner. Как мога да ви помогна днес?', cantRespond: 'Съжалявам, не мога да отговоря сега.', expertTitle: 'AI експерт', online: 'Онлайн', placeholder: 'Напишете въпроса си...' },
   },
   sr: {
+    seo: {
+      title: 'VinScanner - Провера историје возила',
+      description: 'Проверите VIN код и откријте историју возила: километража, удеси, поправке, историја власништва. Брза и поуздана провера.',
+      ogTitle: 'VinScanner - Провера историје возила',
+      ogDescription: 'Проверите VIN код и откријте историју возила: километража, удеси, поправке, историја власништва.',
+    },
     nav: { services: 'Услуге', pricing: 'Цене', about: 'О нама', login: 'Пријава', myReports: 'Моји извештаји', signOut: 'Одјава', deleteAccount: 'Обриши налог', deleteAccountConfirm: 'Обриши налог', deleteAccountConfirmText: 'Да ли сте сигурни да желите да обришете свој налог? Сви сачувани извештаји ће бити уклоњени. Ова радња се не може поништити.', deleteAccountDeleting: 'Брисање…', deleteAccountError: 'Брисање није успело. Покушајте поново.' },
     tokenMode: { banner: 'Имате {n} од {total} извештаја. Унесите VIN испод.', noReports: 'Нема преосталих извештаја. Купите нови план за проверу другог возила.', loading: 'Учитавање…', error: 'Учитавање куповине није успело. Проверите линк.' },
     hero: { title: 'Откријте историју возила', titleAccent: 'по VIN коду', desc: 'Проверите историју километраже, штете и тржишну вредност за неколико секунди. Професионална верификација доступна свима.', placeholder: 'Унесите VIN број...', button: 'Провери', sample: 'Испробај са примером' },
@@ -936,6 +1044,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
     aiChat: { welcome: 'Здраво! Ја сам VinScanner AI експерт. Како вам могу помоћи данас?', cantRespond: 'Извините, не могу сада да одговорим.', expertTitle: 'AI експерт', online: 'Онлајн', placeholder: 'Напишите своје питање...' },
   },
   da: {
+    seo: {
+      title: 'VinScanner - Køretøjshistorik kontrol',
+      description: 'Tjek VIN-koden og opdag køretøjets historik: kilometertal, ulykker, reparationer, ejerhistorik. Hurtig og pålidelig kontrol.',
+      ogTitle: 'VinScanner - Køretøjshistorik kontrol',
+      ogDescription: 'Tjek VIN-koden og opdag køretøjets historik: kilometertal, ulykker, reparationer.',
+    },
     nav: { services: 'Tjenester', pricing: 'Priser', about: 'Om os', login: 'Log ind', myReports: 'Mine rapporter', signOut: 'Log ud', deleteAccount: 'Slet konto', deleteAccountConfirm: 'Slet konto', deleteAccountConfirmText: 'Er du sikker på, at du vil slette din konto? Alle gemte rapporter vil blive fjernet. Denne handling kan ikke fortrydes.', deleteAccountDeleting: 'Sletter…', deleteAccountError: 'Sletning mislykkedes. Prøv igen.' },
     tokenMode: { banner: 'Du har {n} af {total} rapporter. Indtast VIN nedenfor.', noReports: 'Ingen rapporter tilbage. Køb en ny plan for at tjekke et andet køretøj.', loading: 'Indlæser…', error: 'Kunne ikke indlæse købet. Tjek linket.' },
     hero: { title: 'Opdag køretøjets historik', titleAccent: 'via VIN-kode', desc: 'Tjek kilometerhistorik, skaderegistre og markedsværdi på sekunder. Professionel verifikation tilgængelig for alle.', placeholder: 'Indtast VIN-nummer...', button: 'Tjek', sample: 'Prøv med et eksempel' },
@@ -950,6 +1064,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
     aiChat: { welcome: 'Hej! Jeg er VinScanner AI-ekspert. Hvordan kan jeg hjælpe dig i dag?', cantRespond: 'Beklager, jeg kan ikke svare lige nu.', expertTitle: 'AI-ekspert', online: 'Online', placeholder: 'Skriv dit spørgsmål...' },
   },
   no: {
+    seo: {
+      title: 'VinScanner - Kjøretøyhistorikk sjekk',
+      description: 'Sjekk VIN-koden og oppdag kjøretøyets historikk: kilometerstand, ulykker, reparasjoner, eierhistorikk. Rask og pålitelig kontroll.',
+      ogTitle: 'VinScanner - Kjøretøyhistorikk sjekk',
+      ogDescription: 'Sjekk VIN-koden og oppdag kjøretøyets historikk: kilometerstand, ulykker, reparasjoner.',
+    },
     nav: { services: 'Tjenester', pricing: 'Priser', about: 'Om oss', login: 'Logg inn', myReports: 'Mine rapporter', signOut: 'Logg ut', deleteAccount: 'Slett konto', deleteAccountConfirm: 'Slett konto', deleteAccountConfirmText: 'Er du sikker på at du vil slette kontoen din? Alle lagrede rapporter vil bli fjernet. Denne handlingen kan ikke angres.', deleteAccountDeleting: 'Sletter…', deleteAccountError: 'Sletting mislyktes. Prøv igjen.' },
     tokenMode: { banner: 'Du har {n} av {total} rapporter. Skriv inn VIN nedenfor.', noReports: 'Ingen rapporter igjen. Kjøp en ny plan for å sjekke et annet kjøretøy.', loading: 'Laster…', error: 'Kunne ikke laste kjøpet. Sjekk lenken.' },
     hero: { title: 'Oppdag kjøretøyets historikk', titleAccent: 'via VIN-kode', desc: 'Sjekk kilometerhistorikk, skaderegistre og markedsverdi på sekunder. Profesjonell verifisering tilgjengelig for alle.', placeholder: 'Skriv inn VIN-nummer...', button: 'Sjekk', sample: 'Prøv med et eksempel' },
@@ -964,6 +1084,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
     aiChat: { welcome: 'Hei! Jeg er VinScanner AI-ekspert. Hvordan kan jeg hjelpe deg i dag?', cantRespond: 'Beklager, jeg kan ikke svare nå.', expertTitle: 'AI-ekspert', online: 'Online', placeholder: 'Skriv spørsmålet ditt...' },
   },
   fi: {
+    seo: {
+      title: 'VinScanner - Ajoneuvon historiatarkistus',
+      description: 'Tarkista VIN-koodi ja selvitä ajoneuvon historia: mittarilukema, onnettomuudet, korjaukset, omistushistoria. Nopea ja luotettava tarkistus.',
+      ogTitle: 'VinScanner - Ajoneuvon historiatarkistus',
+      ogDescription: 'Tarkista VIN-koodi ja selvitä ajoneuvon historia: mittarilukema, onnettomuudet, korjaukset.',
+    },
     nav: { services: 'Palvelut', pricing: 'Hinnat', about: 'Tietoa meistä', login: 'Kirjaudu', myReports: 'Omat raportit', signOut: 'Kirjaudu ulos', deleteAccount: 'Poista tili', deleteAccountConfirm: 'Poista tili', deleteAccountConfirmText: 'Oletko varma, että haluat poistaa tilisi? Kaikki tallennetut raportit poistetaan. Tätä toimintoa ei voi peruuttaa.', deleteAccountDeleting: 'Poistetaan…', deleteAccountError: 'Poisto epäonnistui. Yritä uudelleen.' },
     tokenMode: { banner: 'Sinulla on {n}/{total} raporttia jäljellä. Syötä VIN alla.', noReports: 'Ei raportteja jäljellä. Osta uusi paketti toisen ajoneuvon tarkistamiseen.', loading: 'Ladataan…', error: 'Ostoa ei voitu ladata. Tarkista linkki.' },
     hero: { title: 'Selvitä ajoneuvon historia', titleAccent: 'VIN-koodin avulla', desc: 'Tarkista ajokilometrihistoria, vahinkorekisterit ja markkina-arvo sekunneissa. Ammattimainen tarkistus kaikkien saatavilla.', placeholder: 'Syötä VIN-numero...', button: 'Tarkista', sample: 'Kokeile esimerkillä' },
@@ -978,6 +1104,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
     aiChat: { welcome: 'Hei! Olen VinScanner AI-asiantuntija. Kuinka voin auttaa sinua tänään?', cantRespond: 'Valitettavasti en voi vastata nyt.', expertTitle: 'AI-asiantuntija', online: 'Online', placeholder: 'Kirjoita kysymyksesi...' },
   },
   sk: {
+    seo: {
+      title: 'VinScanner - Kontrola histórie vozidla',
+      description: 'Skontrolujte VIN kód a zistite históriu vozidla: kilometre, nehody, opravy, história vlastníkov. Rýchla a spoľahlivá kontrola vozidla.',
+      ogTitle: 'VinScanner - Kontrola histórie vozidla',
+      ogDescription: 'Skontrolujte VIN kód a zistite históriu vozidla: kilometre, nehody, opravy, história vlastníkov.',
+    },
     nav: { services: 'Služby', pricing: 'Cenník', about: 'O nás', login: 'Prihlásiť sa', myReports: 'Moje reporty', signOut: 'Odhlásiť sa', deleteAccount: 'Vymazať účet', deleteAccountConfirm: 'Vymazať účet', deleteAccountConfirmText: 'Naozaj chcete vymazať svoj účet? Všetky uložené reporty budú odstránené. Túto akciu nie je možné vrátiť späť.', deleteAccountDeleting: 'Mazanie…', deleteAccountError: 'Vymazanie zlyhalo. Skúste znova.' },
     tokenMode: { banner: 'Máte {n} z {total} reportov. Zadajte VIN nižšie.', noReports: 'Žiadne zostávajúce reporty. Kúpte si nový plán na kontrolu ďalšieho vozidla.', loading: 'Načítava sa…', error: 'Nepodarilo sa načítať nákup. Skontrolujte odkaz.' },
     hero: { title: 'Zistite históriu vozidla', titleAccent: 'podľa VIN kódu', desc: 'Skontrolujte históriu kilometrov, záznamy o poškodení a trhovú hodnotu za pár sekúnd. Profesionálne overenie dostupné pre každého.', placeholder: 'Zadajte číslo VIN...', button: 'Skontrolovať', sample: 'Vyskúšať s príkladom' },
@@ -992,6 +1124,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
     aiChat: { welcome: 'Ahoj! Som AI expert VinScanner. Ako vám môžem dnes pomôcť?', cantRespond: 'Ospravedlňujem sa, teraz nemôžem odpovedať.', expertTitle: 'AI expert', online: 'Online', placeholder: 'Napíšte svoju otázku...' },
   },
   hr: {
+    seo: {
+      title: 'VinScanner - Provjera povijesti vozila',
+      description: 'Provjerite VIN kod i otkrijte povijest vozila: kilometraža, nesreće, popravci, povijest vlasništva. Brza i pouzdana provjera.',
+      ogTitle: 'VinScanner - Provjera povijesti vozila',
+      ogDescription: 'Provjerite VIN kod i otkrijte povijest vozila: kilometraža, nesreće, popravci, povijest vlasništva.',
+    },
     nav: { services: 'Usluge', pricing: 'Cijene', about: 'O nama', login: 'Prijava', myReports: 'Moja izvješća', signOut: 'Odjava', deleteAccount: 'Obriši račun', deleteAccountConfirm: 'Obriši račun', deleteAccountConfirmText: 'Jeste li sigurni da želite obrisati svoj račun? Sva spremljena izvješća bit će uklonjena. Ova radnja se ne može poništiti.', deleteAccountDeleting: 'Brisanje…', deleteAccountError: 'Brisanje nije uspjelo. Pokušajte ponovno.' },
     tokenMode: { banner: 'Imate {n} od {total} izvješća. Unesite VIN ispod.', noReports: 'Nema preostalih izvješća. Kupite novi plan za provjeru drugog vozila.', loading: 'Učitavanje…', error: 'Učitavanje kupnje nije uspjelo. Provjerite poveznicu.' },
     hero: { title: 'Otkrijte povijest vozila', titleAccent: 'putem VIN koda', desc: 'Provjerite povijest kilometraže, zapisnike o šteti i tržišnu vrijednost u sekundi. Profesionalna verifikacija dostupna svima.', placeholder: 'Unesite VIN broj...', button: 'Provjeri', sample: 'Isprobaj s primjerom' },
@@ -1006,6 +1144,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
     aiChat: { welcome: 'Bok! Ja sam VinScanner AI stručnjak. Kako vam mogu pomoći danas?', cantRespond: 'Žao mi je, ne mogu sada odgovoriti.', expertTitle: 'AI stručnjak', online: 'Online', placeholder: 'Napišite svoje pitanje...' },
   },
   bs: {
+    seo: {
+      title: 'VinScanner - Provjera historije vozila',
+      description: 'Provjerite VIN kod i otkrijte historiju vozila: kilometraža, nesreće, popravci, historija vlasništva. Brza i pouzdana provjera.',
+      ogTitle: 'VinScanner - Provjera historije vozila',
+      ogDescription: 'Provjerite VIN kod i otkrijte historiju vozila: kilometraža, nesreće, popravci.',
+    },
     nav: { services: 'Usluge', pricing: 'Cijene', about: 'O nama', login: 'Prijava', myReports: 'Moji izvještaji', signOut: 'Odjava', deleteAccount: 'Obriši račun', deleteAccountConfirm: 'Obriši račun', deleteAccountConfirmText: 'Jeste li sigurni da želite obrisati svoj račun? Svi spremljeni izvještaji bit će uklonjeni. Ova radnja se ne može poništiti.', deleteAccountDeleting: 'Brisanje…', deleteAccountError: 'Brisanje nije uspjelo. Pokušajte ponovo.' },
     tokenMode: { banner: 'Imate {n} od {total} izvještaja. Unesite VIN ispod.', noReports: 'Nema preostalih izvještaja. Kupite novi plan za provjeru drugog vozila.', loading: 'Učitavanje…', error: 'Učitavanje kupovine nije uspjelo. Provjerite link.' },
     hero: { title: 'Otkrijte historiju vozila', titleAccent: 'putem VIN koda', desc: 'Provjerite historiju kilometraže, zapisnike o šteti i tržišnu vrijednost u sekundi. Profesionalna verifikacija dostupna svima.', placeholder: 'Unesite VIN broj...', button: 'Provjeri', sample: 'Isprobaj s primjerom' },
@@ -1020,6 +1164,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
     aiChat: { welcome: 'Zdravo! Ja sam VinScanner AI stručnjak. Kako vam mogu pomoći danas?', cantRespond: 'Žao mi je, ne mogu sada odgovoriti.', expertTitle: 'AI stručnjak', online: 'Online', placeholder: 'Napišite svoje pitanje...' },
   },
   sq: {
+    seo: {
+      title: 'VinScanner - Kontrolli i historisë së automjetit',
+      description: 'Kontrolloni kodin VIN dhe zbuloni historinë e automjetit: kilometrazhi, aksidentet, riparimet, historia e pronësisë. Kontroll i shpejtë dhe i besueshëm.',
+      ogTitle: 'VinScanner - Kontrolli i historisë së automjetit',
+      ogDescription: 'Kontrolloni kodin VIN dhe zbuloni historinë e automjetit: kilometrazhi, aksidentet, riparimet.',
+    },
     nav: { services: 'Shërbimet', pricing: 'Çmimet', about: 'Rreth nesh', login: 'Hyr', myReports: 'Raportet e mia', signOut: 'Dil', deleteAccount: 'Fshi llogarinë', deleteAccountConfirm: 'Fshi llogarinë', deleteAccountConfirmText: 'Jeni të sigurt që dëshironi të fshini llogarinë tuaj? Të gjitha raportet e ruajtura do të hiqen. Ky veprim nuk mund të zhbëhet.', deleteAccountDeleting: 'Duke fshirë…', deleteAccountError: 'Fshirja dështoi. Provoni përsëri.' },
     tokenMode: { banner: 'Keni {n} nga {total} raporte. Shkruani VIN më poshtë.', noReports: 'Nuk ka raporte të mbetura. Blini një plan të ri për të kontrolluar një automjet tjetër.', loading: 'Duke ngarkuar…', error: 'Ngarkimi i blerjes dështoi. Kontrolloni lidhjen.' },
     hero: { title: 'Zbuloni historinë e automjetit', titleAccent: 'me kodin VIN', desc: 'Kontrolloni historinë e kilometrave, dëmet dhe vlerën e tregut në sekonda. Verifikim profesional i disponueshëm për të gjithë.', placeholder: 'Shkruani numrin VIN...', button: 'Kontrollo', sample: 'Provo me shembull' },
@@ -1034,6 +1184,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
     aiChat: { welcome: 'Përshëndetje! Unë jam eksperti AI i VinScanner. Si mund t\'ju ndihmoj sot?', cantRespond: 'Na vjen keq, nuk mund të përgjigjem tani.', expertTitle: 'Ekspert AI', online: 'Online', placeholder: 'Shkruani pyetjen tuaj...' },
   },
   sl: {
+    seo: {
+      title: 'VinScanner - Preverjanje zgodovine vozila',
+      description: 'Preverite VIN kodo in odkrijte zgodovino vozila: prevoženi kilometri, nesreče, popravila, zgodovina lastništva. Hitra in zanesljiva preverba.',
+      ogTitle: 'VinScanner - Preverjanje zgodovine vozila',
+      ogDescription: 'Preverite VIN kodo in odkrijte zgodovino vozila: prevoženi kilometri, nesreče, popravila.',
+    },
     nav: { services: 'Storitve', pricing: 'Cene', about: 'O nas', login: 'Prijava', myReports: 'Moja poročila', signOut: 'Odjava', deleteAccount: 'Izbriši račun', deleteAccountConfirm: 'Izbriši račun', deleteAccountConfirmText: 'Ali ste prepričani, da želite izbrisati svoj račun? Vsa shranjena poročila bodo odstranjena. Tega dejanja ni mogoče razveljaviti.', deleteAccountDeleting: 'Brisanje…', deleteAccountError: 'Brisanje ni uspelo. Poskusite znova.' },
     tokenMode: { banner: 'Imate {n} od {total} poročil. Vnesite VIN spodaj.', noReports: 'Ni več poročil. Kupite nov paket za preverjanje drugega vozila.', loading: 'Nalaganje…', error: 'Nalaganje nakupa ni uspelo. Preverite povezavo.' },
     hero: { title: 'Odkrijte zgodovino vozila', titleAccent: 'po VIN kodi', desc: 'Preverite zgodovino kilometrov, škode in tržno vrednost v nekaj sekundah. Profesionalno preverjanje dostopno vsem.', placeholder: 'Vnesite VIN številko...', button: 'Preveri', sample: 'Preizkusi s primerom' },
@@ -1048,6 +1204,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
     aiChat: { welcome: 'Pozdravljeni! Sem VinScanner AI strokovnjak. Kako vam lahko danes pomagam?', cantRespond: 'Oprostite, trenutno ne morem odgovoriti.', expertTitle: 'AI strokovnjak', online: 'Na spletu', placeholder: 'Napišite svoje vprašanje...' },
   },
   lv: {
+    seo: {
+      title: 'VinScanner - Transportlīdzekļa vēstures pārbaude',
+      description: 'Pārbaudiet VIN kodu un uzziniet transportlīdzekļa vēsturi: nobraukums, avārijas, remonti, īpašnieku vēsture. Ātra un uzticama pārbaude.',
+      ogTitle: 'VinScanner - Transportlīdzekļa vēstures pārbaude',
+      ogDescription: 'Pārbaudiet VIN kodu un uzziniet transportlīdzekļa vēsturi: nobraukums, avārijas, remonti.',
+    },
     nav: { services: 'Pakalpojumi', pricing: 'Cenas', about: 'Par mums', login: 'Pieslēgties', myReports: 'Mani pārskati', signOut: 'Iziet', deleteAccount: 'Dzēst kontu', deleteAccountConfirm: 'Dzēst kontu', deleteAccountConfirmText: 'Vai esat pārliecināts, ka vēlaties dzēst savu kontu? Visi saglabātie pārskati tiks noņemti. Šo darbību nevar atsaukt.', deleteAccountDeleting: 'Dzēš…', deleteAccountError: 'Dzēšana neizdevās. Mēģiniet vēlreiz.' },
     tokenMode: { banner: 'Jums ir {n} no {total} pārskatiem. Ievadiet VIN zemāk.', noReports: 'Nav atlikušo pārskatu. Iegādājieties jaunu plānu cita transportlīdzekļa pārbaudei.', loading: 'Ielādē…', error: 'Pirkuma ielāde neizdevās. Pārbaudiet saiti.' },
     hero: { title: 'Uzziniet transportlīdzekļa vēsturi', titleAccent: 'pēc VIN koda', desc: 'Pārbaudiet nobraukuma vēsturi, bojājumu ierakstus un tirgus vērtību dažās sekundēs. Profesionāla pārbaude pieejama ikvienam.', placeholder: 'Ievadiet VIN numuru...', button: 'Pārbaudīt', sample: 'Izmēģināt ar piemēru' },
@@ -1062,6 +1224,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
     aiChat: { welcome: 'Sveiki! Es esmu VinScanner AI eksperts. Kā es varu jums šodien palīdzēt?', cantRespond: 'Atvainojiet, pašlaik nevaru atbildēt.', expertTitle: 'AI eksperts', online: 'Tiešsaistē', placeholder: 'Rakstiet savu jautājumu...' },
   },
   mk: {
+    seo: {
+      title: 'VinScanner - Проверка на историја на возило',
+      description: 'Проверете го VIN кодот и откријте ја историјата на возилото: километража, несреќи, поправки, историја на сопственост. Брза и сигурна проверка.',
+      ogTitle: 'VinScanner - Проверка на историја на возило',
+      ogDescription: 'Проверете го VIN кодот и откријте ја историјата на возилото: километража, несреќи, поправки.',
+    },
     nav: { services: 'Услуги', pricing: 'Цени', about: 'За нас', login: 'Најави се', myReports: 'Мои извештаи', signOut: 'Одјави се', deleteAccount: 'Избриши сметка', deleteAccountConfirm: 'Избриши сметка', deleteAccountConfirmText: 'Дали сте сигурни дека сакате да ја избришете вашата сметка?', deleteAccountDeleting: 'Се брише…', deleteAccountError: 'Бришењето не успеа.' },
     tokenMode: { banner: 'Имате {n} од {total} извештаи.', noReports: 'Нема преостанати извештаи.', loading: 'Се вчитува…', error: 'Вчитувањето не успеа.' },
     hero: { title: 'Откријте ја историјата на возилото', titleAccent: 'по VIN код', desc: 'Проверете историја на километража, штети и пазарна вредност за неколку секунди.', placeholder: 'Внесете VIN број...', button: 'Провери', sample: 'Пробај со пример' },
@@ -1076,6 +1244,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
     aiChat: { welcome: 'Здраво! Јас сум AI експерт. Како можам да помогнам?', cantRespond: 'Не можам да одговорам сега.', expertTitle: 'AI експерт', online: 'Онлајн', placeholder: 'Напишете прашање...' },
   },
   et: {
+    seo: {
+      title: 'VinScanner - Sõiduki ajaloo kontroll',
+      description: 'Kontrollige VIN-koodi ja avastage sõiduki ajalugu: läbisõit, õnnetused, remondid, omanike ajalugu. Kiire ja usaldusväärne kontroll.',
+      ogTitle: 'VinScanner - Sõiduki ajaloo kontroll',
+      ogDescription: 'Kontrollige VIN-koodi ja avastage sõiduki ajalugu: läbisõit, õnnetused, remondid.',
+    },
     nav: { services: 'Teenused', pricing: 'Hinnad', about: 'Meist', login: 'Logi sisse', myReports: 'Minu aruanded', signOut: 'Logi välja', deleteAccount: 'Kustuta konto', deleteAccountConfirm: 'Kustuta konto', deleteAccountConfirmText: 'Kas olete kindel, et soovite oma konto kustutada?', deleteAccountDeleting: 'Kustutamine…', deleteAccountError: 'Kustutamine ebaõnnestus.' },
     tokenMode: { banner: 'Teil on {n}/{total} aruannet.', noReports: 'Aruandeid pole. Ostke uus pakett.', loading: 'Laadimine…', error: 'Laadimine ebaõnnestus.' },
     hero: { title: 'Avastage sõiduki ajalugu', titleAccent: 'VIN-koodi järgi', desc: 'Kontrollige läbisõidu ajalugu, kahjustusi ja turuväärtust sekunditega.', placeholder: 'Sisestage VIN-number...', button: 'Kontrolli', sample: 'Proovi näitega' },
@@ -1090,6 +1264,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
     aiChat: { welcome: 'Tere! Olen VinScanner AI ekspert. Kuidas saan aidata?', cantRespond: 'Vabandust, ei saa praegu vastata.', expertTitle: 'AI ekspert', online: 'Võrgus', placeholder: 'Kirjutage küsimus...' },
   },
   tr: {
+    seo: {
+      title: 'VinScanner - Araç Geçmişi Kontrolü',
+      description: 'VIN kodunu kontrol edin ve araç geçmişini keşfedin: kilometre, kazalar, onarımlar, sahiplik geçmişi. Hızlı ve güvenilir kontrol.',
+      ogTitle: 'VinScanner - Araç Geçmişi Kontrolü',
+      ogDescription: 'VIN kodunu kontrol edin ve araç geçmişini keşfedin: kilometre, kazalar, onarımlar.',
+    },
     nav: { services: 'Hizmetler', pricing: 'Fiyatlar', about: 'Hakkımızda', login: 'Giriş', myReports: 'Raporlarım', signOut: 'Çıkış', deleteAccount: 'Hesabı Sil', deleteAccountConfirm: 'Hesabı Sil', deleteAccountConfirmText: 'Hesabınızı silmek istediğinizden emin misiniz?', deleteAccountDeleting: 'Siliniyor…', deleteAccountError: 'Silme başarısız.' },
     tokenMode: { banner: '{n}/{total} raporunuz var.', noReports: 'Rapor kalmadı.', loading: 'Yükleniyor…', error: 'Yükleme başarısız.' },
     hero: { title: 'Araç geçmişini keşfedin', titleAccent: 'VIN koduyla', desc: 'Kilometre geçmişini, hasar kayıtlarını ve piyasa değerini saniyeler içinde kontrol edin.', placeholder: 'VIN numarası girin...', button: 'Kontrol Et', sample: 'Örnekle dene' },
@@ -1104,6 +1284,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
     aiChat: { welcome: 'Merhaba! Ben VinScanner AI uzmanıyım. Size nasıl yardımcı olabilirim?', cantRespond: 'Şu an yanıt veremiyorum.', expertTitle: 'AI Uzmanı', online: 'Çevrimiçi', placeholder: 'Sorunuzu yazın...' },
   },
   ca: {
+    seo: {
+      title: 'VinScanner - Verificació historial del vehicle',
+      description: 'Comproveu el codi VIN i descobriu l\'historial del vehicle: quilometratge, accidents, reparacions, historial de propietat. Verificació ràpida i fiable.',
+      ogTitle: 'VinScanner - Verificació historial del vehicle',
+      ogDescription: 'Comproveu el codi VIN i descobriu l\'historial del vehicle: quilometratge, accidents, reparacions.',
+    },
     nav: { services: 'Serveis', pricing: 'Preus', about: 'Sobre nosaltres', login: 'Iniciar sessió', myReports: 'Els meus informes', signOut: 'Tancar sessió', deleteAccount: 'Eliminar compte', deleteAccountConfirm: 'Eliminar compte', deleteAccountConfirmText: 'Esteu segur que voleu eliminar el vostre compte?', deleteAccountDeleting: 'Eliminant…', deleteAccountError: 'Error en eliminar.' },
     tokenMode: { banner: 'Teniu {n} de {total} informes.', noReports: 'No queden informes.', loading: 'Carregant…', error: 'Error en carregar.' },
     hero: { title: 'Descobriu la història del vehicle', titleAccent: 'per codi VIN', desc: 'Comproveu la història del quilometratge, danys i valor de mercat en segons.', placeholder: 'Introduïu el número VIN...', button: 'Comprovar', sample: 'Provar amb exemple' },
@@ -1118,6 +1304,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
     aiChat: { welcome: 'Hola! Sóc l\'expert IA de VinScanner. Com puc ajudar-vos?', cantRespond: 'No puc respondre ara.', expertTitle: 'Expert IA', online: 'En línia', placeholder: 'Escriviu pregunta...' },
   },
   is: {
+    seo: {
+      title: 'VinScanner - Ökutækjasöguskoðun',
+      description: 'Athugaðu VIN-númerið og uppgötvaðu sögu ökutækis: ekinn vegalengd, slys, viðgerðir, eignarhaldssaga. Hröð og áreiðanleg skoðun.',
+      ogTitle: 'VinScanner - Ökutækjasöguskoðun',
+      ogDescription: 'Athugaðu VIN-númerið og uppgötvaðu sögu ökutækis: ekinn vegalengd, slys, viðgerðir.',
+    },
     nav: { services: 'Þjónusta', pricing: 'Verð', about: 'Um okkur', login: 'Innskráning', myReports: 'Skýrslurnar mínar', signOut: 'Útskráning', deleteAccount: 'Eyða reikningi', deleteAccountConfirm: 'Eyða reikningi', deleteAccountConfirmText: 'Ertu viss um að þú viljir eyða reikningnum þínum?', deleteAccountDeleting: 'Eyðir…', deleteAccountError: 'Eyðing mistókst.' },
     tokenMode: { banner: 'Þú átt {n} af {total} skýrslum.', noReports: 'Engar skýrslur eftir.', loading: 'Hleður…', error: 'Hleðsla mistókst.' },
     hero: { title: 'Uppgötvaðu sögu ökutækis', titleAccent: 'með VIN númer', desc: 'Athugaðu kílómetrasögu, tjón og markaðsverð á sekúndum.', placeholder: 'Sláðu inn VIN númer...', button: 'Athuga', sample: 'Prófa með dæmi' },
@@ -1132,6 +1324,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
     aiChat: { welcome: 'Halló! Ég er VinScanner AI sérfræðingur. Hvernig get ég hjálpað?', cantRespond: 'Fyrirgefðu, get ekki svarað núna.', expertTitle: 'AI sérfræðingur', online: 'Á netinu', placeholder: 'Skrifaðu spurningu...' },
   },
   lb: {
+    seo: {
+      title: 'VinScanner - Autosgeschicht kontrolléieren',
+      description: 'Iwwerpréift de VIN-Code an entdeckt d\'Geschicht vum Gefier: Kilometer, Accidenter, Reparaturen, Besëtzergeschicht. Séier a zouverlässeg Kontroll.',
+      ogTitle: 'VinScanner - Autosgeschicht kontrolléieren',
+      ogDescription: 'Iwwerpréift de VIN-Code an entdeckt d\'Geschicht vum Gefier: Kilometer, Accidenter, Reparaturen.',
+    },
     nav: { services: 'Servicer', pricing: 'Präisser', about: 'Iwwer eis', login: 'Aloggen', myReports: 'Meng Berichter', signOut: 'Ausloggen', deleteAccount: 'Kont läschen', deleteAccountConfirm: 'Kont läschen', deleteAccountConfirmText: 'Sidd Dir sécher?', deleteAccountDeleting: 'Läscht…', deleteAccountError: 'Läschen huet net funktionéiert.' },
     tokenMode: { banner: 'Dir hutt {n} vun {total} Berichter.', noReports: 'Keng Berichter méi.', loading: 'Lueden…', error: 'Lueden huet net funktionéiert.' },
     hero: { title: 'Entdeckt d\'Geschicht vum Gefier', titleAccent: 'mat VIN Code', desc: 'Préift Kilometer, Schued an Maartpräis a Sekonnen.', placeholder: 'VIN Nummer aginn...', button: 'Préifen', sample: 'Mat Beispill probéieren' },
@@ -1146,6 +1344,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
     aiChat: { welcome: 'Moien! Ech sinn den VinScanner AI Expert. Wéi kann ech hëllefen?', cantRespond: 'Sorry, kann net elo äntweren.', expertTitle: 'AI Expert', online: 'Online', placeholder: 'Är Fro schreiwen...' },
   },
   cnr: {
+    seo: {
+      title: 'VinScanner - Provjera istorije vozila',
+      description: 'Provjerite VIN kod i otkrijte istoriju vozila: kilometraža, nesreće, popravke, istorija vlasništva. Brza i pouzdana provjera.',
+      ogTitle: 'VinScanner - Provjera istorije vozila',
+      ogDescription: 'Provjerite VIN kod i otkrijte istoriju vozila: kilometraža, nesreće, popravke.',
+    },
     nav: { services: 'Usluge', pricing: 'Cijene', about: 'O nama', login: 'Prijava', myReports: 'Moji izvještaji', signOut: 'Odjava', deleteAccount: 'Obriši nalog', deleteAccountConfirm: 'Obriši nalog', deleteAccountConfirmText: 'Jeste li sigurni?', deleteAccountDeleting: 'Brisanje…', deleteAccountError: 'Brisanje nije uspjelo.' },
     tokenMode: { banner: 'Imate {n} od {total} izvještaja.', noReports: 'Nema izvještaja.', loading: 'Učitavanje…', error: 'Greška.' },
     hero: { title: 'Otkrijte istoriju vozila', titleAccent: 'putem VIN koda', desc: 'Provjerite kilometražu, štete i tržišnu vrijednost.', placeholder: 'Unesite VIN...', button: 'Provjeri', sample: 'Probaj' },
@@ -1160,6 +1364,12 @@ const translationsMap: Record<SupportedLang, Translations> = {
     aiChat: { welcome: 'Zdravo! Kako mogu pomoći?', cantRespond: 'Ne mogu odgovoriti.', expertTitle: 'AI', online: 'Online', placeholder: 'Pitanje...' },
   },
   mt: {
+    seo: {
+      title: 'VinScanner - Verifika tal-istorja tal-vettura',
+      description: 'Iċċekkja l-kodiċi VIN u skopri l-istorja tal-vettura: kilometraġġ, inċidenti, tiswijiet, storja tas-sjieda. Verifika mgħaġġla u affidabbli.',
+      ogTitle: 'VinScanner - Verifika tal-istorja tal-vettura',
+      ogDescription: 'Iċċekkja l-kodiċi VIN u skopri l-istorja tal-vettura: kilometraġġ, inċidenti, tiswijiet.',
+    },
     nav: { services: 'Servizzi', pricing: 'Prezzijiet', about: 'Dwarna', login: 'Idħol', myReports: 'Ir-Rapporti Tiegħi', signOut: 'Oħroġ', deleteAccount: 'Ħassar Kont', deleteAccountConfirm: 'Ħassar', deleteAccountConfirmText: 'Int ċert?', deleteAccountDeleting: 'Qed jitħassar…', deleteAccountError: 'Żball.' },
     tokenMode: { banner: 'Għandek {n} minn {total} rapporti.', noReports: 'L-ebda rapporti.', loading: 'Qed jitgħabba…', error: 'Żball.' },
     hero: { title: 'Skopri l-istorja tal-vettura', titleAccent: 'permezz tal-VIN', desc: 'Iċċekkja l-kilometraġġ, ħsara u valur tas-suq fi sekondi.', placeholder: 'Daħħal in-numru VIN...', button: 'Iċċekkja', sample: 'Prova b\'eżempju' },
