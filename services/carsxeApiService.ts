@@ -1,14 +1,16 @@
 /**
- * CarsXE API – specs ir history.
+ * CarsXE API – specs, history ir theft check.
  * Naudoja proxy – CarsXE blokuoja CORS.
  * @see https://api.carsxe.com/docs/v1/specifications
  * @see https://api.carsxe.com/docs/v1/history
+ * @see https://api.carsxe.com/docs/v1/lien-theft
  */
 
 import type { CarReport, DamageRecord } from "../types";
 
 const CARSXE_SPECS_URL = "/api/carsxe-specs";
 const CARSXE_HISTORY_URL = "/api/carsxe-history";
+const CARSXE_THEFT_URL = "/api/carsxe-theft";
 
 export interface CarsXeSpecsResponse {
   success: boolean;
@@ -198,4 +200,81 @@ export function mapCarsXeHistoryToReportFields(h: CarsXeHistoryResponse | undefi
   if (damages.length > 0) out.damages = damages;
   if (theftStatus !== "unknown") out.theftStatus = theftStatus;
   return out;
+}
+
+// ---- CarsXE Lien & Theft Check ----
+
+export interface CarsXeTheftResponse {
+  success?: boolean;
+  vin?: string;
+  lienRecords?: Array<{
+    lienDate?: string;
+    lienHolder?: string;
+    lienType?: string;
+  }>;
+  theftRecords?: Array<{
+    theftDate?: string;
+    theftType?: string;
+    reportingAgency?: string;
+    status?: string;
+  }>;
+  error?: { code?: string; message?: string } | string;
+}
+
+export interface CarsXeTheftResult {
+  success: boolean;
+  result?: CarsXeTheftResponse;
+  error?: string;
+}
+
+/**
+ * Patikrina ar automobilis yra vagysčių/įkeitimo registre pagal VIN.
+ */
+export async function fetchTheftCheck(vin: string): Promise<CarsXeTheftResult> {
+  const url = new URL(CARSXE_THEFT_URL, window.location.origin);
+  url.searchParams.set("vin", vin.trim());
+  try {
+    const res = await fetch(url.toString(), { method: "GET" });
+    const data = (await res.json()) as CarsXeTheftResponse & { error?: string };
+    if (!res.ok) {
+      return { success: false, error: typeof data.error === 'string' ? data.error : res.statusText || `HTTP ${res.status}` };
+    }
+    if (data.error && typeof data.error === 'object' && data.error.code) {
+      return { success: false, result: data, error: data.error.message || "Theft check failed" };
+    }
+    return { success: true, result: data };
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return { success: false, error: msg };
+  }
+}
+
+/**
+ * Žemėlina CarsXE Theft Check rezultatą į CarReport theftStatus.
+ */
+export function mapTheftCheckToReportFields(data: CarsXeTheftResponse | undefined): Partial<CarReport> {
+  if (!data) return {};
+
+  const hasTheftRecords = Array.isArray(data.theftRecords) && data.theftRecords.length > 0;
+  const hasLienRecords = Array.isArray(data.lienRecords) && data.lienRecords.length > 0;
+
+  let theftStatus: CarReport["theftStatus"] = "clear";
+  
+  if (hasTheftRecords) {
+    const activeTheft = data.theftRecords?.some(r => r.status?.toLowerCase() !== 'recovered');
+    theftStatus = activeTheft ? "flagged" : "clear";
+  }
+
+  return {
+    theftStatus,
+    ...(hasLienRecords || hasTheftRecords ? {
+      rawApiResponses: {
+        carsxeTheft: {
+          success: true,
+          lienRecords: data.lienRecords,
+          theftRecords: data.theftRecords,
+        }
+      }
+    } : {})
+  };
 }
