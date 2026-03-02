@@ -194,6 +194,16 @@ export interface Translations {
     damageLabel: string;
     titleBrands: string;
     titleBrandsDesc: string;
+    titleBrandStatusCheck?: string;
+    titleBrandRegistered?: string;
+    titleBrandNotRegistered?: string;
+    titleBrandLabelFlood?: string;
+    titleBrandLabelFire?: string;
+    titleBrandLabelHail?: string;
+    titleBrandLabelCollision?: string;
+    titleBrandLabelSalvage?: string;
+    titleBrandLabelTheft?: string;
+    titleBrandLabelOdometer?: string;
     vinChanged: string;
     junkSalvage: string;
     junkSalvageDesc: string;
@@ -418,6 +428,16 @@ const translationsMap: Record<SupportedLang, Translations> = {
       damageLabel: 'Žala:',
       titleBrands: 'Pavadinimai ant titulo',
       titleBrandsDesc: 'CarsXE / NMVTIS ženklai iš transporto priemonės istorijos',
+      titleBrandStatusCheck: 'Ar įvykiai registruoti',
+      titleBrandRegistered: 'Registruota',
+      titleBrandNotRegistered: 'Neregistruota',
+      titleBrandLabelFlood: 'Potvandis',
+      titleBrandLabelFire: 'Gaisras',
+      titleBrandLabelHail: 'Kruša',
+      titleBrandLabelCollision: 'Avarija',
+      titleBrandLabelSalvage: 'Laužynas / Salvage',
+      titleBrandLabelTheft: 'Vagystė',
+      titleBrandLabelOdometer: 'Odometro problemos',
       vinChanged: 'VIN numeris buvo keistas',
       junkSalvage: 'Laužyno / Salvage įrašai',
       junkSalvageDesc: 'Transporto priemonės istorija iš laužyno ir salvage aukcionų',
@@ -708,6 +728,16 @@ const translationsMap: Record<SupportedLang, Translations> = {
       damageLabel: 'Damage:',
       titleBrands: 'Title brands',
       titleBrandsDesc: 'CarsXE / NMVTIS brands from vehicle history',
+      titleBrandStatusCheck: 'Event registration status',
+      titleBrandRegistered: 'Registered',
+      titleBrandNotRegistered: 'Not registered',
+      titleBrandLabelFlood: 'Flood',
+      titleBrandLabelFire: 'Fire',
+      titleBrandLabelHail: 'Hail',
+      titleBrandLabelCollision: 'Collision',
+      titleBrandLabelSalvage: 'Salvage / Junk',
+      titleBrandLabelTheft: 'Theft',
+      titleBrandLabelOdometer: 'Odometer issues',
       vinChanged: 'VIN has been changed',
       junkSalvage: 'Junk & Salvage records',
       junkSalvageDesc: 'Vehicle history from junk and salvage auctions',
@@ -998,6 +1028,16 @@ const translationsMap: Record<SupportedLang, Translations> = {
       damageLabel: 'Schaden:',
       titleBrands: 'Titelmarken',
       titleBrandsDesc: 'CarsXE / NMVTIS Marken aus Fahrzeughistorie',
+      titleBrandStatusCheck: 'Ob Ereignisse registriert',
+      titleBrandRegistered: 'Registriert',
+      titleBrandNotRegistered: 'Nicht registriert',
+      titleBrandLabelFlood: 'Hochwasser',
+      titleBrandLabelFire: 'Feuer',
+      titleBrandLabelHail: 'Hagel',
+      titleBrandLabelCollision: 'Unfall',
+      titleBrandLabelSalvage: 'Schrott / Salvage',
+      titleBrandLabelTheft: 'Diebstahl',
+      titleBrandLabelOdometer: 'Tachostand-Probleme',
       vinChanged: 'VIN wurde geändert',
       junkSalvage: 'Schrott- & Salvage-Einträge',
       junkSalvageDesc: 'Fahrzeughistorie aus Schrott- und Salvage-Auktionen',
