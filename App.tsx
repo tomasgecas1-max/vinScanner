@@ -18,7 +18,7 @@ import AIChat from './components/AIChat';
 import Logo from './components/Logo';
 import { useAuth } from './context/AuthContext';
 import { generateMockReport } from './services/geminiService';
-import { fetchCarReportFromOneAuto, HISTORY_NOT_FOUND_ERROR } from './services/oneAutoApiService';
+import { fetchCarReportFromOneAuto } from './services/oneAutoApiService';
 import { fetchVehicleSpecs, mapVehicleSpecsToReportFields, fetchVehicleHistory, mapCarsXeHistoryToReportFields, fetchTheftCheck, mapTheftCheckToReportFields } from './services/carsxeApiService';
 import { saveReport } from './services/reportsFirestore';
 import { CarReport } from './types';
@@ -49,9 +49,9 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showMyReports, setShowMyReports] = useState(false);
   const [myReportsRefreshKey, setMyReportsRefreshKey] = useState(0);
-  // Laikinai išjungti brangūs API (Service History, VIN Lookup) – palikti tik specifikacijas testavimui
-  const [useServiceHistory, setUseServiceHistory] = useState(false);
-  const [useVinLookup, setUseVinLookup] = useState(false);
+  // API jungikliai – visi įjungti (Service History, VIN Lookup, Vehicle Specs, CarsXE History)
+  const [useServiceHistory, setUseServiceHistory] = useState(true);
+  const [useVinLookup, setUseVinLookup] = useState(true);
   const [useVehicleSpecs, setUseVehicleSpecs] = useState(true);
   const [useCarsXeHistory, setUseCarsXeHistory] = useState(true);
   const [pendingVin, setPendingVin] = useState<string | null>(null);
@@ -262,11 +262,13 @@ const App: React.FC = () => {
     return () => clearInterval(interval);
   }, [loading, lang]);
 
+  /** Trijų išskirtinių šaltinių logika: Cache → One Auto → CarsXE. Duomenys tik iš vieno šaltinio. */
   const handleSearchAndReturn = async (vin: string): Promise<CarReport | null> => {
     try {
       const vinNorm = vin.trim().toUpperCase();
       trackVinSearch(vinNorm);
-      
+
+      // 1. Cache – jei rasta, grąžinti ir sustoti
       const cacheRes = await fetch(`/api/report-cache?vin=${encodeURIComponent(vinNorm)}`);
       if (cacheRes.ok) {
         const cacheData = await cacheRes.json();
@@ -274,89 +276,77 @@ const App: React.FC = () => {
           return { ...cacheData.report, vin };
         }
       }
-      
-      let data: CarReport | null = null;
-      const needsOneAuto = useServiceHistory || useVinLookup;
-      
-      if (needsOneAuto) {
+
+      // 2. One Auto (Service History → jei rasta, papildyti VIN Lookup) – tik vienas šaltinis
+      if (useServiceHistory || useVinLookup) {
         try {
-          data = await fetchCarReportFromOneAuto(vin, {
+          const oneAutoData = await fetchCarReportFromOneAuto(vin, {
             useServiceHistory,
             useVinLookup,
-            sequential: useServiceHistory && useVinLookup && useVehicleSpecs,
+            sequential: useServiceHistory && useVinLookup,
           });
-        } catch (e) {
-          const msg = e instanceof Error ? e.message : String(e);
-          if (msg === HISTORY_NOT_FOUND_ERROR) {
-            return null;
+          if (oneAutoData) {
+            return oneAutoData;
           }
-          data = null;
+        } catch {
+          // One Auto nerado duomenų – tęsti į CarsXE
         }
       }
-      
-      if (!data && useVehicleSpecs) {
-        const specsRes = await fetchVehicleSpecs(vin);
-        if (specsRes.success && specsRes.result?.attributes) {
-          const fromSpecs = mapVehicleSpecsToReportFields(specsRes.result.attributes);
-          data = {
-            vin,
-            make: fromSpecs.make ?? "–",
-            model: fromSpecs.model ?? "–",
-            year: fromSpecs.year ?? 0,
-            mileageHistory: [{ date: new Date().toISOString().slice(0, 7), value: 0 }],
-            serviceEvents: [],
-            damages: [],
-            theftStatus: "unknown",
-            technicalSpecs: fromSpecs.technicalSpecs ?? { engine: "–", power: "–", fuelType: "–" },
-            marketValue: { min: 0, max: 0, average: 0 },
-            rawApiResponses: { vehicleSpecs: specsRes },
-          };
-        }
-      }
-      
-      if (!data) return null;
-      
-      let reportData: CarReport = { ...data, vin };
-      
-      if (useVehicleSpecs) {
-        const alreadyHasVehicleSpecs = data?.rawApiResponses && typeof data.rawApiResponses === "object" && (data.rawApiResponses as Record<string, { success?: boolean }>).vehicleSpecs?.success === true;
-        if (!alreadyHasVehicleSpecs) {
-          const specsRes = await fetchVehicleSpecs(vin);
-          if (specsRes.success && specsRes.result?.attributes) {
-            const fromSpecs = mapVehicleSpecsToReportFields(specsRes.result.attributes);
-            reportData = {
-              ...reportData,
-              ...fromSpecs,
-              rawApiResponses: { ...(reportData.rawApiResponses as object || {}), vehicleSpecs: specsRes },
-            };
-          }
-        }
-      }
-      
+
+      // 3. CarsXE (History → jei rasta, papildyti Specs + Theft) – tik vienas šaltinis
       if (useCarsXeHistory) {
         const historyRes = await fetchVehicleHistory(vin);
         if (historyRes.success && historyRes.result) {
           const fromHistory = mapCarsXeHistoryToReportFields(historyRes.result);
-          if (fromHistory.mileageHistory?.length) reportData.mileageHistory = fromHistory.mileageHistory;
-          if (fromHistory.damages?.length) reportData.damages = fromHistory.damages;
+          const mileageHistory = fromHistory.mileageHistory?.length
+            ? fromHistory.mileageHistory
+            : [{ date: new Date().toISOString().slice(0, 7), value: 0 }];
+          let reportData: CarReport = {
+            vin,
+            make: "–",
+            model: "–",
+            year: 0,
+            mileageHistory,
+            serviceEvents: [],
+            damages: fromHistory.damages ?? [],
+            theftStatus: fromHistory.theftStatus ?? "unknown",
+            technicalSpecs: { engine: "–", power: "–", fuelType: "–" },
+            marketValue: { min: 0, max: 0, average: 0 },
+            rawApiResponses: { carsxeHistory: historyRes },
+          };
           if (fromHistory.titleBrands?.length) reportData.titleBrands = fromHistory.titleBrands;
           if (fromHistory.junkSalvageRecords?.length) reportData.junkSalvageRecords = fromHistory.junkSalvageRecords;
           if (fromHistory.insuranceRecords?.length) reportData.insuranceRecords = fromHistory.insuranceRecords;
           if (fromHistory.vinChanged) reportData.vinChanged = fromHistory.vinChanged;
-          if (fromHistory.theftStatus) reportData.theftStatus = fromHistory.theftStatus;
-          reportData.rawApiResponses = { ...(reportData.rawApiResponses as object || {}), carsxeHistory: historyRes };
+
+          if (useVehicleSpecs) {
+            const specsRes = await fetchVehicleSpecs(vin);
+            if (specsRes.success && specsRes.result?.attributes) {
+              const fromSpecs = mapVehicleSpecsToReportFields(specsRes.result.attributes);
+              reportData = {
+                ...reportData,
+                make: fromSpecs.make ?? reportData.make,
+                model: fromSpecs.model ?? reportData.model,
+                year: fromSpecs.year ?? reportData.year,
+                technicalSpecs: fromSpecs.technicalSpecs ?? reportData.technicalSpecs,
+                rawApiResponses: { ...(reportData.rawApiResponses as object), vehicleSpecs: specsRes },
+              };
+            }
+          }
+
+          const theftRes = await fetchTheftCheck(vin);
+          if (theftRes.success && theftRes.result) {
+            const fromTheft = mapTheftCheckToReportFields(theftRes.result);
+            if (fromTheft.theftStatus) reportData.theftStatus = fromTheft.theftStatus;
+            if (fromTheft.lienTheftEvents?.length) reportData.lienTheftEvents = fromTheft.lienTheftEvents;
+            reportData.rawApiResponses = { ...(reportData.rawApiResponses as object), carsxeTheft: theftRes };
+          }
+
+          return reportData;
         }
       }
-      
-      const theftRes = await fetchTheftCheck(vin);
-      if (theftRes.success && theftRes.result) {
-        const fromTheft = mapTheftCheckToReportFields(theftRes.result);
-        if (fromTheft.theftStatus) reportData.theftStatus = fromTheft.theftStatus;
-        if (fromTheft.lienTheftEvents?.length) reportData.lienTheftEvents = fromTheft.lienTheftEvents;
-        reportData.rawApiResponses = { ...(reportData.rawApiResponses as object || {}), carsxeTheft: theftRes };
-      }
-      
-      return reportData;
+
+      return null;
     } catch {
       return null;
     }
@@ -579,58 +569,15 @@ const App: React.FC = () => {
           return;
         }
       }
-      let data: CarReport | null = null;
-      let apiError: string | null = null;
-      const needsOneAuto = useServiceHistory || useVinLookup;
-      const allSourcesChecked = useServiceHistory && useVinLookup && useVehicleSpecs;
-
-      if (needsOneAuto) {
-        try {
-          data = await fetchCarReportFromOneAuto(vin, {
-            useServiceHistory,
-            useVinLookup,
-            sequential: allSourcesChecked,
-          });
-        } catch (e) {
-          const msg = e instanceof Error ? e.message : String(e);
-          if (msg === HISTORY_NOT_FOUND_ERROR) {
-            setError(t.errors.historyNotFound);
-            setLoading(false);
-            return;
-          }
-          data = null;
-          apiError = msg;
-        }
-      }
+      // Trijų išskirtinių šaltinių logika: Cache → One Auto → CarsXE (naudojame handleSearchAndReturn)
+      let data: CarReport | null = await handleSearchAndReturn(vin);
 
       const hasVinKey = !!(process.env.VIN_API_KEY);
       const mockDisabled = hasVinKey || (process.env.DISABLE_MOCK_REPORT === "true" || process.env.DISABLE_MOCK_REPORT === "1");
 
-      const vinLookupSuccess = data?.rawApiResponses && typeof data.rawApiResponses === "object" && (data.rawApiResponses as Record<string, { success?: boolean }>).vinLookup?.success === true;
-
-      if (!data && useVehicleSpecs) {
-        const specsRes = await fetchVehicleSpecs(vin);
-        if (specsRes.success && specsRes.result?.attributes) {
-          const fromSpecs = mapVehicleSpecsToReportFields(specsRes.result.attributes);
-          data = {
-            vin,
-            make: fromSpecs.make ?? "–",
-            model: fromSpecs.model ?? "–",
-            year: fromSpecs.year ?? 0,
-            mileageHistory: [{ date: new Date().toISOString().slice(0, 7), value: 0 }],
-            serviceEvents: [],
-            damages: [],
-            theftStatus: "unknown",
-            technicalSpecs: fromSpecs.technicalSpecs ?? { engine: "–", power: "–", fuelType: "–" },
-            marketValue: { min: 0, max: 0, average: 0 },
-            rawApiResponses: { vehicleSpecs: specsRes },
-          };
-        }
-      }
-
       if (!data) {
         if (mockDisabled) {
-          setErrorModalMessage(apiError || t.errors.apiFailed);
+          setErrorModalMessage(t.errors.apiFailed);
           setLoading(false);
           return;
         }
@@ -638,90 +585,8 @@ const App: React.FC = () => {
       }
       setProgress(100);
       setLoadingStep(t.loading.ready);
-      let reportData: CarReport = { ...data, vin };
 
-      const alreadyHasVehicleSpecs = data?.rawApiResponses && typeof data.rawApiResponses === "object" && (data.rawApiResponses as Record<string, { success?: boolean }>).vehicleSpecs?.success === true;
-      const needVehicleSpecs = useVehicleSpecs && !alreadyHasVehicleSpecs && (allSourcesChecked ? !vinLookupSuccess : true);
-      if (needVehicleSpecs) {
-        const specsRes = await fetchVehicleSpecs(vin);
-        if (specsRes.success && specsRes.result?.attributes) {
-          const fromSpecs = mapVehicleSpecsToReportFields(specsRes.result.attributes);
-          reportData = {
-            ...reportData,
-            ...fromSpecs,
-            rawApiResponses: { ...(reportData.rawApiResponses as object || {}), vehicleSpecs: specsRes },
-          };
-        }
-      }
-
-      if (useCarsXeHistory) {
-        const historyRes = await fetchVehicleHistory(vin);
-        if (historyRes.success && historyRes.result) {
-          const fromHistory = mapCarsXeHistoryToReportFields(historyRes.result);
-          if (fromHistory.mileageHistory?.length) reportData.mileageHistory = fromHistory.mileageHistory;
-          if (fromHistory.damages?.length) reportData.damages = fromHistory.damages;
-          if (fromHistory.titleBrands?.length) reportData.titleBrands = fromHistory.titleBrands;
-          if (fromHistory.theftStatus) reportData.theftStatus = fromHistory.theftStatus;
-          reportData.rawApiResponses = { ...(reportData.rawApiResponses as object || {}), carsxeHistory: historyRes };
-        }
-      }
-
-      const theftRes = await fetchTheftCheck(vin);
-      if (theftRes.success && theftRes.result) {
-        const fromTheft = mapTheftCheckToReportFields(theftRes.result);
-        if (fromTheft.theftStatus) reportData.theftStatus = fromTheft.theftStatus;
-        if (fromTheft.lienTheftEvents?.length) reportData.lienTheftEvents = fromTheft.lienTheftEvents;
-        reportData.rawApiResponses = { ...(reportData.rawApiResponses as object || {}), carsxeTheft: theftRes };
-      }
-
-      const rawData = reportData.rawApiResponses as { serviceHistory?: { success?: boolean }; vinLookup?: { success?: boolean }; vehicleSpecs?: { success?: boolean } } | undefined;
-
-      let finalReport: CarReport = reportData;
-      if (previousReport && previousReport.vin === vin) {
-        const raw = data.rawApiResponses as { serviceHistory?: { success?: boolean }; vinLookup?: { success?: boolean } } | undefined;
-        finalReport = { ...previousReport };
-        if (raw?.serviceHistory?.success) {
-          finalReport.mileageHistory = data.mileageHistory;
-          finalReport.serviceEvents = data.serviceEvents;
-          finalReport.rawApiResponses = { ...(finalReport.rawApiResponses as object || {}), serviceHistory: (data.rawApiResponses as any)?.serviceHistory };
-        }
-        if (raw?.vinLookup?.success) {
-          finalReport.make = data.make;
-          finalReport.model = data.model;
-          finalReport.year = data.year;
-          finalReport.technicalSpecs = data.technicalSpecs;
-          finalReport.rawApiResponses = { ...(finalReport.rawApiResponses as object || {}), vinLookup: (data.rawApiResponses as any)?.vinLookup };
-        }
-        const carsxeH = (reportData.rawApiResponses as Record<string, unknown>)?.carsxeHistory;
-        if (carsxeH && typeof carsxeH === 'object' && (carsxeH as { success?: boolean }).success) {
-          const result = (carsxeH as { result?: unknown }).result;
-          const fromH = mapCarsXeHistoryToReportFields(result as import('./services/carsxeApiService').CarsXeHistoryResponse);
-          if (fromH.mileageHistory?.length) finalReport.mileageHistory = fromH.mileageHistory;
-          if (fromH.damages?.length) finalReport.damages = fromH.damages;
-          if (fromH.titleBrands?.length) finalReport.titleBrands = fromH.titleBrands;
-          if (fromH.junkSalvageRecords?.length) finalReport.junkSalvageRecords = fromH.junkSalvageRecords;
-          if (fromH.insuranceRecords?.length) finalReport.insuranceRecords = fromH.insuranceRecords;
-          if (fromH.vinChanged) finalReport.vinChanged = fromH.vinChanged;
-          if (fromH.theftStatus) finalReport.theftStatus = fromH.theftStatus;
-          finalReport.rawApiResponses = { ...(finalReport.rawApiResponses as object || {}), carsxeHistory: carsxeH };
-        }
-        const carsxeT = (reportData.rawApiResponses as Record<string, unknown>)?.carsxeTheft;
-        if (carsxeT && typeof carsxeT === 'object' && (carsxeT as { success?: boolean }).success) {
-          const result = (carsxeT as { result?: unknown }).result;
-          const fromT = mapTheftCheckToReportFields(result as import('./services/carsxeApiService').CarsXeTheftResponse);
-          if (fromT.theftStatus) finalReport.theftStatus = fromT.theftStatus;
-          if (fromT.lienTheftEvents?.length) finalReport.lienTheftEvents = fromT.lienTheftEvents;
-          finalReport.rawApiResponses = { ...(finalReport.rawApiResponses as object || {}), carsxeTheft: carsxeT };
-        }
-        if (rawData?.vehicleSpecs?.success) {
-          finalReport.make = reportData.make;
-          finalReport.model = reportData.model;
-          finalReport.year = reportData.year;
-          finalReport.technicalSpecs = reportData.technicalSpecs;
-          finalReport.rawApiResponses = { ...(finalReport.rawApiResponses as object || {}), vehicleSpecs: reportData.rawApiResponses && typeof reportData.rawApiResponses === 'object' ? (reportData.rawApiResponses as any).vehicleSpecs : undefined };
-        }
-      }
-
+      const finalReport: CarReport = { ...data, vin };
       const mileageCount = finalReport.mileageHistory?.length ?? 0;
       const serviceCount = finalReport.serviceEvents?.length ?? 0;
       const hasEnoughData = mileageCount >= 2 || serviceCount >= 2;
