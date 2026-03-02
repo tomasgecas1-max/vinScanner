@@ -6,6 +6,7 @@ import OrderEmailStepModal from './components/OrderEmailStepModal';
 import PrivacyPolicyModal from './components/PrivacyPolicyModal';
 import CookieConsent from './components/CookieConsent';
 import UsageInstructionsModal from './components/UsageInstructionsModal';
+import AuthModal from './components/AuthModal';
 import SampleReportModal from './components/SampleReportModal';
 import PaymentModal from './components/PaymentModal';
 import LanguageSelectionBar from './components/LanguageSelectionBar';
@@ -62,6 +63,7 @@ const App: React.FC = () => {
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [showUsageInstructionsModal, setShowUsageInstructionsModal] = useState(false);
   const [showSampleReport, setShowSampleReport] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [purchaseInfo, setPurchaseInfo] = useState<{
     reportsRemaining: number;
     reportsTotal: number;
@@ -609,7 +611,7 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 selection:bg-indigo-100 selection:text-indigo-900">
-      <Navbar lang={lang} setLang={setLang} t={t} onMyReportsClick={() => setShowMyReports(true)} onSampleReportClick={handleSampleReportDemo} />
+      <Navbar lang={lang} setLang={setLang} t={t} onMyReportsClick={() => setShowMyReports(true)} onSampleReportClick={handleSampleReportDemo} onAuthClick={() => setShowAuthModal(true)} />
       
       <main className="overflow-x-hidden">
         {purchaseToken && purchaseInfo && (
@@ -848,6 +850,7 @@ const App: React.FC = () => {
           lang={lang}
         />
       )}
+      <AuthModal open={showAuthModal} onClose={() => setShowAuthModal(false)} t={t} />
       {showLanguageBar && (
         <LanguageSelectionBar onSelect={handleLanguageSelect} onDismiss={handleLanguageBarDismiss} />
       )}
