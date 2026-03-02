@@ -8,7 +8,7 @@ import CookieConsent from './components/CookieConsent';
 import UsageInstructionsModal from './components/UsageInstructionsModal';
 import SampleReportModal from './components/SampleReportModal';
 import PaymentModal from './components/PaymentModal';
-import LanguageSelectionModal from './components/LanguageSelectionModal';
+import LanguageSelectionBar from './components/LanguageSelectionBar';
 import Hero from './components/Hero';
 import ReportView from './components/ReportView';
 import MyReports from './components/MyReports';
@@ -30,7 +30,7 @@ import { captureError } from './services/sentry';
 const App: React.FC = () => {
   const { user } = useAuth();
   useGoogleAnalytics();
-  const [showLanguageModal, setShowLanguageModal] = useState(false);
+  const [showLanguageBar, setShowLanguageBar] = useState(false);
   const [lang, setLang] = useState<LangCode>(() => {
     const saved = localStorage.getItem('vinscanner_lang');
     return (saved as LangCode) || 'en';
@@ -100,17 +100,22 @@ const App: React.FC = () => {
     return () => window.removeEventListener('openPrivacyPolicy', handleOpenPrivacy);
   }, []);
 
-  // Show language selection modal on first visit
+  // Show language selection bar on first visit
   useEffect(() => {
     const hasSelected = localStorage.getItem('vinscanner_lang_selected');
     if (!hasSelected) {
-      setShowLanguageModal(true);
+      setShowLanguageBar(true);
     }
   }, []);
 
   const handleLanguageSelect = (selectedLang: LangCode) => {
     setLang(selectedLang);
-    setShowLanguageModal(false);
+    setShowLanguageBar(false);
+  };
+
+  const handleLanguageBarDismiss = () => {
+    localStorage.setItem('vinscanner_lang_selected', 'true');
+    setShowLanguageBar(false);
   };
 
   // Kai prisijungęs vartotojas, bet nėra token iš URL – ieškome pirkimo pagal el. paštą
@@ -805,8 +810,8 @@ const App: React.FC = () => {
           lang={lang}
         />
       )}
-      {showLanguageModal && (
-        <LanguageSelectionModal onSelect={handleLanguageSelect} />
+      {showLanguageBar && (
+        <LanguageSelectionBar onSelect={handleLanguageSelect} onDismiss={handleLanguageBarDismiss} />
       )}
       <AIChat key={lang} t={t} />
       <CookieConsent lang={lang} />
