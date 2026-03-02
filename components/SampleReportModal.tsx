@@ -555,10 +555,13 @@ const SampleReportModal: React.FC<SampleReportModalProps> = ({ open, onClose, t,
             </div>
           </div>
           <div className="flex items-center gap-2 sm:gap-3 w-full md:w-auto justify-between md:justify-end">
-            <div className="px-2 py-1 sm:px-4 sm:py-2 rounded-full text-[9px] sm:text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 sm:gap-2 bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 shrink-0">
-              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-400" />
-              <span className="hidden sm:inline">{t.report.theftClear}</span>
-              <span className="sm:hidden">OK</span>
+            <div className="px-2 py-1 sm:px-4 sm:py-2 rounded-full text-[9px] sm:text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 sm:gap-2 bg-emerald-500/20 text-emerald-600 border border-emerald-500/50 shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-emerald-500">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+              <span className="hidden sm:inline">{t.report.theftNoDataFound ?? t.report.theftClear}</span>
+              <span className="sm:hidden">✓</span>
             </div>
             <button
               type="button"

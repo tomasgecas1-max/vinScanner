@@ -19,7 +19,7 @@ import Logo from './components/Logo';
 import { useAuth } from './context/AuthContext';
 import { generateMockReport } from './services/geminiService';
 import { fetchCarReportFromOneAuto, HISTORY_NOT_FOUND_ERROR } from './services/oneAutoApiService';
-import { fetchVehicleSpecs, mapVehicleSpecsToReportFields, fetchVehicleHistory, mapCarsXeHistoryToReportFields } from './services/carsxeApiService';
+import { fetchVehicleSpecs, mapVehicleSpecsToReportFields, fetchVehicleHistory, mapCarsXeHistoryToReportFields, fetchTheftCheck, mapTheftCheckToReportFields } from './services/carsxeApiService';
 import { saveReport } from './services/reportsFirestore';
 import { CarReport } from './types';
 import { getTranslations } from './constants/translations';
@@ -342,6 +342,13 @@ const App: React.FC = () => {
         }
       }
       
+      const theftRes = await fetchTheftCheck(vin);
+      if (theftRes.success && theftRes.result) {
+        const fromTheft = mapTheftCheckToReportFields(theftRes.result);
+        if (fromTheft.theftStatus) reportData.theftStatus = fromTheft.theftStatus;
+        reportData.rawApiResponses = { ...(reportData.rawApiResponses as object || {}), carsxeTheft: theftRes };
+      }
+      
       return reportData;
     } catch {
       return null;
@@ -650,6 +657,13 @@ const App: React.FC = () => {
         }
       }
 
+      const theftRes = await fetchTheftCheck(vin);
+      if (theftRes.success && theftRes.result) {
+        const fromTheft = mapTheftCheckToReportFields(theftRes.result);
+        if (fromTheft.theftStatus) reportData.theftStatus = fromTheft.theftStatus;
+        reportData.rawApiResponses = { ...(reportData.rawApiResponses as object || {}), carsxeTheft: theftRes };
+      }
+
       const rawData = reportData.rawApiResponses as { serviceHistory?: { success?: boolean }; vinLookup?: { success?: boolean }; vehicleSpecs?: { success?: boolean } } | undefined;
 
       let finalReport: CarReport = reportData;
@@ -676,6 +690,13 @@ const App: React.FC = () => {
           if (fromH.damages?.length) finalReport.damages = fromH.damages;
           if (fromH.theftStatus) finalReport.theftStatus = fromH.theftStatus;
           finalReport.rawApiResponses = { ...(finalReport.rawApiResponses as object || {}), carsxeHistory: carsxeH };
+        }
+        const carsxeT = (reportData.rawApiResponses as Record<string, unknown>)?.carsxeTheft;
+        if (carsxeT && typeof carsxeT === 'object' && (carsxeT as { success?: boolean }).success) {
+          const result = (carsxeT as { result?: unknown }).result;
+          const fromT = mapTheftCheckToReportFields(result as import('./services/carsxeApiService').CarsXeTheftResponse);
+          if (fromT.theftStatus) finalReport.theftStatus = fromT.theftStatus;
+          finalReport.rawApiResponses = { ...(finalReport.rawApiResponses as object || {}), carsxeTheft: carsxeT };
         }
         if (rawData?.vehicleSpecs?.success) {
           finalReport.make = reportData.make;
@@ -797,6 +818,13 @@ const App: React.FC = () => {
           if (fromHistory.theftStatus) merged.theftStatus = fromHistory.theftStatus;
           merged.rawApiResponses = { ...(merged.rawApiResponses as object || {}), carsxeHistory: historyRes };
         }
+      }
+
+      const theftRes = await fetchTheftCheck(vin);
+      if (theftRes.success && theftRes.result) {
+        const fromTheft = mapTheftCheckToReportFields(theftRes.result);
+        if (fromTheft.theftStatus) merged.theftStatus = fromTheft.theftStatus;
+        merged.rawApiResponses = { ...(merged.rawApiResponses as object || {}), carsxeTheft: theftRes };
       }
 
       setReport(merged);

@@ -3,6 +3,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { CarReport, type ReportAnalysis, type ServiceEventRecord } from '../types';
 import { getReportAnalysis, translateServiceEventTexts } from '../services/geminiService';
 import type { Translations } from '../constants/translations';
+import { getTranslations } from '../constants/translations';
 // @ts-expect-error html2pdf.js neturi TypeScript tipų
 import html2pdf from 'html2pdf.js';
 
@@ -117,7 +118,16 @@ function getFullTechnicalData(report: CarReport): Record<string, string> {
   return report.technicalSpecs;
 }
 
-function getTechnicalLabel(key: string): string {
+function normalizeFieldKey(key: string): string {
+  return key.toLowerCase().replace(/\s+/g, '_').replace(/-/g, '_');
+}
+
+function getTechnicalLabel(key: string, t: Translations): string {
+  const labels = t.report?.fieldLabels ?? getTranslations('en').report?.fieldLabels;
+  if (labels) {
+    const norm = normalizeFieldKey(key);
+    return labels[key] ?? labels[norm] ?? labels[key.replace(/\s+/g, '_')] ?? FIELD_LABELS[key] ?? key.replace(/_/g, ' ');
+  }
   return FIELD_LABELS[key] ?? key.replace(/_/g, ' ');
 }
 
@@ -336,28 +346,31 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
           <div className="flex items-center gap-2 sm:gap-3 w-full md:w-auto justify-between md:justify-end">
             <div
               className={`px-2 py-1 sm:px-4 sm:py-2 rounded-full text-[9px] sm:text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 sm:gap-2 shrink-0 ${
-                report.theftStatus === 'clear'
-                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50'
-                  : report.theftStatus === 'flagged'
-                    ? 'bg-rose-500/20 text-rose-400 border border-rose-500/50'
-                    : 'bg-slate-200/80 text-slate-600 border border-slate-300/80'
+                report.theftStatus === 'flagged'
+                  ? 'bg-rose-500/20 text-rose-400 border border-rose-500/50'
+                  : 'bg-emerald-500/20 text-emerald-600 border border-emerald-500/50'
               }`}
               title={report.theftStatus === 'unknown' ? t.report.theftUnknownTooltip : undefined}
             >
-              <div
-                className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${
-                  report.theftStatus === 'clear' ? 'bg-emerald-400' : report.theftStatus === 'flagged' ? 'bg-rose-400 animate-pulse' : 'bg-slate-500'
-                }`}
-              />
+              {report.theftStatus === 'flagged' ? (
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/>
+                  <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-emerald-500">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                  <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+              )}
               <span className="hidden sm:inline">
-                {report.theftStatus === 'clear'
-                  ? t.report.theftClear
-                  : report.theftStatus === 'flagged'
-                    ? t.report.theftFlagged
-                    : t.report.theftUnknown}
+                {report.theftStatus === 'flagged'
+                  ? t.report.theftFlagged
+                  : (t.report.theftNoDataFound ?? t.report.theftClear)}
               </span>
               <span className="sm:hidden">
-                {report.theftStatus === 'clear' ? 'OK' : report.theftStatus === 'flagged' ? '!' : '?'}
+                {report.theftStatus === 'flagged' ? '!' : '✓'}
               </span>
             </div>
             {canSave && onSaveReport && (
@@ -461,7 +474,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
               .map(([key, val]) => (
               <div key={key} className="flex justify-between py-3 border-b border-slate-200/50">
                 <span className="text-slate-500 text-xs sm:text-sm capitalize">
-                  {key === 'fuelType' ? t.report.fuelType : key === 'power' ? t.report.power : key === 'engine' ? t.report.engine : key === 'transmission' ? t.report.transmission : key === 'bodyType' ? t.report.bodyType : key === 'colour' ? t.report.colour : key === 'co2' ? 'CO₂' : getTechnicalLabel(key)}
+                  {key === 'fuelType' ? t.report.fuelType : key === 'power' ? t.report.power : key === 'engine' ? t.report.engine : key === 'transmission' ? t.report.transmission : key === 'bodyType' ? t.report.bodyType : key === 'colour' ? t.report.colour : key === 'co2' ? 'CO₂' : getTechnicalLabel(key, t)}
                 </span>
                 <span className="text-slate-900 text-xs sm:text-sm font-semibold text-right">{val}</span>
               </div>
