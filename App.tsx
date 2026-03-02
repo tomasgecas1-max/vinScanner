@@ -70,6 +70,8 @@ const App: React.FC = () => {
     error: boolean;
   } | null>(null);
 
+  const t = getTranslations(lang);
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('redirect_status') === 'succeeded' && params.get('payment_intent_client_secret')) {
@@ -116,6 +118,42 @@ const App: React.FC = () => {
   const handleLanguageBarDismiss = () => {
     localStorage.setItem('vinscanner_lang_selected', 'true');
     setShowLanguageBar(false);
+  };
+
+  const handleSampleReportDemo = async () => {
+    setLoading(true);
+    setProgress(0);
+    setError(null);
+    
+    const steps = t.loading.steps;
+    const durations = [800, 1000, 1200, 1000, 800];
+    
+    let currentProgress = 0;
+    const progressPerStep = 100 / steps.length;
+    
+    for (let i = 0; i < steps.length; i++) {
+      setLoadingStep(steps[i]);
+      const duration = durations[i] || 900;
+      const targetProgress = currentProgress + progressPerStep;
+      const startProgress = currentProgress;
+      const startTime = Date.now();
+      
+      while (Date.now() - startTime < duration) {
+        const elapsed = Date.now() - startTime;
+        const stepProgress = (elapsed / duration) * progressPerStep;
+        setProgress(Math.min(startProgress + stepProgress, targetProgress));
+        await new Promise(r => setTimeout(r, 50));
+      }
+      
+      currentProgress = targetProgress;
+      setProgress(currentProgress);
+    }
+    
+    setProgress(100);
+    setLoadingStep(t.loading.ready);
+    await new Promise(r => setTimeout(r, 400));
+    setLoading(false);
+    setShowSampleReport(true);
   };
 
   // Kai prisijungęs vartotojas, bet nėra token iš URL – ieškome pirkimo pagal el. paštą
@@ -184,7 +222,6 @@ const App: React.FC = () => {
     }
   }, [report, loading]);
 
-  const t = getTranslations(lang);
   useMetaTags(t, lang);
   const steps = t.loading.steps;
 
@@ -572,7 +609,7 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 selection:bg-indigo-100 selection:text-indigo-900">
-      <Navbar lang={lang} setLang={setLang} t={t} onMyReportsClick={() => setShowMyReports(true)} onSampleReportClick={() => setShowSampleReport(true)} />
+      <Navbar lang={lang} setLang={setLang} t={t} onMyReportsClick={() => setShowMyReports(true)} onSampleReportClick={handleSampleReportDemo} />
       
       <main className="overflow-x-hidden">
         {purchaseToken && purchaseInfo && (
@@ -605,7 +642,7 @@ const App: React.FC = () => {
         )}
         <Hero
           onVinSubmit={handleVinSubmit}
-          onSampleReportClick={() => setShowSampleReport(true)}
+          onSampleReportClick={handleSampleReportDemo}
           loading={loading}
           t={t}
           useServiceHistory={useServiceHistory}
