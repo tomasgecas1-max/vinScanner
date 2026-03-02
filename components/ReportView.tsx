@@ -168,6 +168,9 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
   const geminiTitleBrandCacheRef = useRef<Record<string, Record<string, { name: string; description: string }>>>({});
   const [translatedTechnicalSpecs, setTranslatedTechnicalSpecs] = useState<Record<string, string> | null>(null);
   const [technicalSpecsTranslationLoading, setTechnicalSpecsTranslationLoading] = useState(false);
+  const [translatedJunkSalvage, setTranslatedJunkSalvage] = useState<Array<{ entityName?: string; disposition?: string; intendedForExport?: string }> | null>(null);
+  const [translatedInsurance, setTranslatedInsurance] = useState<Array<{ entityName?: string }> | null>(null);
+  const [translatedLienTheft, setTranslatedLienTheft] = useState<Array<{ description: string }> | null>(null);
   const [translatedServiceEvents, setTranslatedServiceEvents] = useState<ServiceEventRecord[] | null>(null);
   const [serviceTranslationLoading, setServiceTranslationLoading] = useState(false);
   const [serviceTranslationError, setServiceTranslationError] = useState<string | null>(null);
@@ -256,6 +259,62 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
     });
     return () => { cancelled = true; };
   }, [useGeminiTranslation, lang, displayReport]);
+
+  useEffect(() => {
+    if (!useGeminiTranslation || !lang || lang === 'en') {
+      setTranslatedJunkSalvage(null);
+      setTranslatedInsurance(null);
+      setTranslatedLienTheft(null);
+      return;
+    }
+    const junk = displayReport.junkSalvageRecords ?? [];
+    const ins = displayReport.insuranceRecords ?? [];
+    const lien = displayReport.lienTheftEvents ?? [];
+    let cancelled = false;
+
+    const run = async () => {
+      if (junk.length > 0) {
+        const texts: string[] = [];
+        const map: { idx: number; field: 'entityName' | 'disposition' | 'intendedForExport' }[] = [];
+        junk.forEach((r, i) => {
+          if (r.entityName) { map.push({ idx: i, field: 'entityName' }); texts.push(r.entityName); }
+          if (r.disposition) { map.push({ idx: i, field: 'disposition' }); texts.push(r.disposition); }
+          if (r.intendedForExport) { map.push({ idx: i, field: 'intendedForExport' }); texts.push(r.intendedForExport); }
+        });
+        const res = await translateStrings(texts, lang, 'junk/salvage records');
+        if (cancelled) return;
+        if (res.ok) {
+          const out = junk.map(() => ({} as { entityName?: string; disposition?: string; intendedForExport?: string }));
+          let si = 0;
+          map.forEach(({ idx, field }) => { out[idx][field] = res.strings[si++]; });
+          setTranslatedJunkSalvage(out);
+        } else setTranslatedJunkSalvage(null);
+      } else setTranslatedJunkSalvage(null);
+
+      if (ins.length > 0) {
+        const texts = ins.map(r => r.entityName ?? '');
+        const toTranslate = texts.filter(Boolean);
+        if (toTranslate.length === 0) { setTranslatedInsurance(null); } else {
+          const res = await translateStrings(toTranslate, lang, 'insurance entity names');
+          if (cancelled) return;
+          if (res.ok) {
+            let si = 0;
+            setTranslatedInsurance(ins.map(r => ({ entityName: r.entityName ? res.strings[si++] : r.entityName })));
+          } else setTranslatedInsurance(null);
+        }
+      } else setTranslatedInsurance(null);
+
+      if (lien.length > 0) {
+        const texts = lien.map(e => e.description ?? '');
+        const res = await translateStrings(texts, lang, 'lien/theft event descriptions');
+        if (cancelled) return;
+        if (res.ok) setTranslatedLienTheft(lien.map((e, i) => ({ description: res.strings[i] ?? e.description ?? '' })));
+        else setTranslatedLienTheft(null);
+      } else setTranslatedLienTheft(null);
+    };
+    run();
+    return () => { cancelled = true; };
+  }, [useGeminiTranslation, lang, displayReport.junkSalvageRecords, displayReport.insuranceRecords, displayReport.lienTheftEvents]);
 
   useEffect(() => {
     if (!pendingEmailReport || !onEmailWithPdfSent || report.vin !== pendingEmailReport.vin) return;
@@ -422,15 +481,23 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
           </div>
           <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full md:w-auto justify-between md:justify-end">
             {lang !== 'en' && (
-              <label className="flex items-center gap-2 cursor-pointer shrink-0" title={t.report.translateReportWithGemini ?? 'Translate report with Gemini'}>
-                <input
-                  type="checkbox"
-                  checked={useGeminiTranslation}
-                  onChange={(e) => setUseGeminiTranslation(e.target.checked)}
-                  className="rounded border-white/50 bg-white/10 text-indigo-400 focus:ring-indigo-400"
-                />
-                <span className="text-xs sm:text-sm text-white/90 whitespace-nowrap">{t.report.translateReportWithGemini ?? 'Translate with Gemini'}</span>
-              </label>
+              <button
+                type="button"
+                onClick={() => setUseGeminiTranslation(!useGeminiTranslation)}
+                title={t.report.translateReportWithGemini ?? 'Translate report with Gemini'}
+                className={`flex items-center gap-2 shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full font-medium text-xs sm:text-sm transition-all duration-200 ${
+                  useGeminiTranslation
+                    ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/30 hover:bg-indigo-400'
+                    : 'bg-white/10 text-white/90 hover:bg-white/20 border border-white/20'
+                }`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
+                  <path d="M2 12h20"/>
+                </svg>
+                <span className="whitespace-nowrap">{useGeminiTranslation ? (lang.toUpperCase() + ' ✓') : (t.report.translateReportWithGemini ?? 'Translate')}</span>
+              </button>
             )}
             <div
               className={`px-2 py-1 sm:px-4 sm:py-2 rounded-full text-[9px] sm:text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 sm:gap-2 shrink-0 ${
@@ -684,17 +751,20 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                 </h3>
                 <p className="text-sm text-slate-600 mb-4">{t.report.junkSalvageDesc ?? 'Vehicle history from junk and salvage auctions'}</p>
                 <div className="space-y-4">
-                  {displayReport.junkSalvageRecords.map((r, idx) => (
+                  {displayReport.junkSalvageRecords.map((r, idx) => {
+                    const tJ = useGeminiTranslation && translatedJunkSalvage?.[idx];
+                    return (
                     <div key={idx} className="p-5 rounded-2xl border border-amber-100 bg-amber-50/50 hover:border-amber-200 transition-colors">
                       <div className="flex flex-wrap items-center gap-2 mb-1">
-                        {r.entityName && <span className="font-semibold text-slate-900">{r.entityName}</span>}
+                        {(tJ?.entityName ?? r.entityName) && <span className="font-semibold text-slate-900">{tJ?.entityName ?? r.entityName}</span>}
                         {r.location && <span className="text-xs text-slate-500">{r.location}</span>}
                         {r.obtainedDate && <span className="text-xs text-slate-500">{r.obtainedDate}</span>}
                       </div>
-                      {r.disposition && <p className="text-sm text-slate-600">{r.disposition}</p>}
-                      {r.intendedForExport && <p className="text-xs text-slate-500 mt-1">{t.report.intendedForExport ?? 'Export'}: {r.intendedForExport}</p>}
+                      {(tJ?.disposition ?? r.disposition) && <p className="text-sm text-slate-600">{tJ?.disposition ?? r.disposition}</p>}
+                      {(tJ?.intendedForExport ?? r.intendedForExport) && <p className="text-xs text-slate-500 mt-1">{t.report.intendedForExport ?? 'Export'}: {tJ?.intendedForExport ?? r.intendedForExport}</p>}
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -708,15 +778,19 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                 </h3>
                 <p className="text-sm text-slate-600 mb-4">{t.report.insuranceRecordsDesc ?? 'Insurance companies that have reported on this vehicle'}</p>
                 <div className="space-y-4">
-                  {displayReport.insuranceRecords.map((r, idx) => (
+                  {displayReport.insuranceRecords.map((r, idx) => {
+                    const tI = useGeminiTranslation && translatedInsurance?.[idx];
+                    const entityName = tI?.entityName ?? r.entityName;
+                    return (
                     <div key={idx} className="p-5 rounded-2xl border border-slate-100 bg-slate-50/50 hover:border-slate-200 transition-colors">
                       <div className="flex flex-wrap items-center gap-2">
-                        {r.entityName && <span className="font-semibold text-slate-900">{r.entityName}</span>}
+                        {entityName && <span className="font-semibold text-slate-900">{entityName}</span>}
                         {r.location && <span className="text-xs text-slate-500">{r.location}</span>}
                         {r.obtainedDate && <span className="text-xs text-slate-500">{r.obtainedDate}</span>}
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -730,16 +804,20 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                 </h3>
                 <p className="text-sm text-slate-600 mb-4">{t.report.lienTheftEventsDesc ?? 'Lien and theft records from Lien & Theft Check'}</p>
                 <div className="space-y-4">
-                  {displayReport.lienTheftEvents.map((e, idx) => (
+                  {displayReport.lienTheftEvents.map((e, idx) => {
+                    const tL = useGeminiTranslation && translatedLienTheft?.[idx];
+                    const desc = tL?.description ?? e.description;
+                    return (
                     <div key={idx} className="p-5 rounded-2xl border border-rose-100 bg-rose-50/50 hover:border-rose-200 transition-colors">
-                      <p className="font-semibold text-slate-900">{e.description}</p>
+                      <p className="font-semibold text-slate-900">{desc}</p>
                       <div className="flex flex-wrap gap-2 mt-2 text-xs text-slate-500">
                         {e.location && <span>{e.location}</span>}
                         {e.date && <span>{e.date}</span>}
                         {e.lienHolder && <span>{e.lienHolder}</span>}
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
