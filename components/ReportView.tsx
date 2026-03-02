@@ -684,17 +684,22 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                 </h3>
                 <p className="text-sm text-slate-600 mb-4">{t.report.titleBrandsDesc ?? 'CarsXE / NMVTIS brands from vehicle history'}</p>
 
-                <label className="flex items-center gap-2 mb-4 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={showOriginalTitleBrands}
-                    onChange={(e) => setShowOriginalTitleBrands(e.target.checked)}
-                    className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                  />
-                  <span className="text-sm text-slate-600">
-                    {t.report?.titleBrandShowOriginal ?? 'Show original text (English)'}
-                  </span>
-                </label>
+                <div className="mb-4 p-4 rounded-xl border-2 border-amber-200 bg-amber-50/80">
+                  <p className="text-sm font-medium text-amber-800 mb-3">
+                    {t.report?.titleBrandAutoTranslationNote ?? 'Automatic translation. Toggle below to view original (English).'}
+                  </p>
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={showOriginalTitleBrands}
+                      onChange={(e) => setShowOriginalTitleBrands(e.target.checked)}
+                      className="h-4 w-4 rounded border-amber-400 text-amber-600 focus:ring-amber-500 focus:ring-2"
+                    />
+                    <span className="text-sm font-semibold text-amber-900">
+                      {t.report?.titleBrandShowOriginal ?? 'Show original text (English)'}
+                    </span>
+                  </label>
+                </div>
 
                 <div className="space-y-3">
                   {Object.entries(getTitleBrandItems(showOriginalTitleBrands ? 'en' : lang))
