@@ -195,7 +195,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
           await fetch('/api/send-order-email', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ to: pendingEmailReport.email, vin: report.vin, token: pendingEmailReport.token, reportsRemaining: pendingEmailReport.reportsRemaining, orderId: pendingEmailReport.orderId ?? orderId }),
+            body: JSON.stringify({ to: pendingEmailReport.email, vin: report.vin, lang, token: pendingEmailReport.token, reportsRemaining: pendingEmailReport.reportsRemaining, orderId: pendingEmailReport.orderId ?? orderId }),
           });
         } catch (_) {}
         return;
@@ -224,7 +224,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
         await fetch('/api/send-order-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ to: pendingEmailReport.email, vin: report.vin, pdfBase64, token: pendingEmailReport.token, reportsRemaining: pendingEmailReport.reportsRemaining, orderId: pendingEmailReport.orderId ?? orderId }),
+          body: JSON.stringify({ to: pendingEmailReport.email, vin: report.vin, lang, pdfBase64, token: pendingEmailReport.token, reportsRemaining: pendingEmailReport.reportsRemaining, orderId: pendingEmailReport.orderId ?? orderId }),
         });
       } catch (e) {
         console.error('[ReportView] Email su PDF klaida:', e);
@@ -234,7 +234,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
           await fetch('/api/send-order-email', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ to: pendingEmailReport.email, vin: report.vin, token: pendingEmailReport.token, reportsRemaining: pendingEmailReport.reportsRemaining, orderId: pendingEmailReport.orderId ?? orderId }),
+            body: JSON.stringify({ to: pendingEmailReport.email, vin: report.vin, lang, token: pendingEmailReport.token, reportsRemaining: pendingEmailReport.reportsRemaining, orderId: pendingEmailReport.orderId ?? orderId }),
           });
         } catch (_) {}
       }
@@ -242,7 +242,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
       emailSentForRef.current = null;
     };
     run();
-  }, [report.vin, pendingEmailReport, onEmailWithPdfSent]);
+  }, [report.vin, pendingEmailReport, onEmailWithPdfSent, lang, orderId]);
 
   useEffect(() => {
     if (analysisCooldownSec <= 0) return;
