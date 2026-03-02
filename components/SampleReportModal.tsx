@@ -646,20 +646,7 @@ const SampleReportModal: React.FC<SampleReportModalProps> = ({ open, onClose, t,
                 </div>
               </div>
 
-              {/* Damages */}
-              <div>
-                <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-600"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12" y1="17" y2="17.01"/></svg>
-                  {t.report.damages}
-                </h3>
-                <div className="p-6 rounded-2xl border border-emerald-100 bg-emerald-50/50 text-center">
-                  <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-emerald-100 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-emerald-600"><polyline points="20 6 9 17 4 12"/></svg>
-                  </div>
-                  <p className="text-sm font-semibold text-emerald-800">{NO_DAMAGES[lang] || NO_DAMAGES.en}</p>
-                </div>
               </div>
-            </div>
 
             {/* Sidebar */}
             <div className="bg-slate-50 lg:bg-transparent p-6 sm:p-8 lg:p-0 space-y-8 border-t lg:border-t-0 border-slate-100">

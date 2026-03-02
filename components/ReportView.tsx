@@ -562,35 +562,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
               </div>
             )}
 
-            {/* Žalų sekcija */}
-            <div>
-               <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-600"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12" y1="17" y2="17.01"/></svg>
-                {t.report.damages}
-              </h3>
-              <div className="space-y-4">
-                {report.damages.map((damage, idx) => (
-                  <div key={idx} className="flex gap-4 p-4 rounded-2xl border border-slate-100 bg-white hover:border-slate-200 transition-colors">
-                    <div className={`w-10 h-10 sm:w-12 sm:h-12 shrink-0 rounded-xl flex items-center justify-center ${damage.severity === 'high' ? 'bg-rose-50 text-rose-500' : 'bg-amber-50 text-amber-500'}`}>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
-                    </div>
-                    <div className="grow">
-                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-1 gap-1">
-                        <span className="font-bold text-sm sm:text-base text-slate-800">{damage.description}</span>
-                        <span className="text-[10px] sm:text-xs font-mono text-slate-400">{damage.date}</span>
-                      </div>
-                      <div className="flex items-center flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm">
-                        <span className="text-slate-500">{t.report.damageLabel} <strong className="text-slate-800">~{damage.estimatedCost.toLocaleString()} €</strong></span>
-                        <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase ${damage.severity === 'high' ? 'bg-rose-100 text-rose-600' : 'bg-amber-100 text-amber-600'}`}>
-                          {damage.severity === 'high' ? t.report.severityHigh : t.report.severityMedium}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
-          </div>
 
           {/* Šoninis skydelis */}
           <div className="bg-slate-50 lg:bg-transparent p-6 sm:p-8 lg:p-0 space-y-8 border-t lg:border-t-0 border-slate-100">
