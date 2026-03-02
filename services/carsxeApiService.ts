@@ -242,6 +242,7 @@ export function mapCarsXeHistoryToReportFields(h: CarsXeHistoryResponse | undefi
       "01": "high", "02": "high", "04": "high", "14": "high", "51": "medium",
     };
     for (const b of brands) {
+      if (!b.record) continue;
       const code = String(b.code ?? "").padStart(2, "0");
       const name = b.name ?? TITLE_BRAND_DESCRIPTIONS[code]?.name ?? `Brand ${code}`;
       const description = b.description ?? TITLE_BRAND_DESCRIPTIONS[code]?.description;
@@ -251,7 +252,7 @@ export function mapCarsXeHistoryToReportFields(h: CarsXeHistoryResponse | undefi
         ...(description ? { description } : {}),
         ...(b.record ? { date: (b.record as { VehicleBrandDate?: { Date?: string } }).VehicleBrandDate?.Date?.slice(0, 10) } : {}),
       });
-      if (b.record && b.code && b.name) {
+      if (b.code && b.name) {
         const rec = b.record as { VehicleBrandDate?: { Date?: string } };
         const date = rec.VehicleBrandDate?.Date?.slice(0, 10) ?? new Date().toISOString().slice(0, 10);
         damages.push({
