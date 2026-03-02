@@ -1,5 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { CarReport, ReportAnalysis, ServiceEventRecord } from "../types";
+import type { TitleBrandItem } from "../constants/titleBrandTranslations";
 
 /** Lokali netikra ataskaita – naudojama be API rago arba kai API neprieinamas */
 function getLocalMockReport(vin: string) {
@@ -264,6 +265,10 @@ Ataskaitos santrauka: ${context}`;
 const LANG_NAMES: Record<string, string> = {
   lt: "Lithuanian", en: "English", de: "German", fr: "French", es: "Spanish", it: "Italian",
   pl: "Polish", nl: "Dutch", pt: "Portuguese", sv: "Swedish", uk: "Ukrainian", tr: "Turkish",
+  cs: "Czech", ro: "Romanian", el: "Greek", hu: "Hungarian", bg: "Bulgarian", sr: "Serbian",
+  da: "Danish", no: "Norwegian", fi: "Finnish", sk: "Slovak", hr: "Croatian", bs: "Bosnian",
+  sq: "Albanian", sl: "Slovenian", lv: "Latvian", mk: "Macedonian", et: "Estonian",
+  ca: "Catalan", lb: "Luxembourgish", cnr: "Montenegrin", mt: "Maltese", is: "Icelandic",
 };
 
 export type TranslateServiceEventsResult =
@@ -354,6 +359,81 @@ ${texts.map((t, i) => `${i + 1}. ${t}`).join("\n")}`;
     }
 
     return { ok: true, events: result };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return { ok: false, error: msg.slice(0, 200) };
+  }
+}
+
+export type TranslateTitleBrandsResult =
+  | { ok: true; items: Record<string, TitleBrandItem> }
+  | { ok: false; error: string };
+
+/**
+ * Išverčia Title Brands (NMVTIS) iš anglų į pasirinktą kalbą su Gemini AI.
+ */
+export async function translateTitleBrands(
+  items: Record<string, TitleBrandItem>,
+  targetLang: string
+): Promise<TranslateTitleBrandsResult> {
+  const apiKey = process.env.AI_API_KEY;
+  if (!apiKey) {
+    return { ok: false, error: "API raktas nenustatytas." };
+  }
+
+  if (targetLang === "en") return { ok: true, items };
+
+  const langName = LANG_NAMES[targetLang];
+  if (!langName) return { ok: true, items };
+
+  const entries = Object.entries(items);
+  if (!entries.length) return { ok: true, items };
+
+  const inputArr = entries.map(([code, { name, description }]) => ({ code, name, description }));
+
+  const prompt = `Translate these NMVTIS/car title brand terms from English to ${langName}. Each has a short "name" and a longer "description". Keep technical terms (e.g. VIN, salvage) where commonly used in the target language.
+
+Return a JSON array with the SAME ORDER as input. Each element: { "code": "00", "name": "translated name", "description": "translated description" }
+
+Input (JSON array):
+${JSON.stringify(inputArr)}`;
+
+  const ai = new GoogleGenAI({ apiKey });
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              code: { type: Type.STRING },
+              name: { type: Type.STRING },
+              description: { type: Type.STRING },
+            },
+            required: ["code", "name", "description"],
+          },
+        },
+      },
+    });
+    const text = response.text?.trim();
+    if (!text) return { ok: false, error: "AI negrąžino vertimų." };
+
+    const translatedArr = JSON.parse(text) as { code: string; name: string; description: string }[];
+    const result: Record<string, TitleBrandItem> = {};
+    for (let i = 0; i < entries.length; i++) {
+      const [code, item] = entries[i];
+      const t = translatedArr[i];
+      if (t?.code === code && t?.name && t?.description) {
+        result[code] = { name: t.name, description: t.description };
+      } else {
+        result[code] = item;
+      }
+    }
+    return { ok: true, items: result };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     return { ok: false, error: msg.slice(0, 200) };

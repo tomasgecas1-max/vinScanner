@@ -206,6 +206,7 @@ export interface Translations {
     titleBrandLabelOdometer?: string;
     titleBrandShowOriginal?: string;
     titleBrandShowTranslation?: string;
+    titleBrandTranslating?: string;
     titleBrandAutoTranslationNote?: string;
     titleBrandOriginalNote?: string;
     vinChanged: string;
@@ -444,6 +445,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
       titleBrandLabelOdometer: 'Odometro problemos',
       titleBrandShowOriginal: 'Rodyti originalų tekstą (angl.)',
       titleBrandShowTranslation: 'Rodyti automatinį vertimą',
+      titleBrandTranslating: 'Vertimas su Gemini…',
       titleBrandAutoTranslationNote: 'Rodyta automatinis vertimas. Originalą (anglų) galite peržiūrėti perjungę žemiau.',
       titleBrandOriginalNote: 'Rodyta originalus tekstas (anglų). Perjunkite žemiau, kad matytumėte automatinį vertimą.',
       vinChanged: 'VIN numeris buvo keistas',
@@ -748,6 +750,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
       titleBrandLabelOdometer: 'Odometer issues',
       titleBrandShowOriginal: 'Show original text (English)',
       titleBrandShowTranslation: 'Show automatic translation',
+      titleBrandTranslating: 'Translating with Gemini…',
       titleBrandAutoTranslationNote: 'Automatic translation shown. Toggle below to view original (English).',
       titleBrandOriginalNote: 'Original text (English) shown. Toggle below to view automatic translation.',
       vinChanged: 'VIN has been changed',
@@ -1052,6 +1055,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
       titleBrandLabelOdometer: 'Tachostand-Probleme',
       titleBrandShowOriginal: 'Originaltext anzeigen (Englisch)',
       titleBrandShowTranslation: 'Automatische Übersetzung anzeigen',
+      titleBrandTranslating: 'Übersetzung mit Gemini…',
       titleBrandAutoTranslationNote: 'Automatische Übersetzung angezeigt – Original unten abrufbar.',
       titleBrandOriginalNote: 'Originaltext (Englisch) angezeigt. Umschalten für automatische Übersetzung.',
       vinChanged: 'VIN wurde geändert',

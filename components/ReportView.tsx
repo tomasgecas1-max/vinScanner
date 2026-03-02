@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { CarReport, type ReportAnalysis, type ServiceEventRecord } from '../types';
-import { getReportAnalysis, translateServiceEventTexts } from '../services/geminiService';
+import { getReportAnalysis, translateServiceEventTexts, translateTitleBrands } from '../services/geminiService';
 import { enrichReportFromRawCarsXe } from '../services/carsxeApiService';
 import { getTitleBrandItems } from '../constants/titleBrandTranslations';
 import type { Translations } from '../constants/translations';
@@ -161,6 +161,10 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
   const [analysisCooldownSec, setAnalysisCooldownSec] = useState(0);
   const [showOriginalServiceTexts, setShowOriginalServiceTexts] = useState(false);
   const [showOriginalTitleBrands, setShowOriginalTitleBrands] = useState(true);
+  const [geminiTranslatedTitleBrands, setGeminiTranslatedTitleBrands] = useState<Record<string, { name: string; description: string }> | null>(null);
+  const [titleBrandTranslationLoading, setTitleBrandTranslationLoading] = useState(false);
+  const [titleBrandTranslationError, setTitleBrandTranslationError] = useState<string | null>(null);
+  const geminiTitleBrandCacheRef = useRef<Record<string, Record<string, { name: string; description: string }>>>({});
   const [translatedServiceEvents, setTranslatedServiceEvents] = useState<ServiceEventRecord[] | null>(null);
   const [serviceTranslationLoading, setServiceTranslationLoading] = useState(false);
   const [serviceTranslationError, setServiceTranslationError] = useState<string | null>(null);
@@ -189,6 +193,37 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
     });
     return () => { cancelled = true; };
   }, [report.serviceEvents, lang]);
+
+  useEffect(() => {
+    if (showOriginalTitleBrands || !lang || lang === 'en') {
+      setGeminiTranslatedTitleBrands(null);
+      setTitleBrandTranslationLoading(false);
+      setTitleBrandTranslationError(null);
+      return;
+    }
+    const cached = geminiTitleBrandCacheRef.current[lang];
+    if (cached) {
+      setGeminiTranslatedTitleBrands(cached);
+      setTitleBrandTranslationError(null);
+      return;
+    }
+    let cancelled = false;
+    setTitleBrandTranslationLoading(true);
+    setTitleBrandTranslationError(null);
+    translateTitleBrands(getTitleBrandItems('en'), lang).then((res) => {
+      if (cancelled) return;
+      setTitleBrandTranslationLoading(false);
+      if (res.ok) {
+        geminiTitleBrandCacheRef.current[lang] = res.items;
+        setGeminiTranslatedTitleBrands(res.items);
+        setTitleBrandTranslationError(null);
+      } else {
+        setGeminiTranslatedTitleBrands(null);
+        setTitleBrandTranslationError(res.error ?? t.report.serviceTranslationFailed);
+      }
+    });
+    return () => { cancelled = true; };
+  }, [showOriginalTitleBrands, lang]);
 
   useEffect(() => {
     if (!pendingEmailReport || !onEmailWithPdfSent || report.vin !== pendingEmailReport.vin) return;
@@ -690,6 +725,12 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                       ? (t.report?.titleBrandOriginalNote ?? 'Original text (English) shown. Toggle below to view automatic translation.')
                       : (t.report?.titleBrandAutoTranslationNote ?? 'Automatic translation shown. Toggle below to view original (English).')}
                   </p>
+                  {!showOriginalTitleBrands && titleBrandTranslationLoading && (
+                    <p className="text-sm text-amber-700 mb-2">{t.report?.titleBrandTranslating ?? 'Translating with Gemini…'}</p>
+                  )}
+                  {!showOriginalTitleBrands && titleBrandTranslationError && (
+                    <p className="text-sm text-amber-800 font-medium mb-2">{titleBrandTranslationError}</p>
+                  )}
                   <label className="flex items-center gap-3 cursor-pointer">
                     <input
                       type="checkbox"
@@ -704,7 +745,11 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                 </div>
 
                 <div className="space-y-3">
-                  {Object.entries(getTitleBrandItems(showOriginalTitleBrands ? 'en' : lang))
+                  {Object.entries(
+                    showOriginalTitleBrands
+                      ? getTitleBrandItems('en')
+                      : (lang === 'en' ? getTitleBrandItems('en') : (geminiTranslatedTitleBrands ?? getTitleBrandItems(lang)))
+                  )
                     .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true }))
                     .map(([code, { name, description }]) => {
                       const codesSet = getTitleBrandCodes(displayReport.titleBrands);
