@@ -439,3 +439,56 @@ ${JSON.stringify(inputArr)}`;
     return { ok: false, error: msg.slice(0, 200) };
   }
 }
+
+export type TranslateStringsResult =
+  | { ok: true; strings: string[] }
+  | { ok: false; error: string };
+
+/**
+ * Išverčia tekstų masyvą į pasirinktą kalbą su Gemini AI.
+ */
+export async function translateStrings(
+  texts: string[],
+  targetLang: string,
+  context?: string
+): Promise<TranslateStringsResult> {
+  const apiKey = process.env.AI_API_KEY;
+  if (!apiKey) return { ok: false, error: "API raktas nenustatytas." };
+
+  if (targetLang === "en" || !texts.length) return { ok: true, strings: texts };
+
+  const langName = LANG_NAMES[targetLang];
+  if (!langName) return { ok: true, strings: texts };
+
+  const ctx = context ? ` Context: ${context}.` : "";
+  const prompt = `Translate each of the following texts from English to ${langName}.${ctx} Preserve numbers, units (e.g. in., km), and proper nouns. Return a JSON array with translations in the SAME ORDER.
+
+Input:
+${texts.map((t, i) => `${i + 1}. ${t}`).join("\n")}`;
+
+  const ai = new GoogleGenAI({ apiKey });
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.ARRAY,
+          items: { type: Type.STRING },
+        },
+      },
+    });
+    const text = response.text?.trim();
+    if (!text) return { ok: false, error: "AI negrąžino vertimų." };
+
+    const translated = JSON.parse(text) as string[];
+    if (!Array.isArray(translated) || translated.length !== texts.length) {
+      return { ok: false, error: "Vertimų skaičius nesutampa." };
+    }
+    return { ok: true, strings: translated };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return { ok: false, error: msg.slice(0, 200) };
+  }
+}

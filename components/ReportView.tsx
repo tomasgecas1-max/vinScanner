@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { CarReport, type ReportAnalysis, type ServiceEventRecord } from '../types';
-import { getReportAnalysis, translateServiceEventTexts, translateTitleBrands } from '../services/geminiService';
+import { getReportAnalysis, translateServiceEventTexts, translateTitleBrands, translateStrings } from '../services/geminiService';
 import { enrichReportFromRawCarsXe } from '../services/carsxeApiService';
 import { getTitleBrandItems } from '../constants/titleBrandTranslations';
 import type { Translations } from '../constants/translations';
@@ -159,12 +159,15 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
   const [reportAnalysisLoading, setReportAnalysisLoading] = useState(false);
   const [reportAnalysisError, setReportAnalysisError] = useState<string | null>(null);
   const [analysisCooldownSec, setAnalysisCooldownSec] = useState(0);
-  const [showOriginalServiceTexts, setShowOriginalServiceTexts] = useState(false);
-  const [showOriginalTitleBrands, setShowOriginalTitleBrands] = useState(true);
+  const [useGeminiTranslation, setUseGeminiTranslation] = useState(false);
+  const showOriginalServiceTexts = !useGeminiTranslation;
+  const showOriginalTitleBrands = !useGeminiTranslation;
   const [geminiTranslatedTitleBrands, setGeminiTranslatedTitleBrands] = useState<Record<string, { name: string; description: string }> | null>(null);
   const [titleBrandTranslationLoading, setTitleBrandTranslationLoading] = useState(false);
   const [titleBrandTranslationError, setTitleBrandTranslationError] = useState<string | null>(null);
   const geminiTitleBrandCacheRef = useRef<Record<string, Record<string, { name: string; description: string }>>>({});
+  const [translatedTechnicalSpecs, setTranslatedTechnicalSpecs] = useState<Record<string, string> | null>(null);
+  const [technicalSpecsTranslationLoading, setTechnicalSpecsTranslationLoading] = useState(false);
   const [translatedServiceEvents, setTranslatedServiceEvents] = useState<ServiceEventRecord[] | null>(null);
   const [serviceTranslationLoading, setServiceTranslationLoading] = useState(false);
   const [serviceTranslationError, setServiceTranslationError] = useState<string | null>(null);
@@ -224,6 +227,35 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
     });
     return () => { cancelled = true; };
   }, [showOriginalTitleBrands, lang]);
+
+  useEffect(() => {
+    if (!useGeminiTranslation || !lang || lang === 'en') {
+      setTranslatedTechnicalSpecs(null);
+      setTechnicalSpecsTranslationLoading(false);
+      return;
+    }
+    const specs = getFullTechnicalData(displayReport);
+    const entries = Object.entries(specs).filter(([, v]) => v != null && String(v).trim() !== '');
+    if (!entries.length) {
+      setTranslatedTechnicalSpecs(null);
+      return;
+    }
+    let cancelled = false;
+    setTechnicalSpecsTranslationLoading(true);
+    const values = entries.map(([, v]) => String(v));
+    translateStrings(values, lang, 'vehicle technical specifications').then((res) => {
+      if (cancelled) return;
+      setTechnicalSpecsTranslationLoading(false);
+      if (res.ok) {
+        const translated: Record<string, string> = {};
+        entries.forEach(([k], i) => { translated[k] = res.strings[i] ?? entries[i][1]; });
+        setTranslatedTechnicalSpecs(translated);
+      } else {
+        setTranslatedTechnicalSpecs(null);
+      }
+    });
+    return () => { cancelled = true; };
+  }, [useGeminiTranslation, lang, displayReport]);
 
   useEffect(() => {
     if (!pendingEmailReport || !onEmailWithPdfSent || report.vin !== pendingEmailReport.vin) return;
@@ -388,7 +420,18 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
               </div>
             )}
           </div>
-          <div className="flex items-center gap-2 sm:gap-3 w-full md:w-auto justify-between md:justify-end">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full md:w-auto justify-between md:justify-end">
+            {lang !== 'en' && (
+              <label className="flex items-center gap-2 cursor-pointer shrink-0" title={t.report.translateReportWithGemini ?? 'Translate report with Gemini'}>
+                <input
+                  type="checkbox"
+                  checked={useGeminiTranslation}
+                  onChange={(e) => setUseGeminiTranslation(e.target.checked)}
+                  className="rounded border-white/50 bg-white/10 text-indigo-400 focus:ring-indigo-400"
+                />
+                <span className="text-xs sm:text-sm text-white/90 whitespace-nowrap">{t.report.translateReportWithGemini ?? 'Translate with Gemini'}</span>
+              </label>
+            )}
             <div
               className={`px-2 py-1 sm:px-4 sm:py-2 rounded-full text-[9px] sm:text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 sm:gap-2 shrink-0 ${
                 displayReport.theftStatus === 'flagged'
@@ -512,18 +555,28 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
 
         {/* Techniniai duomenys – viršuje, viso ekrano plotis, 2 stulpeliai */}
         <div className="w-full px-6 sm:px-8 py-6 sm:py-8 border-t border-slate-100">
-          <h4 className="text-slate-900 font-bold text-sm sm:text-base mb-4">{t.report.technicalSpecs}</h4>
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <h4 className="text-slate-900 font-bold text-sm sm:text-base">{t.report.technicalSpecs}</h4>
+            {useGeminiTranslation && technicalSpecsTranslationLoading && (
+              <span className="text-xs text-indigo-600">{t.report.translatingReport ?? 'Translating…'}</span>
+            )}
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
             {Object.entries(getFullTechnicalData(displayReport))
               .filter(([, val]) => val != null && String(val).trim() !== '')
-              .map(([key, val]) => (
+              .map(([key, val]) => {
+                const displayVal = useGeminiTranslation && translatedTechnicalSpecs?.[key] != null
+                  ? translatedTechnicalSpecs[key]
+                  : val;
+                return (
               <div key={key} className="flex justify-between py-3 border-b border-slate-200/50">
                 <span className="text-slate-500 text-xs sm:text-sm capitalize">
                   {key === 'fuelType' ? t.report.fuelType : key === 'power' ? t.report.power : key === 'engine' ? t.report.engine : key === 'transmission' ? t.report.transmission : key === 'bodyType' ? t.report.bodyType : key === 'colour' ? t.report.colour : key === 'co2' ? 'CO₂' : getTechnicalLabel(key, t)}
                 </span>
-                <span className="text-slate-900 text-xs sm:text-sm font-semibold text-right">{val}</span>
+                <span className="text-slate-900 text-xs sm:text-sm font-semibold text-right">{displayVal}</span>
               </div>
-            ))}
+                );
+            })}
           </div>
         </div>
 
@@ -571,28 +624,9 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-600"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="M9 15h6"/></svg>
                     {t.report.serviceEvents}
                   </h3>
-                  <button
-                    type="button"
-                    onClick={() => setShowOriginalServiceTexts(!showOriginalServiceTexts)}
-                    className="flex items-center gap-1.5 px-2 py-1.5 rounded-full bg-slate-100 border border-slate-200 hover:bg-slate-200 transition-colors"
-                    title={t.report.showOriginal}
-                  >
-                    <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${
-                      showOriginalServiceTexts
-                        ? 'bg-indigo-600 text-white shadow-sm'
-                        : 'text-slate-400'
-                    }`}>
-                      EN
-                    </span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-400"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg>
-                    <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${
-                      !showOriginalServiceTexts
-                        ? 'bg-indigo-600 text-white shadow-sm'
-                        : 'text-slate-400'
-                    }`}>
-                      {lang.toUpperCase()}
-                    </span>
-                  </button>
+                  {useGeminiTranslation && (
+                    <span className="text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full">{lang.toUpperCase()} (Gemini)</span>
+                  )}
                 </div>
                 {serviceTranslationLoading && (
                   <p className="text-sm text-indigo-600 font-medium mb-4 animate-pulse">{t.report.translatingServiceComments}</p>
@@ -719,30 +753,19 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                 </h3>
                 <p className="text-sm text-slate-600 mb-4">{t.report.titleBrandsDesc ?? 'CarsXE / NMVTIS brands from vehicle history'}</p>
 
-                <div className="mb-4 p-4 rounded-xl border-2 border-amber-200 bg-amber-50/80">
-                  <p className="text-sm font-medium text-amber-800 mb-3">
-                    {showOriginalTitleBrands
-                      ? (t.report?.titleBrandOriginalNote ?? 'Original text (English) shown. Toggle below to view automatic translation.')
-                      : (t.report?.titleBrandAutoTranslationNote ?? 'Automatic translation shown. Toggle below to view original (English).')}
-                  </p>
-                  {!showOriginalTitleBrands && titleBrandTranslationLoading && (
-                    <p className="text-sm text-amber-700 mb-2">{t.report?.titleBrandTranslating ?? 'Translating with Gemini…'}</p>
-                  )}
-                  {!showOriginalTitleBrands && titleBrandTranslationError && (
-                    <p className="text-sm text-amber-800 font-medium mb-2">{titleBrandTranslationError}</p>
-                  )}
-                  <label className="flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={!showOriginalTitleBrands}
-                      onChange={(e) => setShowOriginalTitleBrands(!e.target.checked)}
-                      className="h-4 w-4 rounded border-amber-400 text-amber-600 focus:ring-amber-500 focus:ring-2"
-                    />
-                    <span className="text-sm font-semibold text-amber-900">
-                      {t.report?.titleBrandShowTranslation ?? 'Show automatic translation'}
-                    </span>
-                  </label>
-                </div>
+                {useGeminiTranslation && (
+                  <div className="mb-4 p-3 rounded-xl border border-amber-200 bg-amber-50/80">
+                    {titleBrandTranslationLoading && (
+                      <p className="text-sm text-amber-700">{t.report?.titleBrandTranslating ?? 'Translating with Gemini…'}</p>
+                    )}
+                    {titleBrandTranslationError && !titleBrandTranslationLoading && (
+                      <p className="text-sm text-amber-800 font-medium">{titleBrandTranslationError}</p>
+                    )}
+                    {!titleBrandTranslationLoading && !titleBrandTranslationError && (
+                      <p className="text-sm font-medium text-amber-800">{t.report?.titleBrandAutoTranslationNote ?? 'Automatic translation (Gemini)'}</p>
+                    )}
+                  </div>
+                )}
 
                 <div className="space-y-3">
                   {Object.entries(

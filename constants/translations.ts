@@ -183,6 +183,8 @@ export interface Translations {
     theftUnknownTooltip: string;
     saveToCloud: string;
     downloadPdf: string;
+    translateReportWithGemini?: string;
+    translatingReport?: string;
     supplementTitle: string;
     supplementButton: string;
     supplementLoading: string;
@@ -431,6 +433,8 @@ const translationsMap: Record<SupportedLang, Translations> = {
       serviceEvents: 'Serviso įrašai',
       damages: 'Užfiksuotos Žalos',
       damageLabel: 'Žala:',
+      translateReportWithGemini: 'Versti ataskaitą su Gemini',
+      translatingReport: 'Vertima…',
       titleBrands: 'Pavadinimai ant titulo',
       titleBrandsDesc: 'CarsXE / NMVTIS ženklai iš transporto priemonės istorijos',
       titleBrandStatusCheck: 'Ar įvykiai registruoti',
@@ -736,6 +740,8 @@ const translationsMap: Record<SupportedLang, Translations> = {
       serviceEvents: 'Service records',
       damages: 'Recorded damages',
       damageLabel: 'Damage:',
+      translateReportWithGemini: 'Translate report with Gemini',
+      translatingReport: 'Translating…',
       titleBrands: 'Title brands',
       titleBrandsDesc: 'CarsXE / NMVTIS brands from vehicle history',
       titleBrandStatusCheck: 'Event registration status',
@@ -1041,6 +1047,8 @@ const translationsMap: Record<SupportedLang, Translations> = {
       serviceEvents: 'Service-Einträge',
       damages: 'Erfasste Schäden',
       damageLabel: 'Schaden:',
+      translateReportWithGemini: 'Bericht mit Gemini übersetzen',
+      translatingReport: 'Übersetze…',
       titleBrands: 'Titelmarken',
       titleBrandsDesc: 'CarsXE / NMVTIS Marken aus Fahrzeughistorie',
       titleBrandStatusCheck: 'Ob Ereignisse registriert',
