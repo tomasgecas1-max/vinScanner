@@ -167,6 +167,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
   const [titleBrandTranslationError, setTitleBrandTranslationError] = useState<string | null>(null);
   const geminiTitleBrandCacheRef = useRef<Record<string, Record<string, { name: string; description: string }>>>({});
   const [translatedTechnicalSpecs, setTranslatedTechnicalSpecs] = useState<Record<string, string> | null>(null);
+  const [translatedTechnicalLabels, setTranslatedTechnicalLabels] = useState<Record<string, string> | null>(null);
   const [technicalSpecsTranslationLoading, setTechnicalSpecsTranslationLoading] = useState(false);
   const [translatedJunkSalvage, setTranslatedJunkSalvage] = useState<Array<{ entityName?: string; disposition?: string; intendedForExport?: string }> | null>(null);
   const [translatedInsurance, setTranslatedInsurance] = useState<Array<{ entityName?: string }> | null>(null);
@@ -234,6 +235,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
   useEffect(() => {
     if (!useGeminiTranslation || !lang || lang === 'en') {
       setTranslatedTechnicalSpecs(null);
+      setTranslatedTechnicalLabels(null);
       setTechnicalSpecsTranslationLoading(false);
       return;
     }
@@ -241,24 +243,46 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
     const entries = Object.entries(specs).filter(([, v]) => v != null && String(v).trim() !== '');
     if (!entries.length) {
       setTranslatedTechnicalSpecs(null);
+      setTranslatedTechnicalLabels(null);
       return;
     }
     let cancelled = false;
     setTechnicalSpecsTranslationLoading(true);
+    const keys = entries.map(([k]) => k);
     const values = entries.map(([, v]) => String(v));
-    translateStrings(values, lang, 'vehicle technical specifications').then((res) => {
+    const labelsToTranslate = keys.map((k) => {
+      if (['fuelType', 'power', 'engine', 'transmission', 'bodyType', 'colour'].includes(k)) return null;
+      return getTechnicalLabel(k, t);
+    });
+    const labelsFiltered = labelsToTranslate.filter((l): l is string => l != null && l.trim() !== '');
+    Promise.all([
+      translateStrings(values, lang, 'vehicle technical specifications'),
+      labelsFiltered.length > 0 ? translateStrings(labelsFiltered, lang, 'vehicle specification category names/labels') : Promise.resolve({ ok: true as const, strings: [] }),
+    ]).then(([valsRes, labelsRes]) => {
       if (cancelled) return;
       setTechnicalSpecsTranslationLoading(false);
-      if (res.ok) {
+      if (valsRes.ok) {
         const translated: Record<string, string> = {};
-        entries.forEach(([k], i) => { translated[k] = res.strings[i] ?? entries[i][1]; });
+        entries.forEach(([k], i) => { translated[k] = valsRes.strings[i] ?? entries[i][1]; });
         setTranslatedTechnicalSpecs(translated);
       } else {
         setTranslatedTechnicalSpecs(null);
       }
+      if (labelsRes.ok && labelsRes.strings.length > 0) {
+        let si = 0;
+        const labelMap: Record<string, string> = {};
+        keys.forEach((k, i) => {
+          if (labelsToTranslate[i]) {
+            labelMap[k] = labelsRes.strings[si++] ?? labelsToTranslate[i]!;
+          }
+        });
+        setTranslatedTechnicalLabels(labelMap);
+      } else {
+        setTranslatedTechnicalLabels(null);
+      }
     });
     return () => { cancelled = true; };
-  }, [useGeminiTranslation, lang, displayReport]);
+  }, [useGeminiTranslation, lang, displayReport, t]);
 
   useEffect(() => {
     if (!useGeminiTranslation || !lang || lang === 'en') {
@@ -638,7 +662,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                 return (
               <div key={key} className="flex justify-between py-3 border-b border-slate-200/50">
                 <span className="text-slate-500 text-xs sm:text-sm capitalize">
-                  {key === 'fuelType' ? t.report.fuelType : key === 'power' ? t.report.power : key === 'engine' ? t.report.engine : key === 'transmission' ? t.report.transmission : key === 'bodyType' ? t.report.bodyType : key === 'colour' ? t.report.colour : key === 'co2' ? 'CO₂' : getTechnicalLabel(key, t)}
+                  {key === 'fuelType' ? t.report.fuelType : key === 'power' ? t.report.power : key === 'engine' ? t.report.engine : key === 'transmission' ? t.report.transmission : key === 'bodyType' ? t.report.bodyType : key === 'colour' ? t.report.colour : key === 'co2' ? 'CO₂' : (useGeminiTranslation ? translatedTechnicalLabels?.[key] : undefined) ?? getTechnicalLabel(key, t)}
                 </span>
                 <span className="text-slate-900 text-xs sm:text-sm font-semibold text-right">{displayVal}</span>
               </div>
