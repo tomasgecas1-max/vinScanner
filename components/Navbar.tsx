@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Logo from './Logo';
 import { useAuth } from '../context/AuthContext';
 import { ALL_LANGUAGES, type LangCode } from '../constants/translations';
+import AuthModal from './AuthModal';
 
 function getCurrentLangInfo(code: LangCode) {
   return ALL_LANGUAGES.find((x) => x.code === code) ?? ALL_LANGUAGES[2];
@@ -16,12 +17,13 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ lang, setLang, t, onMyReportsClick, onSampleReportClick }) => {
-  const { user, loading, signInWithGoogle, signOut, deleteAccount, isFirebaseEnabled } = useAuth();
+  const { user, loading, signOut, deleteAccount, isFirebaseEnabled } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -104,7 +106,7 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, t, onMyReportsClick, onS
                   )}
                 </div>
               ) : (
-                <button onClick={signInWithGoogle} className="bg-slate-950 text-white px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-indigo-600 transition-all shadow-[0_10px_20px_rgba(0,0,0,0.1)] hover:shadow-indigo-200 active:scale-95">
+                <button onClick={() => setAuthModalOpen(true)} className="bg-slate-950 text-white px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-indigo-600 transition-all shadow-[0_10px_20px_rgba(0,0,0,0.1)] hover:shadow-indigo-200 active:scale-95">
                   {t.nav.login}
                 </button>
               )
@@ -138,7 +140,7 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, t, onMyReportsClick, onS
               )}
             </div>
             {isFirebaseEnabled && !loading && !user && (
-              <button onClick={signInWithGoogle} className="bg-slate-950 text-white px-2.5 py-2 rounded-xl text-[9px] font-black uppercase tracking-wide flex items-center gap-1.5 shrink-0">
+              <button onClick={() => setAuthModalOpen(true)} className="bg-slate-950 text-white px-2.5 py-2 rounded-xl text-[9px] font-black uppercase tracking-wide flex items-center gap-1.5 shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/></svg>
               </button>
             )}
@@ -203,6 +205,8 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, t, onMyReportsClick, onS
           </div>
         </div>
       )}
+
+      <AuthModal open={authModalOpen} onClose={() => setAuthModalOpen(false)} t={t} />
     </nav>
   );
 };

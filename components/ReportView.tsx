@@ -513,15 +513,28 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-600"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="M9 15h6"/></svg>
                     {t.report.serviceEvents}
                   </h3>
-                  <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      checked={showOriginalServiceTexts}
-                      onChange={(e) => setShowOriginalServiceTexts(e.target.checked)}
-                      className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                    />
-                    {t.report.showOriginal}
-                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowOriginalServiceTexts(!showOriginalServiceTexts)}
+                    className="flex items-center gap-1.5 px-2 py-1.5 rounded-full bg-slate-100 border border-slate-200 hover:bg-slate-200 transition-colors"
+                    title={t.report.showOriginal}
+                  >
+                    <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${
+                      showOriginalServiceTexts
+                        ? 'bg-indigo-600 text-white shadow-sm'
+                        : 'text-slate-400'
+                    }`}>
+                      EN
+                    </span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-400"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg>
+                    <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${
+                      !showOriginalServiceTexts
+                        ? 'bg-indigo-600 text-white shadow-sm'
+                        : 'text-slate-400'
+                    }`}>
+                      {lang.toUpperCase()}
+                    </span>
+                  </button>
                 </div>
                 {serviceTranslationLoading && (
                   <p className="text-sm text-indigo-600 font-medium mb-4 animate-pulse">{t.report.translatingServiceComments}</p>

@@ -1,13 +1,26 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { User } from 'firebase/auth';
 import { auth, isFirebaseEnabled } from '../services/firebase';
-import { GoogleAuthProvider, signInWithPopup, signOut as firebaseSignOut, onAuthStateChanged, deleteUser, reauthenticateWithPopup } from 'firebase/auth';
+import { 
+  GoogleAuthProvider, 
+  signInWithPopup, 
+  signOut as firebaseSignOut, 
+  onAuthStateChanged, 
+  deleteUser, 
+  reauthenticateWithPopup,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail
+} from 'firebase/auth';
 import { deleteAllUserReports } from '../services/reportsFirestore';
 
 interface AuthContextValue {
   user: User | null;
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
+  signInWithEmail: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signUpWithEmail: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  resetPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
   signOut: () => Promise<void>;
   deleteAccount: () => Promise<{ success: boolean; error?: string }>;
   isFirebaseEnabled: boolean;
@@ -35,6 +48,51 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!auth || !isFirebaseEnabled) return;
     const provider = new GoogleAuthProvider();
     await signInWithPopup(auth, provider);
+  };
+
+  const signInWithEmail = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+    if (!auth || !isFirebaseEnabled) return { success: false, error: 'Firebase not configured' };
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      return { success: true };
+    } catch (e: unknown) {
+      const err = e as { code?: string; message?: string };
+      let errorMsg = err?.message || 'Login failed';
+      if (err?.code === 'auth/user-not-found') errorMsg = 'User not found';
+      if (err?.code === 'auth/wrong-password') errorMsg = 'Wrong password';
+      if (err?.code === 'auth/invalid-email') errorMsg = 'Invalid email';
+      if (err?.code === 'auth/invalid-credential') errorMsg = 'Invalid credentials';
+      return { success: false, error: errorMsg };
+    }
+  };
+
+  const signUpWithEmail = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+    if (!auth || !isFirebaseEnabled) return { success: false, error: 'Firebase not configured' };
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      return { success: true };
+    } catch (e: unknown) {
+      const err = e as { code?: string; message?: string };
+      let errorMsg = err?.message || 'Registration failed';
+      if (err?.code === 'auth/email-already-in-use') errorMsg = 'Email already in use';
+      if (err?.code === 'auth/weak-password') errorMsg = 'Password too weak (min 6 characters)';
+      if (err?.code === 'auth/invalid-email') errorMsg = 'Invalid email';
+      return { success: false, error: errorMsg };
+    }
+  };
+
+  const resetPassword = async (email: string): Promise<{ success: boolean; error?: string }> => {
+    if (!auth || !isFirebaseEnabled) return { success: false, error: 'Firebase not configured' };
+    try {
+      await sendPasswordResetEmail(auth, email);
+      return { success: true };
+    } catch (e: unknown) {
+      const err = e as { code?: string; message?: string };
+      let errorMsg = err?.message || 'Failed to send reset email';
+      if (err?.code === 'auth/user-not-found') errorMsg = 'User not found';
+      if (err?.code === 'auth/invalid-email') errorMsg = 'Invalid email';
+      return { success: false, error: errorMsg };
+    }
   };
 
   const signOut = async () => {
@@ -72,6 +130,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     loading,
     signInWithGoogle,
+    signInWithEmail,
+    signUpWithEmail,
+    resetPassword,
     signOut,
     deleteAccount,
     isFirebaseEnabled,
@@ -87,6 +148,9 @@ export function useAuth(): AuthContextValue {
       user: null,
       loading: false,
       signInWithGoogle: async () => {},
+      signInWithEmail: async () => ({ success: false }),
+      signUpWithEmail: async () => ({ success: false }),
+      resetPassword: async () => ({ success: false }),
       signOut: async () => {},
       deleteAccount: async () => ({ success: false }),
       isFirebaseEnabled: false,

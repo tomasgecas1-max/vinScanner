@@ -563,15 +563,24 @@ const SampleReportModal: React.FC<SampleReportModalProps> = ({ open, onClose, t,
             <button
               type="button"
               onClick={() => setShowOriginalServiceTexts(!showOriginalServiceTexts)}
-              className={`px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-[9px] sm:text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-colors shrink-0 ${
-                showOriginalServiceTexts
-                  ? 'bg-amber-500/20 text-amber-400 border border-amber-500/50'
-                  : 'bg-white/10 text-white/70 border border-white/20 hover:bg-white/20'
-              }`}
+              className="flex items-center gap-1 sm:gap-1.5 px-1.5 py-1 sm:px-2 sm:py-1.5 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition-colors shrink-0"
               title={t.report.showOriginal}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="hidden sm:block"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>
-              {showOriginalServiceTexts ? 'EN' : lang.toUpperCase()}
+              <span className={`px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-[8px] sm:text-[10px] font-bold uppercase tracking-wider transition-all ${
+                showOriginalServiceTexts
+                  ? 'bg-indigo-500 text-white'
+                  : 'text-white/50'
+              }`}>
+                EN
+              </span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-white/50 hidden sm:block"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg>
+              <span className={`px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-[8px] sm:text-[10px] font-bold uppercase tracking-wider transition-all ${
+                !showOriginalServiceTexts
+                  ? 'bg-indigo-500 text-white'
+                  : 'text-white/50'
+              }`}>
+                {lang.toUpperCase()}
+              </span>
             </button>
             <button type="button" className="p-1.5 sm:p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors shrink-0" title={t.report.downloadPdf}>
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="sm:w-[18px] sm:h-[18px]"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>

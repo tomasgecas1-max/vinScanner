@@ -235,6 +235,37 @@ export interface Translations {
     online: string;
     placeholder: string;
   };
+  auth?: {
+    title: string;
+    subtitle: string;
+    googleButton: string;
+    emailButton: string;
+    continueWithout: string;
+    or: string;
+    noAccountYet: string;
+    createAccount: string;
+    alreadyHaveAccount: string;
+    signIn: string;
+    back: string;
+    loginTitle: string;
+    registerTitle: string;
+    resetTitle: string;
+    resetSubtitle: string;
+    emailLabel: string;
+    passwordLabel: string;
+    confirmPasswordLabel: string;
+    loginButton: string;
+    registerButton: string;
+    resetButton: string;
+    forgotPassword: string;
+    googleError: string;
+    loginError: string;
+    registerError: string;
+    resetError: string;
+    resetSent: string;
+    passwordMismatch: string;
+    passwordTooShort: string;
+  };
 }
 
 const translationsMap: Record<SupportedLang, Translations> = {
@@ -414,6 +445,37 @@ const translationsMap: Record<SupportedLang, Translations> = {
       online: 'Online',
       placeholder: 'Parašykite savo klausimą...',
     },
+    auth: {
+      title: 'Prisijungti',
+      subtitle: 'Pasirinkite kaip norite tęsti',
+      googleButton: 'Tęsti su Google',
+      emailButton: 'Tęsti su el. paštu',
+      continueWithout: 'Tęsti neprisijungus',
+      or: 'arba',
+      noAccountYet: 'Neturite paskyros?',
+      createAccount: 'Sukurkite',
+      alreadyHaveAccount: 'Jau turite paskyrą?',
+      signIn: 'Prisijunkite',
+      back: 'Atgal',
+      loginTitle: 'Prisijungti su el. paštu',
+      registerTitle: 'Sukurti paskyrą',
+      resetTitle: 'Atkurti slaptažodį',
+      resetSubtitle: 'Įveskite el. paštą ir atsiųsime atkūrimo nuorodą',
+      emailLabel: 'El. paštas',
+      passwordLabel: 'Slaptažodis',
+      confirmPasswordLabel: 'Pakartokite slaptažodį',
+      loginButton: 'Prisijungti',
+      registerButton: 'Sukurti paskyrą',
+      resetButton: 'Siųsti atkūrimo nuorodą',
+      forgotPassword: 'Pamiršote slaptažodį?',
+      googleError: 'Google prisijungimas nepavyko',
+      loginError: 'Prisijungti nepavyko',
+      registerError: 'Registracija nepavyko',
+      resetError: 'Nepavyko išsiųsti atkūrimo laiško',
+      resetSent: 'Slaptažodžio atkūrimo laiškas išsiųstas',
+      passwordMismatch: 'Slaptažodžiai nesutampa',
+      passwordTooShort: 'Slaptažodis turi būti bent 6 simbolių',
+    },
   },
   en: {
     seo: {
@@ -590,6 +652,37 @@ const translationsMap: Record<SupportedLang, Translations> = {
       online: 'Online',
       placeholder: 'Type your question...',
     },
+    auth: {
+      title: 'Sign In',
+      subtitle: 'Choose how you want to continue',
+      googleButton: 'Continue with Google',
+      emailButton: 'Continue with Email',
+      continueWithout: 'Continue without signing in',
+      or: 'or',
+      noAccountYet: "Don't have an account?",
+      createAccount: 'Create one',
+      alreadyHaveAccount: 'Already have an account?',
+      signIn: 'Sign in',
+      back: 'Back',
+      loginTitle: 'Sign in with email',
+      registerTitle: 'Create account',
+      resetTitle: 'Reset password',
+      resetSubtitle: 'Enter your email and we will send you a reset link',
+      emailLabel: 'Email',
+      passwordLabel: 'Password',
+      confirmPasswordLabel: 'Confirm password',
+      loginButton: 'Sign In',
+      registerButton: 'Create Account',
+      resetButton: 'Send Reset Link',
+      forgotPassword: 'Forgot password?',
+      googleError: 'Google login failed',
+      loginError: 'Login failed',
+      registerError: 'Registration failed',
+      resetError: 'Failed to send reset email',
+      resetSent: 'Password reset email sent',
+      passwordMismatch: 'Passwords do not match',
+      passwordTooShort: 'Password must be at least 6 characters',
+    },
   },
   de: {
     seo: {
@@ -765,6 +858,37 @@ const translationsMap: Record<SupportedLang, Translations> = {
       expertTitle: 'KI-Experte',
       online: 'Online',
       placeholder: 'Geben Sie Ihre Frage ein...',
+    },
+    auth: {
+      title: 'Anmelden',
+      subtitle: 'Wählen Sie, wie Sie fortfahren möchten',
+      googleButton: 'Mit Google fortfahren',
+      emailButton: 'Mit E-Mail fortfahren',
+      continueWithout: 'Ohne Anmeldung fortfahren',
+      or: 'oder',
+      noAccountYet: 'Noch kein Konto?',
+      createAccount: 'Erstellen',
+      alreadyHaveAccount: 'Haben Sie bereits ein Konto?',
+      signIn: 'Anmelden',
+      back: 'Zurück',
+      loginTitle: 'Mit E-Mail anmelden',
+      registerTitle: 'Konto erstellen',
+      resetTitle: 'Passwort zurücksetzen',
+      resetSubtitle: 'Geben Sie Ihre E-Mail ein und wir senden Ihnen einen Link',
+      emailLabel: 'E-Mail',
+      passwordLabel: 'Passwort',
+      confirmPasswordLabel: 'Passwort bestätigen',
+      loginButton: 'Anmelden',
+      registerButton: 'Konto erstellen',
+      resetButton: 'Link senden',
+      forgotPassword: 'Passwort vergessen?',
+      googleError: 'Google-Anmeldung fehlgeschlagen',
+      loginError: 'Anmeldung fehlgeschlagen',
+      registerError: 'Registrierung fehlgeschlagen',
+      resetError: 'E-Mail konnte nicht gesendet werden',
+      resetSent: 'E-Mail zum Zurücksetzen gesendet',
+      passwordMismatch: 'Passwörter stimmen nicht überein',
+      passwordTooShort: 'Passwort muss mindestens 6 Zeichen haben',
     },
   },
   pl: {
