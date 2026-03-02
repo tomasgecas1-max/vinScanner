@@ -468,6 +468,42 @@ const App: React.FC = () => {
     } else if (!customerEmail) {
       setCurrentReportOrderId(null);
     }
+    
+    let purchaseCreated = false;
+    let purchaseTokenValue: string | undefined;
+    let purchaseOrderId: string | undefined = orderId;
+    let reportsRemainingValue = planIndex + 1;
+    
+    if (customerEmail && planIndex >= 1) {
+      try {
+        const pr = await fetch('/api/create-purchase', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: customerEmail, planIndex, vin, paymentIntentId }),
+        });
+        const prData = await pr.json();
+        if (pr.ok && prData?.token) {
+          purchaseCreated = true;
+          purchaseTokenValue = prData.token;
+          purchaseOrderId = prData.orderId ?? orderId;
+          
+          setPurchaseToken(purchaseTokenValue);
+          setPurchaseInfo({
+            reportsRemaining: reportsRemainingValue,
+            reportsTotal: planIndex + 1,
+            orderId: purchaseOrderId ?? null,
+            loading: false,
+            error: false,
+          });
+          
+          if (purchaseOrderId) setCurrentReportOrderId(purchaseOrderId);
+        }
+      } catch (e) {
+        console.error('[App] create-purchase error:', e);
+        captureError(e as Error, { context: 'create-purchase', email: customerEmail });
+      }
+    }
+    
     try {
       const vinNorm = vin.trim().toUpperCase();
       trackVinSearch(vinNorm);
@@ -480,50 +516,32 @@ const App: React.FC = () => {
           const cachedServiceCount = cached.serviceEvents?.length ?? 0;
           const cachedHasEnoughData = cachedMileageCount >= 2 || cachedServiceCount >= 2;
           
-          if (customerEmail && planIndex >= 1) {
-            let token: string | undefined;
-            let finalOrderId: string | undefined = orderId;
-            let finalPaymentIntentId: string | undefined = paymentIntentId;
-            let reportsRemaining = planIndex + 1;
-            
-            try {
-              const pr = await fetch('/api/create-purchase', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: customerEmail, planIndex, vin, paymentIntentId: finalPaymentIntentId }),
-              });
-              const prData = await pr.json();
-              if (pr.ok && prData?.token) {
-                token = prData.token;
-                finalOrderId = prData.orderId ?? finalOrderId;
-                
-                if (cachedHasEnoughData) {
-                  const useRes = await fetch('/api/use-report', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token, vin }),
-                  });
-                  const useData = await useRes.json();
-                  if (useData.success) {
-                    reportsRemaining = useData.reportsRemaining ?? reportsRemaining - 1;
-                  }
+          if (purchaseCreated && purchaseTokenValue) {
+            if (cachedHasEnoughData) {
+              try {
+                const useRes = await fetch('/api/use-report', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ token: purchaseTokenValue, vin }),
+                });
+                const useData = await useRes.json();
+                if (useData.success) {
+                  reportsRemainingValue = useData.reportsRemaining ?? reportsRemainingValue - 1;
+                  setPurchaseInfo((prev) => prev ? { ...prev, reportsRemaining: reportsRemainingValue } : null);
                 }
+              } catch (e) {
+                console.error('[App/cached] use-report error:', e);
               }
-            } catch (e) {
-              console.error('[App/cached] create-purchase error:', e);
-              captureError(e as Error, { context: 'cached-create-purchase', email: customerEmail });
             }
             
             if (!cachedHasEnoughData) {
               setError(t.errors.insufficientData || 'Nepakanka duomenų šiam automobiliui. Kreditas nebus nuskaitytas.');
-              setPendingEmailReport({ email: customerEmail, vin, token, reportsRemaining, orderId: finalOrderId });
-              if (finalOrderId) setCurrentReportOrderId(finalOrderId);
+              setPendingEmailReport({ email: customerEmail!, vin, token: purchaseTokenValue, reportsRemaining: reportsRemainingValue, orderId: purchaseOrderId });
               setTimeout(() => setLoading(false), 500);
               return;
             }
             
-            setPendingEmailReport({ email: customerEmail, vin, token, reportsRemaining, orderId: finalOrderId });
-            if (finalOrderId) setCurrentReportOrderId(finalOrderId);
+            setPendingEmailReport({ email: customerEmail!, vin, token: purchaseTokenValue, reportsRemaining: reportsRemainingValue, orderId: purchaseOrderId });
           } else if (customerEmail) {
             setPendingEmailReport({ email: customerEmail, vin, reportsRemaining: undefined, orderId });
             if (orderId) setCurrentReportOrderId(orderId);
@@ -670,49 +688,31 @@ const App: React.FC = () => {
       const serviceCount = finalReport.serviceEvents?.length ?? 0;
       const hasEnoughData = mileageCount >= 2 || serviceCount >= 2;
       
-      if (customerEmail && planIndex >= 1) {
-        let token: string | undefined;
-        let finalOrderId: string | undefined = orderId;
-        let finalPaymentIntentId: string | undefined = paymentIntentId;
-        let reportsRemaining = planIndex + 1;
-        
-        try {
-          const pr = await fetch('/api/create-purchase', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: customerEmail, planIndex, vin, paymentIntentId: finalPaymentIntentId }),
-          });
-          const prData = await pr.json();
-          if (pr.ok && prData?.token) {
-            token = prData.token;
-            finalOrderId = prData.orderId ?? finalOrderId;
-            
-            if (hasEnoughData) {
-              const useRes = await fetch('/api/use-report', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token, vin }),
-              });
-              const useData = await useRes.json();
-              if (useData.success) {
-                reportsRemaining = useData.reportsRemaining ?? reportsRemaining - 1;
-              }
+      if (purchaseCreated && purchaseTokenValue) {
+        if (hasEnoughData) {
+          try {
+            const useRes = await fetch('/api/use-report', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ token: purchaseTokenValue, vin }),
+            });
+            const useData = await useRes.json();
+            if (useData.success) {
+              reportsRemainingValue = useData.reportsRemaining ?? reportsRemainingValue - 1;
+              setPurchaseInfo((prev) => prev ? { ...prev, reportsRemaining: reportsRemainingValue } : null);
             }
+          } catch (e) {
+            console.error('[App] use-report error:', e);
           }
-        } catch (e) {
-          console.error('[App] create-purchase error:', e);
-          captureError(e as Error, { context: 'create-purchase', email: customerEmail });
         }
         
         if (!hasEnoughData) {
           setError(t.errors.insufficientData || 'Nepakanka duomenų šiam automobiliui. Kreditas nebus nuskaitytas.');
-          setPendingEmailReport({ email: customerEmail, vin, token, reportsRemaining, orderId: finalOrderId });
-          if (finalOrderId) setCurrentReportOrderId(finalOrderId);
+          setPendingEmailReport({ email: customerEmail!, vin, token: purchaseTokenValue, reportsRemaining: reportsRemainingValue, orderId: purchaseOrderId });
           return;
         }
         
-        setPendingEmailReport({ email: customerEmail, vin, token, reportsRemaining, orderId: finalOrderId });
-        if (finalOrderId) setCurrentReportOrderId(finalOrderId);
+        setPendingEmailReport({ email: customerEmail!, vin, token: purchaseTokenValue, reportsRemaining: reportsRemainingValue, orderId: purchaseOrderId });
       } else if (customerEmail) {
         setPendingEmailReport({ email: customerEmail, vin, reportsRemaining: undefined, orderId });
         if (orderId) setCurrentReportOrderId(orderId);
