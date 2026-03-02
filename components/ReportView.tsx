@@ -160,6 +160,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
   const [reportAnalysisError, setReportAnalysisError] = useState<string | null>(null);
   const [analysisCooldownSec, setAnalysisCooldownSec] = useState(0);
   const [showOriginalServiceTexts, setShowOriginalServiceTexts] = useState(false);
+  const [showOriginalTitleBrands, setShowOriginalTitleBrands] = useState(false);
   const [translatedServiceEvents, setTranslatedServiceEvents] = useState<ServiceEventRecord[] | null>(null);
   const [serviceTranslationLoading, setServiceTranslationLoading] = useState(false);
   const [serviceTranslationError, setServiceTranslationError] = useState<string | null>(null);
@@ -683,8 +684,20 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                 </h3>
                 <p className="text-sm text-slate-600 mb-4">{t.report.titleBrandsDesc ?? 'CarsXE / NMVTIS brands from vehicle history'}</p>
 
+                <label className="flex items-center gap-2 mb-4 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={showOriginalTitleBrands}
+                    onChange={(e) => setShowOriginalTitleBrands(e.target.checked)}
+                    className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                  />
+                  <span className="text-sm text-slate-600">
+                    {t.report?.titleBrandShowOriginal ?? 'Show original text (English)'}
+                  </span>
+                </label>
+
                 <div className="space-y-3">
-                  {Object.entries(getTitleBrandItems(lang))
+                  {Object.entries(getTitleBrandItems(showOriginalTitleBrands ? 'en' : lang))
                     .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true }))
                     .map(([code, { name, description }]) => {
                       const codesSet = getTitleBrandCodes(displayReport.titleBrands);

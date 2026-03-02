@@ -204,6 +204,7 @@ export interface Translations {
     titleBrandLabelSalvage?: string;
     titleBrandLabelTheft?: string;
     titleBrandLabelOdometer?: string;
+    titleBrandShowOriginal?: string;
     vinChanged: string;
     junkSalvage: string;
     junkSalvageDesc: string;
@@ -438,6 +439,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
       titleBrandLabelSalvage: 'Laužynas / Salvage',
       titleBrandLabelTheft: 'Vagystė',
       titleBrandLabelOdometer: 'Odometro problemos',
+      titleBrandShowOriginal: 'Rodyti originalų tekstą (angl.)',
       vinChanged: 'VIN numeris buvo keistas',
       junkSalvage: 'Laužyno / Salvage įrašai',
       junkSalvageDesc: 'Transporto priemonės istorija iš laužyno ir salvage aukcionų',
@@ -738,6 +740,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
       titleBrandLabelSalvage: 'Salvage / Junk',
       titleBrandLabelTheft: 'Theft',
       titleBrandLabelOdometer: 'Odometer issues',
+      titleBrandShowOriginal: 'Show original text (English)',
       vinChanged: 'VIN has been changed',
       junkSalvage: 'Junk & Salvage records',
       junkSalvageDesc: 'Vehicle history from junk and salvage auctions',
@@ -1038,6 +1041,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
       titleBrandLabelSalvage: 'Schrott / Salvage',
       titleBrandLabelTheft: 'Diebstahl',
       titleBrandLabelOdometer: 'Tachostand-Probleme',
+      titleBrandShowOriginal: 'Originaltext anzeigen (Englisch)',
       vinChanged: 'VIN wurde geändert',
       junkSalvage: 'Schrott- & Salvage-Einträge',
       junkSalvageDesc: 'Fahrzeughistorie aus Schrott- und Salvage-Auktionen',
