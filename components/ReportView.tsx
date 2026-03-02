@@ -160,7 +160,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
   const [reportAnalysisError, setReportAnalysisError] = useState<string | null>(null);
   const [analysisCooldownSec, setAnalysisCooldownSec] = useState(0);
   const [showOriginalServiceTexts, setShowOriginalServiceTexts] = useState(false);
-  const [showOriginalTitleBrands, setShowOriginalTitleBrands] = useState(false);
+  const [showOriginalTitleBrands, setShowOriginalTitleBrands] = useState(true);
   const [translatedServiceEvents, setTranslatedServiceEvents] = useState<ServiceEventRecord[] | null>(null);
   const [serviceTranslationLoading, setServiceTranslationLoading] = useState(false);
   const [serviceTranslationError, setServiceTranslationError] = useState<string | null>(null);
@@ -686,17 +686,19 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
 
                 <div className="mb-4 p-4 rounded-xl border-2 border-amber-200 bg-amber-50/80">
                   <p className="text-sm font-medium text-amber-800 mb-3">
-                    {t.report?.titleBrandAutoTranslationNote ?? 'Automatic translation. Toggle below to view original (English).'}
+                    {showOriginalTitleBrands
+                      ? (t.report?.titleBrandOriginalNote ?? 'Original text (English) shown. Toggle below to view automatic translation.')
+                      : (t.report?.titleBrandAutoTranslationNote ?? 'Automatic translation shown. Toggle below to view original (English).')}
                   </p>
                   <label className="flex items-center gap-3 cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={showOriginalTitleBrands}
-                      onChange={(e) => setShowOriginalTitleBrands(e.target.checked)}
+                      checked={!showOriginalTitleBrands}
+                      onChange={(e) => setShowOriginalTitleBrands(!e.target.checked)}
                       className="h-4 w-4 rounded border-amber-400 text-amber-600 focus:ring-amber-500 focus:ring-2"
                     />
                     <span className="text-sm font-semibold text-amber-900">
-                      {t.report?.titleBrandShowOriginal ?? 'Show original text (English)'}
+                      {t.report?.titleBrandShowTranslation ?? 'Show automatic translation'}
                     </span>
                   </label>
                 </div>

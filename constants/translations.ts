@@ -205,7 +205,9 @@ export interface Translations {
     titleBrandLabelTheft?: string;
     titleBrandLabelOdometer?: string;
     titleBrandShowOriginal?: string;
+    titleBrandShowTranslation?: string;
     titleBrandAutoTranslationNote?: string;
+    titleBrandOriginalNote?: string;
     vinChanged: string;
     junkSalvage: string;
     junkSalvageDesc: string;
@@ -441,7 +443,9 @@ const translationsMap: Record<SupportedLang, Translations> = {
       titleBrandLabelTheft: 'Vagystė',
       titleBrandLabelOdometer: 'Odometro problemos',
       titleBrandShowOriginal: 'Rodyti originalų tekstą (angl.)',
+      titleBrandShowTranslation: 'Rodyti automatinį vertimą',
       titleBrandAutoTranslationNote: 'Rodyta automatinis vertimas. Originalą (anglų) galite peržiūrėti perjungę žemiau.',
+      titleBrandOriginalNote: 'Rodyta originalus tekstas (anglų). Perjunkite žemiau, kad matytumėte automatinį vertimą.',
       vinChanged: 'VIN numeris buvo keistas',
       junkSalvage: 'Laužyno / Salvage įrašai',
       junkSalvageDesc: 'Transporto priemonės istorija iš laužyno ir salvage aukcionų',
@@ -743,7 +747,9 @@ const translationsMap: Record<SupportedLang, Translations> = {
       titleBrandLabelTheft: 'Theft',
       titleBrandLabelOdometer: 'Odometer issues',
       titleBrandShowOriginal: 'Show original text (English)',
-      titleBrandAutoTranslationNote: 'Automatic translation. Toggle below to view original (English).',
+      titleBrandShowTranslation: 'Show automatic translation',
+      titleBrandAutoTranslationNote: 'Automatic translation shown. Toggle below to view original (English).',
+      titleBrandOriginalNote: 'Original text (English) shown. Toggle below to view automatic translation.',
       vinChanged: 'VIN has been changed',
       junkSalvage: 'Junk & Salvage records',
       junkSalvageDesc: 'Vehicle history from junk and salvage auctions',
@@ -1045,7 +1051,9 @@ const translationsMap: Record<SupportedLang, Translations> = {
       titleBrandLabelTheft: 'Diebstahl',
       titleBrandLabelOdometer: 'Tachostand-Probleme',
       titleBrandShowOriginal: 'Originaltext anzeigen (Englisch)',
+      titleBrandShowTranslation: 'Automatische Übersetzung anzeigen',
       titleBrandAutoTranslationNote: 'Automatische Übersetzung angezeigt – Original unten abrufbar.',
+      titleBrandOriginalNote: 'Originaltext (Englisch) angezeigt. Umschalten für automatische Übersetzung.',
       vinChanged: 'VIN wurde geändert',
       junkSalvage: 'Schrott- & Salvage-Einträge',
       junkSalvageDesc: 'Fahrzeughistorie aus Schrott- und Salvage-Auktionen',
