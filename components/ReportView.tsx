@@ -2,7 +2,8 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { CarReport, type ReportAnalysis, type ServiceEventRecord } from '../types';
 import { getReportAnalysis, translateServiceEventTexts } from '../services/geminiService';
-import { enrichReportFromRawCarsXe, TITLE_BRAND_DESCRIPTIONS } from '../services/carsxeApiService';
+import { enrichReportFromRawCarsXe } from '../services/carsxeApiService';
+import { getTitleBrandItems } from '../constants/titleBrandTranslations';
 import type { Translations } from '../constants/translations';
 import { getTranslations } from '../constants/translations';
 // @ts-expect-error html2pdf.js neturi TypeScript tipų
@@ -683,7 +684,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                 <p className="text-sm text-slate-600 mb-4">{t.report.titleBrandsDesc ?? 'CarsXE / NMVTIS brands from vehicle history'}</p>
 
                 <div className="space-y-3">
-                  {Object.entries(TITLE_BRAND_DESCRIPTIONS)
+                  {Object.entries(getTitleBrandItems(lang))
                     .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true }))
                     .map(([code, { name, description }]) => {
                       const codesSet = getTitleBrandCodes(displayReport.titleBrands);
