@@ -4,6 +4,7 @@ import { ResponsiveContainer, AreaChart, Area, BarChart, Bar, Cell, XAxis, YAxis
 
 interface HeroProps {
   onVinSubmit: (vin: string) => void;
+  onSampleReportClick?: () => void;
   loading: boolean;
   t: any;
   useServiceHistory: boolean;
@@ -31,9 +32,8 @@ const valueData = [
   { year: '2026', val: 16000, status: 'high' },    // Atsigavusi kaina po remonto
 ];
 
-const Hero: React.FC<HeroProps> = ({ onVinSubmit, loading, t, useServiceHistory, useVinLookup, useVehicleSpecs, useCarsXeHistory, onUseServiceHistoryChange, onUseVinLookupChange, onUseVehicleSpecsChange, onUseCarsXeHistoryChange }) => {
+const Hero: React.FC<HeroProps> = ({ onVinSubmit, onSampleReportClick, loading, t, useServiceHistory, useVinLookup, useVehicleSpecs, useCarsXeHistory, onUseServiceHistoryChange, onUseVinLookupChange, onUseVehicleSpecsChange, onUseCarsXeHistoryChange }) => {
   const [vin, setVin] = useState('');
-  const SAMPLE_VIN = "WBAUR51010CZ12345";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,8 +41,9 @@ const Hero: React.FC<HeroProps> = ({ onVinSubmit, loading, t, useServiceHistory,
   };
 
   const handleSampleClick = () => {
-    setVin(SAMPLE_VIN);
-    onVinSubmit(SAMPLE_VIN);
+    if (onSampleReportClick) {
+      onSampleReportClick();
+    }
   };
 
   return (
@@ -91,7 +92,7 @@ const Hero: React.FC<HeroProps> = ({ onVinSubmit, loading, t, useServiceHistory,
               <div className="mt-6 text-left pl-2 space-y-3">
                 <button onClick={handleSampleClick} className="text-xs text-indigo-600/80 hover:text-indigo-800 font-bold transition-colors flex items-center gap-2">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="m9 18 6-6-6-6"/></svg>
-                  {t.hero.sample}: <span className="underline decoration-indigo-200 underline-offset-4 font-mono text-[11px] sm:text-xs">{SAMPLE_VIN}</span>
+                  {t.hero.sample}
                 </button>
                 <div className="hidden sm:flex flex-wrap items-center gap-4 text-[11px] text-slate-500 font-medium">
                   <span className="text-slate-400 font-bold uppercase tracking-wide">API šaltiniai (laikinai):</span>

@@ -605,6 +605,7 @@ const App: React.FC = () => {
         )}
         <Hero
           onVinSubmit={handleVinSubmit}
+          onSampleReportClick={() => setShowSampleReport(true)}
           loading={loading}
           t={t}
           useServiceHistory={useServiceHistory}
