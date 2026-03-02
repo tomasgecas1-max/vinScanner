@@ -97,7 +97,58 @@ const FIELD_LABELS: Record<string, string> = {
   manufacturer: 'Gamintojas',
 };
 
-/** Gauna visus techninius duomenis iš OE VIN Lookup arba CarsXE (Automobilio specifikacijos), priklausomai nuo to kuris API suveikė */
+/** Konvertuoja amerikietiškus vienetus į europietiškus (CarsXE duomenims) */
+function convertAmericanToEuropean(value: string): string {
+  const s = String(value).trim();
+  if (!s) return value;
+
+  // in., in -> cm
+  const inMatch = s.match(/^([\d.,]+)\s*in\.?$/i);
+  if (inMatch) {
+    const n = parseFloat(inMatch[1].replace(',', '.'));
+    if (!isNaN(n)) return `${(n * 2.54).toFixed(1)} cm`;
+  }
+
+  // miles/gallon, mpg, mi/gal -> L/100km (taip pat "19 / 28 mpg" formato)
+  const mpgMatch = s.match(/^([\d.,]+)(?:\s*[\/–-]\s*([\d.,]+))?\s*(?:miles?\/gallon|mpg|mi\/gal)/i);
+  if (mpgMatch) {
+    const n1 = parseFloat(mpgMatch[1].replace(',', '.'));
+    const n2 = mpgMatch[2] ? parseFloat(mpgMatch[2].replace(',', '.')) : null;
+    if (!isNaN(n1) && n1 > 0) {
+      const l1 = (235.215 / n1).toFixed(1);
+      if (n2 != null && !isNaN(n2) && n2 > 0) {
+        const l2 = (235.215 / n2).toFixed(1);
+        return `${l1} / ${l2} L/100 km`;
+      }
+      return `${l1} L/100 km`;
+    }
+  }
+
+  // lbs, lb, pounds -> kg
+  const lbsMatch = s.match(/^([\d.,]+)\s*(?:lbs?|pounds?)$/i);
+  if (lbsMatch) {
+    const n = parseFloat(lbsMatch[1].replace(',', '.'));
+    if (!isNaN(n)) return `${Math.round(n * 0.453592)} kg`;
+  }
+
+  // gal, gallons -> L
+  const galMatch = s.match(/^([\d.,]+)\s*(?:gal(?:lons?)?)$/i);
+  if (galMatch) {
+    const n = parseFloat(galMatch[1].replace(',', '.'));
+    if (!isNaN(n)) return `${(n * 3.78541).toFixed(1)} L`;
+  }
+
+  // ft, feet -> cm
+  const ftMatch = s.match(/^([\d.,]+)\s*(?:ft|feet|')$/i);
+  if (ftMatch) {
+    const n = parseFloat(ftMatch[1].replace(',', '.'));
+    if (!isNaN(n)) return `${(n * 30.48).toFixed(1)} cm`;
+  }
+
+  return value;
+}
+
+/** Gauna visus techninius duomenis iš OE VIN Lookup arba CarsXE (Automobilio specifikacijos), priklausomai nuo to kuris API suveikė. CarsXE duomenys konvertuojami į europietiškus vienetus. */
 function getFullTechnicalData(report: CarReport): Record<string, string> {
   const raw = report.rawApiResponses as Record<string, { success?: boolean; result?: Record<string, unknown>; attributes?: Record<string, string> } | undefined> | undefined;
   const vinLookup = raw?.vinLookup;
@@ -115,11 +166,21 @@ function getFullTechnicalData(report: CarReport): Record<string, string> {
   }
 
   if (vehicleSpecs?.success && vehicleSpecs?.result?.attributes) {
-    return { ...vehicleSpecs.result.attributes };
+    const attrs = vehicleSpecs.result.attributes as Record<string, string>;
+    const out: Record<string, string> = {};
+    for (const [k, v] of Object.entries(attrs)) {
+      out[k] = convertAmericanToEuropean(v ?? '');
+    }
+    return out;
   }
 
   if (vehicleSpecs?.attributes) {
-    return { ...vehicleSpecs.attributes };
+    const attrs = vehicleSpecs.attributes as Record<string, string>;
+    const out: Record<string, string> = {};
+    for (const [k, v] of Object.entries(attrs)) {
+      out[k] = convertAmericanToEuropean(v ?? '');
+    }
+    return out;
   }
 
   return report.technicalSpecs;
