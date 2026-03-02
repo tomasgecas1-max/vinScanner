@@ -8,6 +8,7 @@ import CookieConsent from './components/CookieConsent';
 import UsageInstructionsModal from './components/UsageInstructionsModal';
 import SampleReportModal from './components/SampleReportModal';
 import PaymentModal from './components/PaymentModal';
+import LanguageSelectionModal from './components/LanguageSelectionModal';
 import Hero from './components/Hero';
 import ReportView from './components/ReportView';
 import MyReports from './components/MyReports';
@@ -29,7 +30,11 @@ import { captureError } from './services/sentry';
 const App: React.FC = () => {
   const { user } = useAuth();
   useGoogleAnalytics();
-  const [lang, setLang] = useState<LangCode>('lt');
+  const [showLanguageModal, setShowLanguageModal] = useState(false);
+  const [lang, setLang] = useState<LangCode>(() => {
+    const saved = localStorage.getItem('vinscanner_lang');
+    return (saved as LangCode) || 'en';
+  });
   const [report, setReport] = useState<CarReport | null>(null);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -94,6 +99,19 @@ const App: React.FC = () => {
     window.addEventListener('openPrivacyPolicy', handleOpenPrivacy);
     return () => window.removeEventListener('openPrivacyPolicy', handleOpenPrivacy);
   }, []);
+
+  // Show language selection modal on first visit
+  useEffect(() => {
+    const hasSelected = localStorage.getItem('vinscanner_lang_selected');
+    if (!hasSelected) {
+      setShowLanguageModal(true);
+    }
+  }, []);
+
+  const handleLanguageSelect = (selectedLang: LangCode) => {
+    setLang(selectedLang);
+    setShowLanguageModal(false);
+  };
 
   // Kai prisijungęs vartotojas, bet nėra token iš URL – ieškome pirkimo pagal el. paštą
   useEffect(() => {
@@ -786,6 +804,9 @@ const App: React.FC = () => {
           t={t}
           lang={lang}
         />
+      )}
+      {showLanguageModal && (
+        <LanguageSelectionModal onSelect={handleLanguageSelect} />
       )}
       <AIChat key={lang} t={t} />
       <CookieConsent lang={lang} />
