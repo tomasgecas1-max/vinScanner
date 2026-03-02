@@ -252,7 +252,95 @@ const App: React.FC = () => {
     return () => clearInterval(interval);
   }, [loading, lang]);
 
-  const handleVinSubmit = (vin: string) => {
+  const handleSearchAndReturn = async (vin: string): Promise<CarReport | null> => {
+    try {
+      const vinNorm = vin.trim().toUpperCase();
+      trackVinSearch(vinNorm);
+      
+      const cacheRes = await fetch(`/api/report-cache?vin=${encodeURIComponent(vinNorm)}`);
+      if (cacheRes.ok) {
+        const cacheData = await cacheRes.json();
+        if (cacheData?.report) {
+          return { ...cacheData.report, vin };
+        }
+      }
+      
+      let data: CarReport | null = null;
+      const needsOneAuto = useServiceHistory || useVinLookup;
+      
+      if (needsOneAuto) {
+        try {
+          data = await fetchCarReportFromOneAuto(vin, {
+            useServiceHistory,
+            useVinLookup,
+            sequential: useServiceHistory && useVinLookup && useVehicleSpecs,
+          });
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e);
+          if (msg === HISTORY_NOT_FOUND_ERROR) {
+            return null;
+          }
+          data = null;
+        }
+      }
+      
+      if (!data && useVehicleSpecs) {
+        const specsRes = await fetchVehicleSpecs(vin);
+        if (specsRes.success && specsRes.result?.attributes) {
+          const fromSpecs = mapVehicleSpecsToReportFields(specsRes.result.attributes);
+          data = {
+            vin,
+            make: fromSpecs.make ?? "–",
+            model: fromSpecs.model ?? "–",
+            year: fromSpecs.year ?? 0,
+            mileageHistory: [{ date: new Date().toISOString().slice(0, 7), value: 0 }],
+            serviceEvents: [],
+            damages: [],
+            theftStatus: "unknown",
+            technicalSpecs: fromSpecs.technicalSpecs ?? { engine: "–", power: "–", fuelType: "–" },
+            marketValue: { min: 0, max: 0, average: 0 },
+            rawApiResponses: { vehicleSpecs: specsRes },
+          };
+        }
+      }
+      
+      if (!data) return null;
+      
+      let reportData: CarReport = { ...data, vin };
+      
+      if (useVehicleSpecs) {
+        const alreadyHasVehicleSpecs = data?.rawApiResponses && typeof data.rawApiResponses === "object" && (data.rawApiResponses as Record<string, { success?: boolean }>).vehicleSpecs?.success === true;
+        if (!alreadyHasVehicleSpecs) {
+          const specsRes = await fetchVehicleSpecs(vin);
+          if (specsRes.success && specsRes.result?.attributes) {
+            const fromSpecs = mapVehicleSpecsToReportFields(specsRes.result.attributes);
+            reportData = {
+              ...reportData,
+              ...fromSpecs,
+              rawApiResponses: { ...(reportData.rawApiResponses as object || {}), vehicleSpecs: specsRes },
+            };
+          }
+        }
+      }
+      
+      if (useCarsXeHistory) {
+        const historyRes = await fetchVehicleHistory(vin);
+        if (historyRes.success && historyRes.result) {
+          const fromHistory = mapCarsXeHistoryToReportFields(historyRes.result);
+          if (fromHistory.mileageHistory?.length) reportData.mileageHistory = fromHistory.mileageHistory;
+          if (fromHistory.damages?.length) reportData.damages = fromHistory.damages;
+          if (fromHistory.theftStatus) reportData.theftStatus = fromHistory.theftStatus;
+          reportData.rawApiResponses = { ...(reportData.rawApiResponses as object || {}), carsxeHistory: historyRes };
+        }
+      }
+      
+      return reportData;
+    } catch {
+      return null;
+    }
+  };
+
+  const handleVinSubmit = async (vin: string) => {
     const vinTrimmed = vin.trim();
     if (vinTrimmed.length <= 5) return;
     setError(null);
@@ -262,28 +350,64 @@ const App: React.FC = () => {
       setLoading(true);
       setReport(null);
       const userEmail = user?.email;
-      fetch('/api/use-report', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: purchaseToken, vin: vinTrimmed }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success !== true) throw new Error(data.error || 'Failed');
-          const newRemaining = data.reportsRemaining ?? purchaseInfo.reportsRemaining - 1;
-          setPurchaseInfo((prev) =>
-            prev ? { ...prev, reportsRemaining: newRemaining } : null
-          );
-          if (userEmail) {
-            setPendingEmailReport({ email: userEmail, vin: vinTrimmed, token: purchaseToken, reportsRemaining: newRemaining, orderId: purchaseInfo.orderId ?? undefined });
-            if (purchaseInfo.orderId) setCurrentReportOrderId(purchaseInfo.orderId);
-          }
-          return handleSearch(vinTrimmed);
-        })
-        .catch(() => {
+      
+      try {
+        const reportResult = await handleSearchAndReturn(vinTrimmed);
+        
+        if (!reportResult) {
           setError(t.errors.apiFailed);
           setLoading(false);
+          return;
+        }
+        
+        const mileageCount = reportResult.mileageHistory?.length ?? 0;
+        const serviceCount = reportResult.serviceEvents?.length ?? 0;
+        const hasEnoughData = mileageCount >= 2 || serviceCount >= 2;
+        
+        if (!hasEnoughData) {
+          setError(t.errors.insufficientData || 'Nepakanka duomenų šiam automobiliui. Kreditas nebus nuskaitytas.');
+          setReport(null);
+          setLoading(false);
+          return;
+        }
+        
+        const useReportRes = await fetch('/api/use-report', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: purchaseToken, vin: vinTrimmed }),
         });
+        const useReportData = await useReportRes.json();
+        
+        if (useReportData.success !== true) {
+          throw new Error(useReportData.error || 'Failed');
+        }
+        
+        const newRemaining = useReportData.reportsRemaining ?? purchaseInfo.reportsRemaining - 1;
+        setPurchaseInfo((prev) =>
+          prev ? { ...prev, reportsRemaining: newRemaining } : null
+        );
+        
+        if (userEmail) {
+          setPendingEmailReport({ email: userEmail, vin: vinTrimmed, token: purchaseToken, reportsRemaining: newRemaining, orderId: purchaseInfo.orderId ?? undefined });
+          if (purchaseInfo.orderId) setCurrentReportOrderId(purchaseInfo.orderId);
+        }
+        
+        setReport(reportResult);
+        if (user) {
+          saveReport(user.uid, reportResult).then(() => setMyReportsRefreshKey((k) => k + 1)).catch(() => {});
+        }
+        
+        fetch('/api/report-cache', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ vin: vinTrimmed, report: reportResult }),
+        }).catch(() => {});
+        
+        setLoading(false);
+      } catch {
+        setError(t.errors.apiFailed);
+        setLoading(false);
+      }
       return;
     }
 
