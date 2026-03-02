@@ -66,8 +66,8 @@ export default async function handler(req, res) {
       orderId,
       email: String(email).trim(),
       reportsTotal,
-      reportsUsed: 1,
-      usedVins: [String(vin).trim()],
+      reportsUsed: 0,
+      usedVins: [],
       paymentIntentId: paymentIntentId || null,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
