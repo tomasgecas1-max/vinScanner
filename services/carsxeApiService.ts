@@ -89,8 +89,8 @@ type OdometerRecord = {
   TitleIssueDate?: { Date?: string };
 };
 
-/** NMVTIS / CarsXE title brand descriptions – naudojama kai API negrąžina description */
-const TITLE_BRAND_DESCRIPTIONS: Record<string, { name: string; description: string }> = {
+/** NMVTIS / CarsXE title brand descriptions – naudojama kai API negrąžina description. Eksportuojama ReportView visiems galimiems punktams. */
+export const TITLE_BRAND_DESCRIPTIONS: Record<string, { name: string; description: string }> = {
   "00": { name: "Clear", description: "No brand exists for the vehicle." },
   "01": { name: "Flood damage", description: "Vehicle damaged by freshwater flood (or it is unknown whether the damage was caused by fresh water or salt water)." },
   "02": { name: "Fire damage", description: "Vehicle damaged by fire." },

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { CarReport, type ReportAnalysis, type ServiceEventRecord } from '../types';
 import { getReportAnalysis, translateServiceEventTexts } from '../services/geminiService';
-import { enrichReportFromRawCarsXe } from '../services/carsxeApiService';
+import { enrichReportFromRawCarsXe, TITLE_BRAND_DESCRIPTIONS } from '../services/carsxeApiService';
 import type { Translations } from '../constants/translations';
 import { getTranslations } from '../constants/translations';
 // @ts-expect-error html2pdf.js neturi TypeScript tipų
@@ -33,17 +33,6 @@ const SOURCE_LABELS: Record<string, string> = {
   valuation: 'Brego Vertė (Valuation from VIN)',
   previousAdverts: 'Previous Adverts from VIN',
 };
-
-/** Svarbūs title brand įvykių kategorijos – kodai, kurie rodo ar įvykis registruotas */
-const TITLE_BRAND_CHECK_CATEGORIES: { key: string; codes: string[] }[] = [
-  { key: 'flood', codes: ['01', '04'] },
-  { key: 'fire', codes: ['02'] },
-  { key: 'hail', codes: ['03'] },
-  { key: 'collision', codes: ['14'] },
-  { key: 'salvage', codes: ['08', '11', '16', '49'] },
-  { key: 'theft', codes: ['36', '49'] },
-  { key: 'odometer', codes: ['69', '70', '71', '72', '74'] },
-];
 
 function getTitleBrandCodes(titleBrands: { code: string }[] | undefined): Set<string> {
   if (!titleBrands?.length) return new Set();
@@ -684,8 +673,8 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
               </div>
             )}
 
-            {/* Pavadinimai ant titulo (CarsXE brandsInformation) */}
-            {Array.isArray(displayReport.titleBrands) && (
+            {/* Pavadinimai ant titulo – visi galimi punktai, žalia ✓ neregistruota / raudona ⚠ registruota */}
+            {((displayReport.rawApiResponses as Record<string, unknown>)?.carsxeHistory != null || (displayReport.titleBrands && displayReport.titleBrands.length > 0)) && (
               <div>
                 <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2 mb-4">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-600"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
@@ -693,80 +682,46 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                 </h3>
                 <p className="text-sm text-slate-600 mb-4">{t.report.titleBrandsDesc ?? 'CarsXE / NMVTIS brands from vehicle history'}</p>
 
-                {/* Būklės santrauka: žalia ✓ = neregistruota, raudona = registruota */}
-                <div className="mb-6 p-4 rounded-2xl bg-slate-50 border border-slate-100">
-                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">{t.report.titleBrandStatusCheck ?? 'Event registration status'}</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {TITLE_BRAND_CHECK_CATEGORIES.map(({ key, codes }) => {
+                <div className="space-y-3">
+                  {Object.entries(TITLE_BRAND_DESCRIPTIONS)
+                    .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true }))
+                    .map(([code, { name, description }]) => {
                       const codesSet = getTitleBrandCodes(displayReport.titleBrands);
-                      const registered = codes.some((c) => codesSet.has(c));
-                      const labels: Record<string, string> = {
-                        flood: t.report.titleBrandLabelFlood ?? 'Flood',
-                        fire: t.report.titleBrandLabelFire ?? 'Fire',
-                        hail: t.report.titleBrandLabelHail ?? 'Hail',
-                        collision: t.report.titleBrandLabelCollision ?? 'Collision',
-                        salvage: t.report.titleBrandLabelSalvage ?? 'Salvage',
-                        theft: t.report.titleBrandLabelTheft ?? 'Theft',
-                        odometer: t.report.titleBrandLabelOdometer ?? 'Odometer',
-                      };
+                      const registered = codesSet.has(String(code).padStart(2, '0').slice(-2));
+                      const isNeutralOrGood = ['00', '68'].includes(String(code).padStart(2, '0').slice(-2));
+                      const showGreen = !registered || (registered && isNeutralOrGood);
                       return (
-                        <div key={key} className={`flex items-center gap-3 px-3 py-2 rounded-xl ${registered ? 'bg-rose-50 border border-rose-200' : 'bg-emerald-50 border border-emerald-200'}`}>
-                          {registered ? (
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-rose-600 shrink-0"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                          ) : (
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-emerald-600 shrink-0"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                          )}
-                          <span className="font-medium text-slate-800">{labels[key] ?? key}</span>
-                          <span className={`text-xs font-semibold ml-auto ${registered ? 'text-rose-600' : 'text-emerald-600'}`}>
-                            {registered ? (t.report.titleBrandRegistered ?? 'Registered') : (t.report.titleBrandNotRegistered ?? 'Not registered')}
-                          </span>
+                        <div key={code} className={`p-4 rounded-2xl border transition-colors flex flex-col sm:flex-row sm:items-start gap-3 ${showGreen ? 'border-emerald-200 bg-emerald-50/50' : 'border-rose-200 bg-rose-50/50'}`}>
+                          <div className="flex items-center shrink-0">
+                            {showGreen ? (
+                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-emerald-600">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22 4 12 14.01 9 11.01"/>
+                              </svg>
+                            ) : (
+                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-rose-600">
+                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                                <line x1="12" y1="9" x2="12" y2="13"/>
+                                <line x1="12" y1="17" x2="12.01" y2="17"/>
+                              </svg>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-2 mb-1">
+                              <span className="font-mono text-xs font-bold text-indigo-600 bg-indigo-100 px-2 py-0.5 rounded">{code}</span>
+                              <span className="font-semibold text-slate-900">{name}</span>
+                              <span className={`text-xs font-semibold ml-auto ${showGreen ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                {showGreen ? (t.report.titleBrandNotRegistered ?? 'Not registered') : (t.report.titleBrandRegistered ?? 'Registered')}
+                              </span>
+                            </div>
+                            {description && (
+                              <p className="text-sm text-slate-600 leading-relaxed">{description}</p>
+                            )}
+                          </div>
                         </div>
                       );
                     })}
-                  </div>
                 </div>
-
-                {/* Detalus brandų sąrašas */}
-                {displayReport.titleBrands && displayReport.titleBrands.length > 0 && (
-                <div className="space-y-4">
-                  {displayReport.titleBrands.map((b, idx) => {
-                    const code = String(b.code ?? '').padStart(2, '0').slice(-2);
-                    const isNeutralOrGood = ['00', '68'].includes(code);
-                    return (
-                    <div key={idx} className={`p-5 rounded-2xl border hover:border-slate-200 transition-colors flex flex-col sm:flex-row sm:items-start gap-4 ${isNeutralOrGood ? 'border-emerald-200 bg-emerald-50/50' : 'border-rose-200 bg-rose-50/50'}`}>
-                      <div className="flex items-center justify-center sm:justify-start shrink-0">
-                        {isNeutralOrGood ? (
-                          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-emerald-600" title={t.report.titleBrandNotRegistered ?? 'Not registered'}>
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                            <polyline points="22 4 12 14.01 9 11.01"/>
-                          </svg>
-                        ) : (
-                          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-rose-600" title={t.report.titleBrandRegistered ?? 'Registered'}>
-                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                            <line x1="12" y1="9" x2="12" y2="13"/>
-                            <line x1="12" y1="17" x2="12.01" y2="17"/>
-                          </svg>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center gap-2 mb-2">
-                          <span className="font-mono text-xs font-bold text-indigo-600 bg-indigo-100 px-2 py-0.5 rounded">{b.code}</span>
-                          <span className="font-semibold text-slate-900">{b.name}</span>
-                          {b.date && (
-                            <span className="text-xs text-slate-500">{b.date}</span>
-                          )}
-                          <span className={`text-xs font-semibold ml-auto ${isNeutralOrGood ? 'text-emerald-600' : 'text-rose-600'}`}>
-                            {isNeutralOrGood ? (t.report.titleBrandNotRegistered ?? 'Not registered') : (t.report.titleBrandRegistered ?? 'Registered')}
-                          </span>
-                        </div>
-                        {b.description && (
-                          <p className="text-sm text-slate-600 leading-relaxed">{b.description}</p>
-                        )}
-                      </div>
-                    </div>
-                  );})}
-                </div>
-                )}
               </div>
             )}
 
