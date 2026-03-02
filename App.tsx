@@ -78,6 +78,7 @@ const App: React.FC = () => {
     error: boolean;
   } | null>(null);
   const [showInsufficientDataModal, setShowInsufficientDataModal] = useState(false);
+  const [errorModalMessage, setErrorModalMessage] = useState<string | null>(null);
 
   const t = getTranslations(lang);
 
@@ -362,7 +363,7 @@ const App: React.FC = () => {
         const reportResult = await handleSearchAndReturn(vinTrimmed);
         
         if (!reportResult) {
-          setError(t.errors.apiFailed);
+          setErrorModalMessage(t.errors.apiFailed);
           setLoading(false);
           return;
         }
@@ -412,7 +413,7 @@ const App: React.FC = () => {
         
         setLoading(false);
       } catch {
-        setError(t.errors.apiFailed);
+        setErrorModalMessage(t.errors.apiFailed);
         setLoading(false);
       }
       return;
@@ -614,7 +615,7 @@ const App: React.FC = () => {
 
       if (!data) {
         if (mockDisabled) {
-          setError(apiError || t.errors.apiFailed);
+          setErrorModalMessage(apiError || t.errors.apiFailed);
           setLoading(false);
           return;
         }
@@ -1073,6 +1074,37 @@ const App: React.FC = () => {
               )}
               <button
                 onClick={() => setShowInsufficientDataModal(false)}
+                className="w-full py-3 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              >
+                {t.pricing.close || 'Uždaryti'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {errorModalMessage && (
+        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-md bg-white p-8 rounded-3xl shadow-2xl animate-in zoom-in-95 duration-300">
+            <div className="text-center">
+              <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-rose-100 flex items-center justify-center">
+                <svg className="w-8 h-8 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-slate-800 mb-3">
+                {t.errors.insufficientDataTitle || 'Duomenų nerasta'}
+              </h3>
+              <p className="text-slate-600 mb-6 leading-relaxed">
+                {errorModalMessage}
+              </p>
+              {purchaseInfo && purchaseInfo.reportsRemaining > 0 && (
+                <p className="text-sm text-indigo-600 font-semibold mb-6">
+                  {t.tokenMode.banner.replace('{n}', String(purchaseInfo.reportsRemaining)).replace('{total}', String(purchaseInfo.reportsTotal))}
+                </p>
+              )}
+              <button
+                onClick={() => setErrorModalMessage(null)}
                 className="w-full py-3 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
               >
                 {t.pricing.close || 'Uždaryti'}
