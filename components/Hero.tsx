@@ -91,9 +91,9 @@ const Hero: React.FC<HeroProps> = ({ onVinSubmit, loading, t, useServiceHistory,
               <div className="mt-6 text-left pl-2 space-y-3">
                 <button onClick={handleSampleClick} className="text-xs text-indigo-600/80 hover:text-indigo-800 font-bold transition-colors flex items-center gap-2">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="m9 18 6-6-6-6"/></svg>
-                  {t.hero.sample}: <span className="underline decoration-indigo-200 underline-offset-4 font-mono">{SAMPLE_VIN}</span>
+                  {t.hero.sample}: <span className="underline decoration-indigo-200 underline-offset-4 font-mono text-[11px] sm:text-xs">{SAMPLE_VIN}</span>
                 </button>
-                <div className="flex flex-wrap items-center gap-4 text-[11px] text-slate-500 font-medium">
+                <div className="hidden sm:flex flex-wrap items-center gap-4 text-[11px] text-slate-500 font-medium">
                   <span className="text-slate-400 font-bold uppercase tracking-wide">API šaltiniai (laikinai):</span>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input type="checkbox" checked={useServiceHistory} onChange={(e) => onUseServiceHistoryChange(e.target.checked)} className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />

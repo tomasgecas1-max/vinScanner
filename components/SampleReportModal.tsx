@@ -554,29 +554,30 @@ const SampleReportModal: React.FC<SampleReportModalProps> = ({ open, onClose, t,
               <span className="font-mono text-sm">{ORDER_LABEL[lang] || ORDER_LABEL.en} {SAMPLE_ORDER_ID}</span>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-3 sm:gap-4 w-full md:w-auto">
-            <div className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider flex items-center gap-2 bg-emerald-500/20 text-emerald-400 border border-emerald-500/50">
+          <div className="flex items-center gap-2 sm:gap-3 w-full md:w-auto justify-between md:justify-end">
+            <div className="px-2 py-1 sm:px-4 sm:py-2 rounded-full text-[9px] sm:text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 sm:gap-2 bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 shrink-0">
               <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-400" />
-              {t.report.theftClear}
+              <span className="hidden sm:inline">{t.report.theftClear}</span>
+              <span className="sm:hidden">OK</span>
             </div>
             <button
               type="button"
               onClick={() => setShowOriginalServiceTexts(!showOriginalServiceTexts)}
-              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-colors ${
+              className={`px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-[9px] sm:text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-colors shrink-0 ${
                 showOriginalServiceTexts
                   ? 'bg-amber-500/20 text-amber-400 border border-amber-500/50'
                   : 'bg-white/10 text-white/70 border border-white/20 hover:bg-white/20'
               }`}
               title={t.report.showOriginal}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="hidden sm:block"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>
               {showOriginalServiceTexts ? 'EN' : lang.toUpperCase()}
             </button>
-            <button type="button" className="p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors" title={t.report.downloadPdf}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+            <button type="button" className="p-1.5 sm:p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors shrink-0" title={t.report.downloadPdf}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="sm:w-[18px] sm:h-[18px]"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
             </button>
-            <button onClick={onClose} className="p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors ml-auto md:ml-0">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            <button onClick={onClose} className="p-1.5 sm:p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="sm:w-[18px] sm:h-[18px]"><path d="M18 6 6 18M6 6l12 12"/></svg>
             </button>
           </div>
         </div>

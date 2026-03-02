@@ -333,9 +333,9 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
               </div>
             )}
           </div>
-          <div className="flex flex-wrap items-center gap-3 sm:gap-4 w-full md:w-auto">
+          <div className="flex items-center gap-2 sm:gap-3 w-full md:w-auto justify-between md:justify-end">
             <div
-              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider flex items-center gap-2 ${
+              className={`px-2 py-1 sm:px-4 sm:py-2 rounded-full text-[9px] sm:text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 sm:gap-2 shrink-0 ${
                 report.theftStatus === 'clear'
                   ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50'
                   : report.theftStatus === 'flagged'
@@ -349,26 +349,31 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                   report.theftStatus === 'clear' ? 'bg-emerald-400' : report.theftStatus === 'flagged' ? 'bg-rose-400 animate-pulse' : 'bg-slate-500'
                 }`}
               />
-              {report.theftStatus === 'clear'
-                ? t.report.theftClear
-                : report.theftStatus === 'flagged'
-                  ? t.report.theftFlagged
-                  : t.report.theftUnknown}
+              <span className="hidden sm:inline">
+                {report.theftStatus === 'clear'
+                  ? t.report.theftClear
+                  : report.theftStatus === 'flagged'
+                    ? t.report.theftFlagged
+                    : t.report.theftUnknown}
+              </span>
+              <span className="sm:hidden">
+                {report.theftStatus === 'clear' ? 'OK' : report.theftStatus === 'flagged' ? '!' : '?'}
+              </span>
             </div>
             {canSave && onSaveReport && (
               <button
                 type="button"
                 onClick={handleSaveToCloud}
                 disabled={saveCloudLoading}
-                className="p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors disabled:opacity-60 flex items-center gap-2"
+                className="p-1.5 sm:p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors disabled:opacity-60 flex items-center gap-2 shrink-0"
                 title={t.report.saveToCloud}
               >
                 {saveCloudLoading ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : saveCloudDone ? (
                   <span className="text-[10px] font-bold text-emerald-300">✓</span>
                 ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="sm:w-[18px] sm:h-[18px]"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                 )}
               </button>
             )}
@@ -376,13 +381,13 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
               type="button"
               onClick={handleDownloadPdf}
               disabled={pdfLoading}
-              className="p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors ml-auto md:ml-0 disabled:opacity-60"
+              className="p-1.5 sm:p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors disabled:opacity-60 shrink-0"
               title={t.report.downloadPdf}
             >
               {pdfLoading ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="sm:w-[18px] sm:h-[18px]"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
               )}
             </button>
           </div>
