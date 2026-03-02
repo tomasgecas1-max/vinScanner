@@ -23,6 +23,8 @@ interface PaymentModalProps {
   vin: string;
   planIndex: number;
   email?: string;
+  /** Kalba – išsaugoma prieš mokėjimą ir naudojama el. laiškui */
+  lang?: string;
   t: {
     pricing: {
       paymentTitle: string;
@@ -62,6 +64,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   vin,
   planIndex,
   email,
+  lang,
   t,
 }) => {
   const [discountInput, setDiscountInput] = useState('');
@@ -340,6 +343,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                     pendingVin={vin}
                     pendingEmail={email}
                     pendingPlanIndex={planIndex}
+                    pendingLang={lang}
                   />
                 </Elements>
               </div>

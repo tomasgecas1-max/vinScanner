@@ -8,6 +8,39 @@ export interface ServiceEventRecord {
   service_actions: string[];
 }
 
+/** CarsXE / NMVTIS title brand (pavadinimas ant titulo) */
+export interface TitleBrandRecord {
+  code: string;
+  name: string;
+  description?: string;
+  date?: string;
+}
+
+/** CarsXE junkAndSalvageInformation įrašas */
+export interface JunkSalvageRecord {
+  entityName?: string;
+  location?: string;
+  obtainedDate?: string;
+  disposition?: string;
+  intendedForExport?: string;
+}
+
+/** CarsXE insuranceInformation įrašas */
+export interface InsuranceRecord {
+  entityName?: string;
+  location?: string;
+  obtainedDate?: string;
+}
+
+/** CarsXE Lien & Theft event (events masyvas arba lienRecords/theftRecords) */
+export interface LienTheftEventRecord {
+  type: 'lien' | 'theft' | 'recovered_theft' | 'exported' | 'towing' | 'for_sale' | string;
+  description: string;
+  date?: string;
+  location?: string;
+  lienHolder?: string;
+}
+
 export interface CarReport {
   vin: string;
   make: string;
@@ -17,7 +50,17 @@ export interface CarReport {
   /** Pilna serviso istorija – data, rida, serviso teikėjas, tipas, atlikti darbai */
   serviceEvents: ServiceEventRecord[];
   damages: DamageRecord[];
-  /** clear = patikrinta, ne vogtas; flagged = vogtas/ieškomas; unknown = patikra neatlikta (pvz. be UK valst. nr.) */
+  /** CarsXE brandsInformation – pavadinimai ant titulo (code, name, description) */
+  titleBrands?: TitleBrandRecord[];
+  /** CarsXE junkAndSalvageInformation – laužyno/salvage įrašai */
+  junkSalvageRecords?: JunkSalvageRecord[];
+  /** CarsXE insuranceInformation – draudimo įrašai */
+  insuranceRecords?: InsuranceRecord[];
+  /** CarsXE vinChanged – ar VIN buvo keistas */
+  vinChanged?: boolean;
+  /** CarsXE Lien & Theft – įkeitimų/vagysčių įvykiai */
+  lienTheftEvents?: LienTheftEventRecord[];
+  /** clear = patikrinta, ne vogtas; flagged = vogtas/ieškomas; unknown = patikra neatlikta */
   theftStatus: 'clear' | 'flagged' | 'unknown';
   technicalSpecs: Record<string, string>;
   marketValue: { min: number; max: number; average: number };

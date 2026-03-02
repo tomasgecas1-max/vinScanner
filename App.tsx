@@ -62,8 +62,8 @@ const App: React.FC = () => {
   const [planIndexForOrder, setPlanIndexForOrder] = useState<number>(1);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [orderEmail, setOrderEmail] = useState<string | null>(null);
-  const [redirectOrder, setRedirectOrder] = useState<{ vin: string; email?: string; planIndex?: number } | null>(null);
-  const [pendingEmailReport, setPendingEmailReport] = useState<{ email: string; vin: string; token?: string; reportsRemaining?: number; orderId?: string } | null>(null);
+  const [redirectOrder, setRedirectOrder] = useState<{ vin: string; email?: string; planIndex?: number; lang?: LangCode } | null>(null);
+  const [pendingEmailReport, setPendingEmailReport] = useState<{ email: string; vin: string; token?: string; reportsRemaining?: number; orderId?: string; lang?: string } | null>(null);
   const [currentReportOrderId, setCurrentReportOrderId] = useState<string | null>(null);
   const [purchaseToken, setPurchaseToken] = useState<string | null>(null);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
@@ -90,7 +90,9 @@ const App: React.FC = () => {
         const data = raw ? JSON.parse(raw) : null;
         sessionStorage.removeItem('vinscanner_pending_order');
         if (data?.vin && typeof data.vin === 'string' && data.vin.trim().length > 5) {
-          setRedirectOrder({ vin: data.vin.trim(), email: data.email || undefined, planIndex: typeof data.planIndex === 'number' ? data.planIndex : 1 });
+          const purchaseLang = data.lang && typeof data.lang === 'string' ? (data.lang as LangCode) : undefined;
+          if (purchaseLang) setLang(purchaseLang);
+          setRedirectOrder({ vin: data.vin.trim(), email: data.email || undefined, planIndex: typeof data.planIndex === 'number' ? data.planIndex : 1, lang: purchaseLang });
         }
       } catch (_) {}
       window.history.replaceState({}, '', window.location.pathname || '/');
@@ -337,6 +339,10 @@ const App: React.FC = () => {
           const fromHistory = mapCarsXeHistoryToReportFields(historyRes.result);
           if (fromHistory.mileageHistory?.length) reportData.mileageHistory = fromHistory.mileageHistory;
           if (fromHistory.damages?.length) reportData.damages = fromHistory.damages;
+          if (fromHistory.titleBrands?.length) reportData.titleBrands = fromHistory.titleBrands;
+          if (fromHistory.junkSalvageRecords?.length) reportData.junkSalvageRecords = fromHistory.junkSalvageRecords;
+          if (fromHistory.insuranceRecords?.length) reportData.insuranceRecords = fromHistory.insuranceRecords;
+          if (fromHistory.vinChanged) reportData.vinChanged = fromHistory.vinChanged;
           if (fromHistory.theftStatus) reportData.theftStatus = fromHistory.theftStatus;
           reportData.rawApiResponses = { ...(reportData.rawApiResponses as object || {}), carsxeHistory: historyRes };
         }
@@ -346,6 +352,7 @@ const App: React.FC = () => {
       if (theftRes.success && theftRes.result) {
         const fromTheft = mapTheftCheckToReportFields(theftRes.result);
         if (fromTheft.theftStatus) reportData.theftStatus = fromTheft.theftStatus;
+        if (fromTheft.lienTheftEvents?.length) reportData.lienTheftEvents = fromTheft.lienTheftEvents;
         reportData.rawApiResponses = { ...(reportData.rawApiResponses as object || {}), carsxeTheft: theftRes };
       }
       
@@ -403,7 +410,7 @@ const App: React.FC = () => {
         );
         
         if (userEmail) {
-          setPendingEmailReport({ email: userEmail, vin: vinTrimmed, token: purchaseToken, reportsRemaining: newRemaining, orderId: purchaseInfo.orderId ?? undefined });
+          setPendingEmailReport({ email: userEmail, vin: vinTrimmed, token: purchaseToken, reportsRemaining: newRemaining, orderId: purchaseInfo.orderId ?? undefined, lang });
           if (purchaseInfo.orderId) setCurrentReportOrderId(purchaseInfo.orderId);
         }
         
@@ -451,7 +458,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (!redirectOrder) return;
-    handleSearch(redirectOrder.vin, redirectOrder.email, redirectOrder.planIndex ?? 1);
+    handleSearch(redirectOrder.vin, redirectOrder.email, redirectOrder.planIndex ?? 1, undefined, undefined, redirectOrder.lang);
     setRedirectOrder(null);
   }, [redirectOrder]);
 
@@ -467,7 +474,7 @@ const App: React.FC = () => {
     handleSearch(vin, customerEmail, planIndexForOrder, orderId, paymentIntentId);
   };
 
-  const handleSearch = async (vin: string, customerEmail?: string, planIndex: number = 1, orderId?: string, paymentIntentId?: string) => {
+  const handleSearch = async (vin: string, customerEmail?: string, planIndex: number = 1, orderId?: string, paymentIntentId?: string, purchaseLang?: LangCode) => {
     const previousReport = report;
     setLoading(true);
     setReport(null);
@@ -482,6 +489,7 @@ const App: React.FC = () => {
     let purchaseTokenValue: string | undefined;
     let purchaseOrderId: string | undefined = orderId;
     let reportsRemainingValue = planIndex + 1;
+    const emailLang = purchaseLang ?? lang;
     
     if (customerEmail && planIndex >= 1) {
       try {
@@ -545,14 +553,14 @@ const App: React.FC = () => {
             
             if (!cachedHasEnoughData) {
               setShowInsufficientDataModal(true);
-              setPendingEmailReport({ email: customerEmail!, vin, token: purchaseTokenValue, reportsRemaining: reportsRemainingValue, orderId: purchaseOrderId });
+              setPendingEmailReport({ email: customerEmail!, vin, token: purchaseTokenValue, reportsRemaining: reportsRemainingValue, orderId: purchaseOrderId, lang: emailLang });
               setTimeout(() => setLoading(false), 500);
               return;
             }
             
-            setPendingEmailReport({ email: customerEmail!, vin, token: purchaseTokenValue, reportsRemaining: reportsRemainingValue, orderId: purchaseOrderId });
+            setPendingEmailReport({ email: customerEmail!, vin, token: purchaseTokenValue, reportsRemaining: reportsRemainingValue, orderId: purchaseOrderId, lang: emailLang });
           } else if (customerEmail) {
-            setPendingEmailReport({ email: customerEmail, vin, reportsRemaining: undefined, orderId });
+            setPendingEmailReport({ email: customerEmail, vin, reportsRemaining: undefined, orderId, lang: emailLang });
             if (orderId) setCurrentReportOrderId(orderId);
           }
           
@@ -652,6 +660,7 @@ const App: React.FC = () => {
           const fromHistory = mapCarsXeHistoryToReportFields(historyRes.result);
           if (fromHistory.mileageHistory?.length) reportData.mileageHistory = fromHistory.mileageHistory;
           if (fromHistory.damages?.length) reportData.damages = fromHistory.damages;
+          if (fromHistory.titleBrands?.length) reportData.titleBrands = fromHistory.titleBrands;
           if (fromHistory.theftStatus) reportData.theftStatus = fromHistory.theftStatus;
           reportData.rawApiResponses = { ...(reportData.rawApiResponses as object || {}), carsxeHistory: historyRes };
         }
@@ -661,6 +670,7 @@ const App: React.FC = () => {
       if (theftRes.success && theftRes.result) {
         const fromTheft = mapTheftCheckToReportFields(theftRes.result);
         if (fromTheft.theftStatus) reportData.theftStatus = fromTheft.theftStatus;
+        if (fromTheft.lienTheftEvents?.length) reportData.lienTheftEvents = fromTheft.lienTheftEvents;
         reportData.rawApiResponses = { ...(reportData.rawApiResponses as object || {}), carsxeTheft: theftRes };
       }
 
@@ -688,6 +698,10 @@ const App: React.FC = () => {
           const fromH = mapCarsXeHistoryToReportFields(result as import('./services/carsxeApiService').CarsXeHistoryResponse);
           if (fromH.mileageHistory?.length) finalReport.mileageHistory = fromH.mileageHistory;
           if (fromH.damages?.length) finalReport.damages = fromH.damages;
+          if (fromH.titleBrands?.length) finalReport.titleBrands = fromH.titleBrands;
+          if (fromH.junkSalvageRecords?.length) finalReport.junkSalvageRecords = fromH.junkSalvageRecords;
+          if (fromH.insuranceRecords?.length) finalReport.insuranceRecords = fromH.insuranceRecords;
+          if (fromH.vinChanged) finalReport.vinChanged = fromH.vinChanged;
           if (fromH.theftStatus) finalReport.theftStatus = fromH.theftStatus;
           finalReport.rawApiResponses = { ...(finalReport.rawApiResponses as object || {}), carsxeHistory: carsxeH };
         }
@@ -696,6 +710,7 @@ const App: React.FC = () => {
           const result = (carsxeT as { result?: unknown }).result;
           const fromT = mapTheftCheckToReportFields(result as import('./services/carsxeApiService').CarsXeTheftResponse);
           if (fromT.theftStatus) finalReport.theftStatus = fromT.theftStatus;
+          if (fromT.lienTheftEvents?.length) finalReport.lienTheftEvents = fromT.lienTheftEvents;
           finalReport.rawApiResponses = { ...(finalReport.rawApiResponses as object || {}), carsxeTheft: carsxeT };
         }
         if (rawData?.vehicleSpecs?.success) {
@@ -731,13 +746,13 @@ const App: React.FC = () => {
         
         if (!hasEnoughData) {
           setShowInsufficientDataModal(true);
-          setPendingEmailReport({ email: customerEmail!, vin, token: purchaseTokenValue, reportsRemaining: reportsRemainingValue, orderId: purchaseOrderId });
+          setPendingEmailReport({ email: customerEmail!, vin, token: purchaseTokenValue, reportsRemaining: reportsRemainingValue, orderId: purchaseOrderId, lang: emailLang });
           return;
         }
         
-        setPendingEmailReport({ email: customerEmail!, vin, token: purchaseTokenValue, reportsRemaining: reportsRemainingValue, orderId: purchaseOrderId });
+        setPendingEmailReport({ email: customerEmail!, vin, token: purchaseTokenValue, reportsRemaining: reportsRemainingValue, orderId: purchaseOrderId, lang: emailLang });
       } else if (customerEmail) {
-        setPendingEmailReport({ email: customerEmail, vin, reportsRemaining: undefined, orderId });
+        setPendingEmailReport({ email: customerEmail, vin, reportsRemaining: undefined, orderId, lang: emailLang });
         if (orderId) setCurrentReportOrderId(orderId);
       }
       
@@ -815,6 +830,10 @@ const App: React.FC = () => {
           const fromHistory = mapCarsXeHistoryToReportFields(historyRes.result);
           if (fromHistory.mileageHistory?.length) merged.mileageHistory = fromHistory.mileageHistory;
           if (fromHistory.damages?.length) merged.damages = fromHistory.damages;
+          if (fromHistory.titleBrands?.length) merged.titleBrands = fromHistory.titleBrands;
+          if (fromHistory.junkSalvageRecords?.length) merged.junkSalvageRecords = fromHistory.junkSalvageRecords;
+          if (fromHistory.insuranceRecords?.length) merged.insuranceRecords = fromHistory.insuranceRecords;
+          if (fromHistory.vinChanged) merged.vinChanged = fromHistory.vinChanged;
           if (fromHistory.theftStatus) merged.theftStatus = fromHistory.theftStatus;
           merged.rawApiResponses = { ...(merged.rawApiResponses as object || {}), carsxeHistory: historyRes };
         }
@@ -824,6 +843,7 @@ const App: React.FC = () => {
       if (theftRes.success && theftRes.result) {
         const fromTheft = mapTheftCheckToReportFields(theftRes.result);
         if (fromTheft.theftStatus) merged.theftStatus = fromTheft.theftStatus;
+        if (fromTheft.lienTheftEvents?.length) merged.lienTheftEvents = fromTheft.lienTheftEvents;
         merged.rawApiResponses = { ...(merged.rawApiResponses as object || {}), carsxeTheft: theftRes };
       }
 
@@ -986,6 +1006,7 @@ const App: React.FC = () => {
             vin={vinForOrder}
             planIndex={planIndexForOrder}
             email={orderEmail ?? undefined}
+            lang={lang}
             t={t}
           />
         )}

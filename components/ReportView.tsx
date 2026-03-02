@@ -1,7 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { CarReport, type ReportAnalysis, type ServiceEventRecord } from '../types';
 import { getReportAnalysis, translateServiceEventTexts } from '../services/geminiService';
+import { enrichReportFromRawCarsXe } from '../services/carsxeApiService';
 import type { Translations } from '../constants/translations';
 import { getTranslations } from '../constants/translations';
 // @ts-expect-error html2pdf.js neturi TypeScript tipų
@@ -15,7 +16,7 @@ interface ReportViewProps {
   onSaveReport?: () => Promise<void>;
   onSupplementReport?: (vin: string, opts: { useServiceHistory: boolean; useVinLookup: boolean; useVehicleSpecs?: boolean; useCarsXeHistory?: boolean }) => Promise<void>;
   supplementLoading?: boolean;
-  pendingEmailReport?: { email: string; vin: string; token?: string; reportsRemaining?: number; orderId?: string } | null;
+  pendingEmailReport?: { email: string; vin: string; token?: string; reportsRemaining?: number; orderId?: string; lang?: string } | null;
   onEmailWithPdfSent?: () => void;
   orderId?: string | null;
 }
@@ -138,6 +139,8 @@ function formatValue(val: unknown, t?: { report: { yes: string; no: string } }):
 }
 
 const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave, onSaveReport, onSupplementReport, supplementLoading, pendingEmailReport, onEmailWithPdfSent, orderId }) => {
+  /** Iš raw CarsXE duomenų papildo ataskaitą – rodo VIN keitimą, junk/salvage, draudimą, lien/theft ir senesnėse išsaugotose ataskaitose */
+  const displayReport = useMemo(() => enrichReportFromRawCarsXe(report), [report]);
   const [showRawApi, setShowRawApi] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [saveCloudLoading, setSaveCloudLoading] = useState(false);
@@ -195,7 +198,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
           await fetch('/api/send-order-email', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ to: pendingEmailReport.email, vin: report.vin, lang, token: pendingEmailReport.token, reportsRemaining: pendingEmailReport.reportsRemaining, orderId: pendingEmailReport.orderId ?? orderId }),
+            body: JSON.stringify({ to: pendingEmailReport.email, vin: report.vin, lang: pendingEmailReport.lang ?? lang, token: pendingEmailReport.token, reportsRemaining: pendingEmailReport.reportsRemaining, orderId: pendingEmailReport.orderId ?? orderId }),
           });
         } catch (_) {}
         return;
@@ -224,7 +227,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
         await fetch('/api/send-order-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ to: pendingEmailReport.email, vin: report.vin, lang, pdfBase64, token: pendingEmailReport.token, reportsRemaining: pendingEmailReport.reportsRemaining, orderId: pendingEmailReport.orderId ?? orderId }),
+          body: JSON.stringify({ to: pendingEmailReport.email, vin: report.vin, lang: pendingEmailReport.lang ?? lang, pdfBase64, token: pendingEmailReport.token, reportsRemaining: pendingEmailReport.reportsRemaining, orderId: pendingEmailReport.orderId ?? orderId }),
         });
       } catch (e) {
         console.error('[ReportView] Email su PDF klaida:', e);
@@ -234,7 +237,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
           await fetch('/api/send-order-email', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ to: pendingEmailReport.email, vin: report.vin, lang, token: pendingEmailReport.token, reportsRemaining: pendingEmailReport.reportsRemaining, orderId: pendingEmailReport.orderId ?? orderId }),
+            body: JSON.stringify({ to: pendingEmailReport.email, vin: report.vin, lang: pendingEmailReport.lang ?? lang, token: pendingEmailReport.token, reportsRemaining: pendingEmailReport.reportsRemaining, orderId: pendingEmailReport.orderId ?? orderId }),
           });
         } catch (_) {}
       }
@@ -331,10 +334,10 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
         <div className="bg-slate-900 p-6 sm:p-8 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div className="w-full md:w-auto">
             <div className="text-indigo-400 text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-1">{t.report.fullReport}</div>
-            <h2 className="text-2xl sm:text-3xl font-bold leading-tight">{report.year} {report.make} {report.model}</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold leading-tight">{displayReport.year} {displayReport.make} {displayReport.model}</h2>
             <div className="flex items-center gap-2 mt-2 opacity-70">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              <span className="font-mono text-sm break-all">{report.vin}</span>
+              <span className="font-mono text-sm break-all">{displayReport.vin}</span>
             </div>
             {orderId && (
               <div className="flex items-center gap-2 mt-1 opacity-70">
@@ -346,13 +349,13 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
           <div className="flex items-center gap-2 sm:gap-3 w-full md:w-auto justify-between md:justify-end">
             <div
               className={`px-2 py-1 sm:px-4 sm:py-2 rounded-full text-[9px] sm:text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 sm:gap-2 shrink-0 ${
-                report.theftStatus === 'flagged'
+                displayReport.theftStatus === 'flagged'
                   ? 'bg-rose-500/20 text-rose-400 border border-rose-500/50'
                   : 'bg-emerald-500/20 text-emerald-600 border border-emerald-500/50'
               }`}
-              title={report.theftStatus === 'unknown' ? t.report.theftUnknownTooltip : undefined}
+              title={displayReport.theftStatus === 'unknown' ? t.report.theftUnknownTooltip : undefined}
             >
-              {report.theftStatus === 'flagged' ? (
+              {displayReport.theftStatus === 'flagged' ? (
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
                   <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
                   <line x1="12" y1="9" x2="12" y2="13"/>
@@ -365,12 +368,12 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                 </svg>
               )}
               <span className="hidden sm:inline">
-                {report.theftStatus === 'flagged'
+                {displayReport.theftStatus === 'flagged'
                   ? t.report.theftFlagged
                   : (t.report.theftNoDataFound ?? t.report.theftClear)}
               </span>
               <span className="sm:hidden">
-                {report.theftStatus === 'flagged' ? '!' : '✓'}
+                {displayReport.theftStatus === 'flagged' ? '!' : '✓'}
               </span>
             </div>
             {canSave && onSaveReport && (
@@ -469,7 +472,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
         <div className="w-full px-6 sm:px-8 py-6 sm:py-8 border-t border-slate-100">
           <h4 className="text-slate-900 font-bold text-sm sm:text-base mb-4">{t.report.technicalSpecs}</h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
-            {Object.entries(getFullTechnicalData(report))
+            {Object.entries(getFullTechnicalData(displayReport))
               .filter(([, val]) => val != null && String(val).trim() !== '')
               .map(([key, val]) => (
               <div key={key} className="flex justify-between py-3 border-b border-slate-200/50">
@@ -500,11 +503,11 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-600"><circle cx="12" cy="12" r="10"/><path d="m16 10-4 4-2-2"/></svg>
                   {t.report.mileageHistory}
                 </h3>
-                <span className="text-xs sm:text-sm text-slate-500 font-medium">{t.report.lastMileage} {report.mileageHistory[report.mileageHistory.length - 1].value.toLocaleString()} km</span>
+                <span className="text-xs sm:text-sm text-slate-500 font-medium">{t.report.lastMileage} {displayReport.mileageHistory[displayReport.mileageHistory.length - 1].value.toLocaleString()} km</span>
               </div>
               <div className="h-48 sm:h-64 w-full bg-slate-50 rounded-2xl p-2 sm:p-4 border border-slate-100">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={report.mileageHistory}>
+                  <LineChart data={displayReport.mileageHistory}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                     <XAxis dataKey="date" stroke="#94a3b8" fontSize={10} tickLine={false} axisLine={false} />
                     <YAxis stroke="#94a3b8" fontSize={10} tickLine={false} axisLine={false} tickFormatter={(val) => `${val/1000}k`} />
@@ -519,7 +522,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
             </div>
 
             {/* Serviso įrašai – pilna istorija iš API */}
-            {report.serviceEvents && report.serviceEvents.length > 0 && (
+            {displayReport.serviceEvents && displayReport.serviceEvents.length > 0 && (
               <div>
                 <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
                   <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
@@ -588,6 +591,110 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
               </div>
             )}
 
+            {/* VIN buvo keistas */}
+            {displayReport.vinChanged && (
+              <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-amber-600"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <span className="font-semibold">{t.report.vinChanged ?? 'VIN was changed'}</span>
+              </div>
+            )}
+
+            {/* Junk & Salvage įrašai */}
+            {displayReport.junkSalvageRecords && displayReport.junkSalvageRecords.length > 0 && (
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2 mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-amber-600"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                  {t.report.junkSalvage ?? 'Junk & Salvage records'}
+                </h3>
+                <p className="text-sm text-slate-600 mb-4">{t.report.junkSalvageDesc ?? 'Vehicle history from junk and salvage auctions'}</p>
+                <div className="space-y-4">
+                  {displayReport.junkSalvageRecords.map((r, idx) => (
+                    <div key={idx} className="p-5 rounded-2xl border border-amber-100 bg-amber-50/50 hover:border-amber-200 transition-colors">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        {r.entityName && <span className="font-semibold text-slate-900">{r.entityName}</span>}
+                        {r.location && <span className="text-xs text-slate-500">{r.location}</span>}
+                        {r.obtainedDate && <span className="text-xs text-slate-500">{r.obtainedDate}</span>}
+                      </div>
+                      {r.disposition && <p className="text-sm text-slate-600">{r.disposition}</p>}
+                      {r.intendedForExport && <p className="text-xs text-slate-500 mt-1">{t.report.intendedForExport ?? 'Export'}: {r.intendedForExport}</p>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Draudimo įrašai */}
+            {displayReport.insuranceRecords && displayReport.insuranceRecords.length > 0 && (
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2 mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-600"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  {t.report.insuranceRecords ?? 'Insurance records'}
+                </h3>
+                <p className="text-sm text-slate-600 mb-4">{t.report.insuranceRecordsDesc ?? 'Insurance companies that have reported on this vehicle'}</p>
+                <div className="space-y-4">
+                  {displayReport.insuranceRecords.map((r, idx) => (
+                    <div key={idx} className="p-5 rounded-2xl border border-slate-100 bg-slate-50/50 hover:border-slate-200 transition-colors">
+                      <div className="flex flex-wrap items-center gap-2">
+                        {r.entityName && <span className="font-semibold text-slate-900">{r.entityName}</span>}
+                        {r.location && <span className="text-xs text-slate-500">{r.location}</span>}
+                        {r.obtainedDate && <span className="text-xs text-slate-500">{r.obtainedDate}</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Įkeitimai / vagystės įvykiai */}
+            {displayReport.lienTheftEvents && displayReport.lienTheftEvents.length > 0 && (
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2 mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-rose-600"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+                  {t.report.lienTheftEvents ?? 'Lien & Theft events'}
+                </h3>
+                <p className="text-sm text-slate-600 mb-4">{t.report.lienTheftEventsDesc ?? 'Lien and theft records from Lien & Theft Check'}</p>
+                <div className="space-y-4">
+                  {displayReport.lienTheftEvents.map((e, idx) => (
+                    <div key={idx} className="p-5 rounded-2xl border border-rose-100 bg-rose-50/50 hover:border-rose-200 transition-colors">
+                      <p className="font-semibold text-slate-900">{e.description}</p>
+                      <div className="flex flex-wrap gap-2 mt-2 text-xs text-slate-500">
+                        {e.location && <span>{e.location}</span>}
+                        {e.date && <span>{e.date}</span>}
+                        {e.lienHolder && <span>{e.lienHolder}</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Pavadinimai ant titulo (CarsXE brandsInformation) */}
+            {displayReport.titleBrands && displayReport.titleBrands.length > 0 && (
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2 mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-600"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                  {t.report.titleBrands ?? 'Title brands'}
+                </h3>
+                <p className="text-sm text-slate-600 mb-4">{t.report.titleBrandsDesc ?? 'CarsXE / NMVTIS brands from vehicle history'}</p>
+                <div className="space-y-4">
+                  {displayReport.titleBrands.map((b, idx) => (
+                    <div key={idx} className="p-5 rounded-2xl border border-slate-100 bg-slate-50/50 hover:border-slate-200 transition-colors">
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                        <span className="font-mono text-xs font-bold text-indigo-600 bg-indigo-100 px-2 py-0.5 rounded">{b.code}</span>
+                        <span className="font-semibold text-slate-900">{b.name}</span>
+                        {b.date && (
+                          <span className="text-xs text-slate-500">{b.date}</span>
+                        )}
+                      </div>
+                      {b.description && (
+                        <p className="text-sm text-slate-600 leading-relaxed">{b.description}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             </div>
 
           {/* Šoninis skydelis */}
@@ -596,7 +703,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
             <div className="bg-indigo-50 rounded-2xl p-6 border border-indigo-100">
               <h4 className="text-indigo-900 font-bold mb-4 text-sm sm:text-base">{t.report.marketValue}</h4>
               <div className="text-3xl sm:text-4xl font-extrabold text-indigo-600 mb-1">
-                ~{report.marketValue.average.toLocaleString()} €
+                ~{displayReport.marketValue.average.toLocaleString()} €
               </div>
               <p className="text-xs text-indigo-700/70 mb-6">{t.report.marketValueBased}</p>
               <div className="space-y-3">
@@ -608,8 +715,8 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                   <div className="bg-indigo-600 h-full w-2/3 ml-[15%]"></div>
                 </div>
                 <div className="flex justify-between text-xs font-bold text-indigo-900">
-                  <span>{report.marketValue.min.toLocaleString()} €</span>
-                  <span>{report.marketValue.max.toLocaleString()} €</span>
+                  <span>{displayReport.marketValue.min.toLocaleString()} €</span>
+                  <span>{displayReport.marketValue.max.toLocaleString()} €</span>
                 </div>
               </div>
             </div>

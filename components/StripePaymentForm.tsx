@@ -12,6 +12,8 @@ interface StripePaymentFormProps {
   pendingVin?: string;
   pendingEmail?: string;
   pendingPlanIndex?: number;
+  /** Kalba, kurią vartotojas pasirinko – išsaugoma ir naudojama el. laiškui grįžus iš mokėjimo */
+  pendingLang?: string;
 }
 
 export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
@@ -23,6 +25,7 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
   pendingVin,
   pendingEmail,
   pendingPlanIndex,
+  pendingLang,
 }) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -36,7 +39,7 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
     setError(null);
     if (pendingVin) {
       try {
-        sessionStorage.setItem(PENDING_ORDER_KEY, JSON.stringify({ vin: pendingVin, email: pendingEmail ?? '', planIndex: pendingPlanIndex ?? 0 }));
+        sessionStorage.setItem(PENDING_ORDER_KEY, JSON.stringify({ vin: pendingVin, email: pendingEmail ?? '', planIndex: pendingPlanIndex ?? 0, lang: pendingLang ?? undefined }));
       } catch (_) {}
     }
     const { error: confirmError } = await stripe.confirmPayment({
