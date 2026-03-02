@@ -32,10 +32,16 @@ const App: React.FC = () => {
   const { user } = useAuth();
   useGoogleAnalytics();
   const [showLanguageBar, setShowLanguageBar] = useState(false);
-  const [lang, setLang] = useState<LangCode>(() => {
+  const [lang, setLangState] = useState<LangCode>(() => {
     const saved = localStorage.getItem('vinscanner_lang');
     return (saved as LangCode) || 'en';
   });
+  
+  const setLang = (newLang: LangCode) => {
+    setLangState(newLang);
+    localStorage.setItem('vinscanner_lang', newLang);
+  };
+  
   const [report, setReport] = useState<CarReport | null>(null);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
