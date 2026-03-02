@@ -148,8 +148,8 @@ function convertAmericanToEuropean(value: string): string {
   return value;
 }
 
-/** Gauna visus techninius duomenis iš OE VIN Lookup arba CarsXE (Automobilio specifikacijos), priklausomai nuo to kuris API suveikė. CarsXE duomenys konvertuojami į europietiškus vienetus. */
-function getFullTechnicalData(report: CarReport): Record<string, string> {
+/** Gauna visus techninius duomenis iš OE VIN Lookup arba CarsXE. Kai convertToEuropean=true ir duomenys iš CarsXE, konvertuoja vienetus. */
+function getFullTechnicalData(report: CarReport, convertToEuropean = true): Record<string, string> {
   const raw = report.rawApiResponses as Record<string, { success?: boolean; result?: Record<string, unknown>; attributes?: Record<string, string> } | undefined> | undefined;
   const vinLookup = raw?.vinLookup;
   const vehicleSpecs = raw?.vehicleSpecs;
@@ -165,11 +165,13 @@ function getFullTechnicalData(report: CarReport): Record<string, string> {
     if (Object.keys(out).length > 0) return out;
   }
 
+  const convert = (v: string) => (convertToEuropean ? convertAmericanToEuropean(v) : v);
+
   if (vehicleSpecs?.success && vehicleSpecs?.result?.attributes) {
     const attrs = vehicleSpecs.result.attributes as Record<string, string>;
     const out: Record<string, string> = {};
     for (const [k, v] of Object.entries(attrs)) {
-      out[k] = convertAmericanToEuropean(v ?? '');
+      out[k] = convert(v ?? '');
     }
     return out;
   }
@@ -178,12 +180,17 @@ function getFullTechnicalData(report: CarReport): Record<string, string> {
     const attrs = vehicleSpecs.attributes as Record<string, string>;
     const out: Record<string, string> = {};
     for (const [k, v] of Object.entries(attrs)) {
-      out[k] = convertAmericanToEuropean(v ?? '');
+      out[k] = convert(v ?? '');
     }
     return out;
   }
 
   return report.technicalSpecs;
+}
+
+/** Grąžina raw API key kaip skaitomą etiketę (be vertimų) */
+function getRawApiLabel(key: string): string {
+  return key.replace(/_/g, ' ');
 }
 
 function normalizeFieldKey(key: string): string {
@@ -714,16 +721,19 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
             )}
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
-            {Object.entries(getFullTechnicalData(displayReport))
+            {Object.entries(getFullTechnicalData(displayReport, useGeminiTranslation))
               .filter(([, val]) => val != null && String(val).trim() !== '')
               .map(([key, val]) => {
                 const displayVal = useGeminiTranslation && translatedTechnicalSpecs?.[key] != null
                   ? translatedTechnicalSpecs[key]
                   : val;
+                const label = useGeminiTranslation
+                  ? (key === 'fuelType' ? t.report.fuelType : key === 'power' ? t.report.power : key === 'engine' ? t.report.engine : key === 'transmission' ? t.report.transmission : key === 'bodyType' ? t.report.bodyType : key === 'colour' ? t.report.colour : key === 'co2' ? 'CO₂' : (translatedTechnicalLabels?.[key] ?? getTechnicalLabel(key, t)))
+                  : getRawApiLabel(key);
                 return (
               <div key={key} className="flex justify-between py-3 border-b border-slate-200/50">
                 <span className="text-slate-500 text-xs sm:text-sm capitalize">
-                  {key === 'fuelType' ? t.report.fuelType : key === 'power' ? t.report.power : key === 'engine' ? t.report.engine : key === 'transmission' ? t.report.transmission : key === 'bodyType' ? t.report.bodyType : key === 'colour' ? t.report.colour : key === 'co2' ? 'CO₂' : (useGeminiTranslation ? translatedTechnicalLabels?.[key] : undefined) ?? getTechnicalLabel(key, t)}
+                  {label}
                 </span>
                 <span className="text-slate-900 text-xs sm:text-sm font-semibold text-right">{displayVal}</span>
               </div>
