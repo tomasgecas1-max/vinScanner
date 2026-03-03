@@ -227,7 +227,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
   const [reportAnalysisLoading, setReportAnalysisLoading] = useState(false);
   const [reportAnalysisError, setReportAnalysisError] = useState<string | null>(null);
   const [analysisCooldownSec, setAnalysisCooldownSec] = useState(0);
-  const [useGeminiTranslation, setUseGeminiTranslation] = useState(false);
+  const [useGeminiTranslation, setUseGeminiTranslation] = useState(true);
   const showOriginalServiceTexts = !useGeminiTranslation;
   const showOriginalTitleBrands = !useGeminiTranslation;
   const [geminiTranslatedTitleBrands, setGeminiTranslatedTitleBrands] = useState<Record<string, { name: string; description: string }> | null>(null);
@@ -576,7 +576,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
               <button
                 type="button"
                 onClick={() => setUseGeminiTranslation(!useGeminiTranslation)}
-                title={t.report.translateReportWithGemini ?? 'Translate report with Gemini'}
+                title={useGeminiTranslation ? (t.report.showOriginal ?? 'Show original') : (t.report.translateReportWithGemini ?? 'Translate report with Gemini')}
                 className={`flex items-center gap-2 shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full font-medium text-xs sm:text-sm transition-all duration-200 ${
                   useGeminiTranslation
                     ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/30 hover:bg-indigo-400'
@@ -588,7 +588,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                   <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
                   <path d="M2 12h20"/>
                 </svg>
-                <span className="whitespace-nowrap">{useGeminiTranslation ? (lang.toUpperCase() + ' ✓') : (t.report.translateReportWithGemini ?? 'Translate')}</span>
+                <span className="whitespace-nowrap">{useGeminiTranslation ? (t.report.showOriginal ?? 'Show original') : (t.report.translateReportWithGemini ?? 'Translate')}</span>
               </button>
             )}
             <div
