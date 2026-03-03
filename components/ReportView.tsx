@@ -642,7 +642,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
         <div className="fixed inset-0 z-[100] flex flex-col items-center pt-12 sm:pt-20 bg-slate-900/40 backdrop-blur-xl">
           <div className="w-full max-w-sm bg-white/95 backdrop-blur rounded-2xl shadow-2xl p-8 flex flex-col items-center gap-6 animate-in zoom-in-95 duration-300 mx-4">
             <p className="text-slate-900 font-bold text-lg text-center">{t.report.translatingReport ?? 'Translating…'}</p>
-            <p className="text-indigo-600 text-sm uppercase tracking-wider font-medium">{lang.toUpperCase()} (Gemini)</p>
+            <p className="text-indigo-600 text-sm uppercase tracking-wider font-medium">{lang.toUpperCase()}</p>
             <div className="w-full">
               <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
                 <div
@@ -761,65 +761,6 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
           </div>
         </div>
 
-        {onSupplementReport && (
-          <div className="px-6 sm:px-8 py-4 bg-slate-50 border-b border-slate-100">
-            <div className="flex flex-wrap items-center gap-4">
-              <span className="text-sm font-semibold text-slate-700">{t.report.supplementTitle}</span>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={supplementServiceHistory}
-                  onChange={(e) => setSupplementServiceHistory(e.target.checked)}
-                  className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                />
-                <span className="text-sm text-slate-600">{SOURCE_LABELS.serviceHistory}</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={supplementVinLookup}
-                  onChange={(e) => setSupplementVinLookup(e.target.checked)}
-                  className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                />
-                <span className="text-sm text-slate-600">{SOURCE_LABELS.vinLookup}</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={supplementVehicleSpecs}
-                  onChange={(e) => setSupplementVehicleSpecs(e.target.checked)}
-                  className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                />
-                <span className="text-sm text-slate-600">{SOURCE_LABELS.vehicleSpecs}</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={supplementCarsXeHistory}
-                  onChange={(e) => setSupplementCarsXeHistory(e.target.checked)}
-                  className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                />
-                <span className="text-sm text-slate-600">{SOURCE_LABELS.carsxeHistory}</span>
-              </label>
-              <button
-                type="button"
-                onClick={() => onSupplementReport(report.vin, { useServiceHistory: supplementServiceHistory, useVinLookup: supplementVinLookup, useVehicleSpecs: supplementVehicleSpecs, useCarsXeHistory: supplementCarsXeHistory })}
-                disabled={supplementLoading || (!supplementServiceHistory && !supplementVinLookup && !supplementVehicleSpecs && !supplementCarsXeHistory)}
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-colors flex items-center gap-2"
-              >
-                {supplementLoading ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    {t.report.supplementLoading}
-                  </>
-                ) : (
-                  t.report.supplementButton
-                )}
-              </button>
-            </div>
-          </div>
-        )}
-
         {/* Techniniai duomenys – viršuje, viso ekrano plotis, 2 stulpeliai */}
         <div className="w-full px-6 sm:px-8 py-6 sm:py-8 border-t border-slate-100">
           <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
@@ -904,7 +845,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                     {t.report.serviceEvents}
                   </h3>
                   {useGeminiTranslation && (
-                    <span className="text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full">{lang.toUpperCase()} (Gemini)</span>
+                    <span className="text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full">{lang.toUpperCase()}</span>
                   )}
                 </div>
                 {serviceTranslationLoading && (
@@ -1089,17 +1030,12 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                 </h3>
                 <p className="text-sm text-slate-600 mb-4">{t.report.titleBrandsDesc ?? 'CarsXE / NMVTIS brands from vehicle history'}</p>
 
-                {useGeminiTranslation && (
+                {useGeminiTranslation && titleBrandTranslationLoading && (
+                  <p className="mb-4 text-sm text-indigo-600 font-medium">{t.report?.titleBrandTranslating ?? 'Translating…'}</p>
+                )}
+                {useGeminiTranslation && titleBrandTranslationError && !titleBrandTranslationLoading && (
                   <div className="mb-4 p-3 rounded-xl border border-amber-200 bg-amber-50/80">
-                    {titleBrandTranslationLoading && (
-                      <p className="text-sm text-amber-700">{t.report?.titleBrandTranslating ?? 'Translating with Gemini…'}</p>
-                    )}
-                    {titleBrandTranslationError && !titleBrandTranslationLoading && (
-                      <p className="text-sm text-amber-800 font-medium">{titleBrandTranslationError}</p>
-                    )}
-                    {!titleBrandTranslationLoading && !titleBrandTranslationError && (
-                      <p className="text-sm font-medium text-amber-800">{t.report?.titleBrandAutoTranslationNote ?? 'Automatic translation (Gemini)'}</p>
-                    )}
+                    <p className="text-sm text-amber-800 font-medium">{titleBrandTranslationError}</p>
                   </div>
                 )}
 
