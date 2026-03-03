@@ -438,7 +438,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
       damages: 'Užfiksuotos Žalos',
       damageLabel: 'Žala:',
       translateReportWithGemini: 'Versti ataskaitą su Gemini',
-      translatingReport: 'Vertima…',
+      translatingReport: 'Vyksta ataskaitos vertimas',
       cancelTranslation: 'Atšaukti vertimą',
       titleBrands: 'Pavadinimai ant titulo',
       titleBrandsDesc: 'CarsXE / NMVTIS ženklai iš transporto priemonės istorijos',
@@ -749,7 +749,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
       damages: 'Recorded damages',
       damageLabel: 'Damage:',
       translateReportWithGemini: 'Translate report with Gemini',
-      translatingReport: 'Translating…',
+      translatingReport: 'Translating report',
       cancelTranslation: 'Cancel translation',
       titleBrands: 'Title brands',
       titleBrandsDesc: 'CarsXE / NMVTIS brands from vehicle history',
@@ -1060,7 +1060,8 @@ const translationsMap: Record<SupportedLang, Translations> = {
       damages: 'Erfasste Schäden',
       damageLabel: 'Schaden:',
       translateReportWithGemini: 'Bericht mit Gemini übersetzen',
-      translatingReport: 'Übersetze…',
+      translatingReport: 'Bericht wird übersetzt',
+      cancelTranslation: 'Übersetzung abbrechen',
       titleBrands: 'Titelmarken',
       titleBrandsDesc: 'CarsXE / NMVTIS Marken aus Fahrzeughistorie',
       titleBrandStatusCheck: 'Ob Ereignisse registriert',
@@ -1817,12 +1818,56 @@ const translationsMap: Record<SupportedLang, Translations> = {
   },
 };
 
+/** Vertimo popup tekstai – visomis kalbomis */
+const TRANSLATION_POPUP: Partial<Record<SupportedLang, { translatingReport: string; cancelTranslation: string }>> = {
+  lt: { translatingReport: 'Vyksta ataskaitos vertimas', cancelTranslation: 'Atšaukti vertimą' },
+  en: { translatingReport: 'Translating report', cancelTranslation: 'Cancel translation' },
+  de: { translatingReport: 'Bericht wird übersetzt', cancelTranslation: 'Übersetzung abbrechen' },
+  pl: { translatingReport: 'Tłumaczenie raportu', cancelTranslation: 'Anuluj tłumaczenie' },
+  fr: { translatingReport: 'Traduction du rapport', cancelTranslation: 'Annuler la traduction' },
+  es: { translatingReport: 'Traduciendo informe', cancelTranslation: 'Cancelar traducción' },
+  it: { translatingReport: 'Traduzione report', cancelTranslation: 'Annulla traduzione' },
+  nl: { translatingReport: 'Rapport vertalen', cancelTranslation: 'Vertaling annuleren' },
+  cs: { translatingReport: 'Překlad reportu', cancelTranslation: 'Zrušit překlad' },
+  uk: { translatingReport: 'Переклад звіту', cancelTranslation: 'Скасувати переклад' },
+  ro: { translatingReport: 'Traducere raport', cancelTranslation: 'Anulează traducerea' },
+  sv: { translatingReport: 'Översätter rapport', cancelTranslation: 'Avbryt översättning' },
+  el: { translatingReport: 'Μετάφραση αναφοράς', cancelTranslation: 'Ακύρωση μετάφρασης' },
+  pt: { translatingReport: 'A traduzir relatório', cancelTranslation: 'Cancelar tradução' },
+  hu: { translatingReport: 'Jelentés fordítása', cancelTranslation: 'Fordítás megszakítása' },
+  bg: { translatingReport: 'Превод на справка', cancelTranslation: 'Отказ от превод' },
+  sr: { translatingReport: 'Превод извештаја', cancelTranslation: 'Откажи превод' },
+  da: { translatingReport: 'Oversætter rapport', cancelTranslation: 'Annuller oversættelse' },
+  no: { translatingReport: 'Oversetter rapport', cancelTranslation: 'Avbryt oversettelse' },
+  fi: { translatingReport: 'Raportin kääntäminen', cancelTranslation: 'Peruuta käännös' },
+  sk: { translatingReport: 'Preklad reportu', cancelTranslation: 'Zrušiť preklad' },
+  hr: { translatingReport: 'Prijevod izvještaja', cancelTranslation: 'Odustani od prijevoda' },
+  bs: { translatingReport: 'Prevod izvještaja', cancelTranslation: 'Otkaži prevod' },
+  sq: { translatingReport: 'Përkthimi i raportit', cancelTranslation: 'Anulo përkthimin' },
+  sl: { translatingReport: 'Prevajanje poročila', cancelTranslation: 'Prekliči prevod' },
+  lv: { translatingReport: 'Pārskata tulkošana', cancelTranslation: 'Atcelt tulkojumu' },
+  mk: { translatingReport: 'Превод на извештај', cancelTranslation: 'Откажи превод' },
+  et: { translatingReport: 'Aruande tõlkimine', cancelTranslation: 'Tühista tõlge' },
+  ca: { translatingReport: 'Traducció de l\'informe', cancelTranslation: 'Cancel·la la traducció' },
+  lb: { translatingReport: 'Iwwersetzung vum Rapport', cancelTranslation: 'Iwwersetzung ofbriechen' },
+  cnr: { translatingReport: 'Prevod izvještaja', cancelTranslation: 'Otkaži prevod' },
+  mt: { translatingReport: 'Traduzzjoni tar-rapport', cancelTranslation: 'Ikkanċella t-traduzzjoni' },
+  is: { translatingReport: 'Þýða skýrslu', cancelTranslation: 'Hætta við þýðingu' },
+  tr: { translatingReport: 'Rapor çevriliyor', cancelTranslation: 'Çeviriyi iptal et' },
+};
+
 /**
  * Gauna vertimus pagal kalbą. Jei kalba nepalaikoma – grąžina fallback (en).
+ * Papildomai įtraukia vertimo popup tekstus (translatingReport, cancelTranslation) visomis kalbomis.
  */
 export function getTranslations(lang: LangCode | string): Translations {
   const key = SUPPORTED_LANGUAGES.includes(lang as SupportedLang) ? (lang as SupportedLang) : FALLBACK_LANG;
-  return translationsMap[key];
+  const t = translationsMap[key];
+  const popup = TRANSLATION_POPUP[key] ?? TRANSLATION_POPUP[FALLBACK_LANG];
+  if (popup && t?.report) {
+    return { ...t, report: { ...t.report, translatingReport: popup.translatingReport, cancelTranslation: popup.cancelTranslation } };
+  }
+  return t;
 }
 
 /** Tėvinėms komponentams: naudok getTranslations(lang) arba translations[lang] (tik lt|en|de) */
