@@ -552,8 +552,21 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
     }
   };
 
+  const translationLoading = useGeminiTranslation && lang !== 'en' && (
+    serviceTranslationLoading || titleBrandTranslationLoading || technicalSpecsTranslationLoading
+  );
+
   return (
-    <div className="max-w-5xl mx-auto px-4 pb-20 animate-in fade-in slide-in-from-bottom-8 duration-700">
+    <div className="max-w-5xl mx-auto px-4 pb-20 animate-in fade-in slide-in-from-bottom-8 duration-700 relative">
+      {translationLoading && (
+        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-slate-900/70 backdrop-blur-md rounded-3xl">
+          <div className="w-12 h-12 border-4 border-indigo-400/30 border-t-indigo-400 rounded-full animate-spin mb-6" />
+          <p className="text-white font-bold text-lg">{t.report.translatingReport ?? 'Translating…'}</p>
+          <p className="text-indigo-300/90 text-sm mt-1 uppercase tracking-wider font-medium">
+            {lang.toUpperCase()} (Gemini)
+          </p>
+        </div>
+      )}
       <div ref={reportPdfRef} className="bg-white rounded-3xl border border-slate-200 shadow-2xl overflow-hidden">
         {/* Ataskaitos antraštė */}
         <div className="bg-slate-900 p-6 sm:p-8 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
