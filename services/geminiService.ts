@@ -188,6 +188,27 @@ export const getReportAnalysis = async (report: CarReport): Promise<ReportAnalys
           .map(([k, v]) => `${k}: ${v}`)
           .join(". ")
       : "Techninių specifikacijų nėra.";
+  const junkStr =
+    report.junkSalvageRecords?.length > 0
+      ? "Junk/Salvage: " + report.junkSalvageRecords
+          .map((j) => [j.entityName, j.disposition, j.location, j.obtainedDate].filter(Boolean).join(", "))
+          .join("; ")
+      : "Junk/Salvage įrašų nėra.";
+  const insStr =
+    report.insuranceRecords?.length > 0
+      ? "Draudimas: " + report.insuranceRecords
+          .map((i) => [i.entityName, i.disposition, i.location, i.obtainedDate].filter(Boolean).join(", "))
+          .join("; ")
+      : "Draudimo įrašų nėra.";
+  const brandsStr =
+    report.titleBrands?.length > 0
+      ? "Titulo ženklai: " + report.titleBrands.map((b) => `${b.name} (${b.code})`).join(", ")
+      : "Titulo ženklų nėra.";
+  const lienStr =
+    report.lienTheftEvents?.length > 0
+      ? "Lien/Theft: " + report.lienTheftEvents.map((e) => `${e.type}: ${e.description}`).join("; ")
+      : "Lien/Theft įrašų nėra.";
+  const vinChangedStr = report.vinChanged === true ? "VIN buvo keistas!" : "";
 
   const context = [
     `Automobilis: ${report.year} ${report.make} ${report.model}, VIN: ${report.vin}.`,
@@ -196,14 +217,22 @@ export const getReportAnalysis = async (report: CarReport): Promise<ReportAnalys
     `Žalos / remontai: ${damagesStr}`,
     theftStr,
     specsStr,
-  ].join(" ");
+    junkStr,
+    insStr,
+    brandsStr,
+    lienStr,
+    vinChangedStr,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
-  const prompt = `Remdamasis šia automobilio patikros ataskaitos santrauka, išskirk:
-1) Galimas problemines automobilio vietas arba rizikas (pvz. didelė rida, žalos, trūkstami servisai, vagystės įspėjimas) – trumpai, punktais.
-2) Stipriąsias automobilio puses (pvz. nuosekli serviso istorija, maža rida, jokių žalų, geras techninis stovis) – trumpai, punktais.
+  const prompt = `Pagal šią automobilio patikros ataskaitos santrauką (visus API duomenis):
+1) Išskirk galimas problemines vietas arba rizikas (pvz. SALVAGE, didelė rida, žalos, vagystė, VIN keistas, junk/salvage įrašai) – trumpai, punktais.
+2) Išskirk stipriąsias automobilio puses (pvz. nuosekli serviso istorija, maža rida, jokių žalų).
+3) Parašyk 2–3 sakinius santrauką (summary) – apibendrink svarbiausius įrašus: ką verta žinoti pirkėjui.
 Atsakyk LIETUVIŲ kalba. Kiekvienas punktas – viena aiški frazė. Jei duomenų trūksta, įvertink tik tai, kas pateikta.
 
-Ataskaitos santrauka: ${context}`;
+Ataskaitos duomenys: ${context}`;
 
   const schema = {
     responseMimeType: "application/json" as const,
@@ -212,6 +241,7 @@ Ataskaitos santrauka: ${context}`;
       properties: {
         problemAreas: { type: Type.ARRAY, items: { type: Type.STRING } },
         strongPoints: { type: Type.ARRAY, items: { type: Type.STRING } },
+        summary: { type: Type.STRING },
       },
       required: ["problemAreas", "strongPoints"],
     },
@@ -229,12 +259,13 @@ Ataskaitos santrauka: ${context}`;
       });
       const text = response.text?.trim();
       if (text) {
-        const parsed = JSON.parse(text) as ReportAnalysis;
+        const parsed = JSON.parse(text) as ReportAnalysis & { summary?: string };
         return {
           ok: true,
           data: {
             problemAreas: Array.isArray(parsed.problemAreas) ? parsed.problemAreas : [],
             strongPoints: Array.isArray(parsed.strongPoints) ? parsed.strongPoints : [],
+            summary: typeof parsed.summary === 'string' ? parsed.summary : undefined,
           },
         };
       }

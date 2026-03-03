@@ -292,6 +292,8 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
 
   useEffect(() => {
     setTranslationCancelled(false);
+    setReportAnalysis(null);
+    setReportAnalysisError(null);
   }, [report.vin]);
 
   useEffect(() => {
@@ -529,11 +531,37 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
     return () => clearInterval(id);
   }, [analysisCooldownSec]);
 
+  /** Automatiškai paleidžia AI analizę užkrovus ataskaitą */
+  useEffect(() => {
+    if (!report?.vin || reportAnalysisLoading || reportAnalysis) return;
+    let cancelled = false;
+    setReportAnalysisError(null);
+    setReportAnalysisLoading(true);
+    getReportAnalysis(displayReport).then((result) => {
+      if (cancelled) return;
+      setReportAnalysisLoading(false);
+      if (result.ok) {
+        setReportAnalysis(result.data);
+      } else {
+        setReportAnalysisError(result.error ?? null);
+        if (result.error?.includes('Kvota') || result.error?.includes('quota')) {
+          setAnalysisCooldownSec(60);
+        }
+      }
+    }).catch((e) => {
+      if (cancelled) return;
+      setReportAnalysisLoading(false);
+      if (typeof console !== 'undefined' && console.error) console.error('Report analysis:', e);
+      setReportAnalysisError(t.report.aiAnalysisFailed);
+    });
+    return () => { cancelled = true; };
+  }, [report?.vin]);
+
   const handleRunReportAnalysis = async () => {
     setReportAnalysisError(null);
     setReportAnalysisLoading(true);
     try {
-      const result = await getReportAnalysis(report);
+      const result = await getReportAnalysis(displayReport);
       if (result.ok) {
         setReportAnalysis(result.data);
       } else {
@@ -572,11 +600,12 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
       const filename = `vinscanner-ataskaita-${report.vin}-${new Date().toISOString().slice(0, 10)}.pdf`;
       await html2pdf()
         .set({
-          margin: 10,
+          margin: 12,
           filename,
           image: { type: 'jpeg', quality: 0.95 },
           html2canvas: { scale: 2, useCORS: true, logging: false },
           jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+          pagebreak: { mode: ['avoid-all', 'css'], avoid: '.pdf-avoid-break' },
         })
         .from(el)
         .save();
@@ -645,6 +674,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
         </div>
       )}
       <div ref={reportPdfRef} className="bg-white rounded-3xl border border-slate-200 shadow-2xl overflow-hidden">
+        <style>{`.pdf-avoid-break { break-inside: avoid; page-break-inside: avoid; }`}</style>
         {/* Ataskaitos antraštė */}
         <div className="bg-slate-900 p-6 sm:p-8 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div className="w-full md:w-auto">
@@ -727,7 +757,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
         </div>
 
         {/* Techniniai duomenys – viršuje, viso ekrano plotis, 2 stulpeliai */}
-        <div className="w-full px-6 sm:px-8 py-6 sm:py-8 border-t border-slate-100">
+        <div className="pdf-avoid-break w-full px-6 sm:px-8 py-6 sm:py-8 border-t border-slate-100">
           <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
             <h4 className="text-slate-900 font-bold text-sm sm:text-base">{t.report.technicalSpecs}</h4>
             {useGeminiTranslation && technicalSpecsTranslationLoading && (
@@ -769,7 +799,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
           {/* Ridos ir serviso istorija */}
           <div className="lg:col-span-2 space-y-10 p-6 sm:p-8 lg:p-0">
             {/* Ridos sekcija */}
-            <div>
+            <div className="pdf-avoid-break">
               {rawApi?.serviceHistory?.success === false && (
                 <div className="mb-4 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-sm font-medium flex items-center gap-3">
                   <span className="shrink-0 w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600">
@@ -803,7 +833,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
 
             {/* Serviso įrašai – pilna istorija iš API */}
             {displayReport.serviceEvents && displayReport.serviceEvents.length > 0 && (
-              <div>
+              <div className="pdf-avoid-break">
                 <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
                   <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-600"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="M9 15h6"/></svg>
@@ -827,7 +857,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
                     const orig = report.serviceEvents?.[idx];
                     const showOrig = useGeminiTranslation && orig && translatedServiceEvents?.[idx];
                     return (
-                    <div key={idx} className="p-5 rounded-2xl border border-slate-100 bg-slate-50/50 hover:border-slate-200 transition-colors">
+                    <div key={idx} className="pdf-avoid-break p-5 rounded-2xl border border-slate-100 bg-slate-50/50 hover:border-slate-200 transition-colors">
                       <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                         <span className="font-mono text-sm font-bold text-slate-800">{event.date_of_service_event}</span>
                         <span className="text-sm font-semibold text-indigo-600">
@@ -879,7 +909,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
 
             {/* Junk & Salvage įrašai */}
             {displayReport.junkSalvageRecords && displayReport.junkSalvageRecords.length > 0 && (
-              <div>
+              <div className="pdf-avoid-break">
                 <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2 mb-4">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-amber-600"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
                   {t.report.junkSalvage ?? 'Junk & Salvage records'}
@@ -893,7 +923,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
                     const dispExport = tJ?.intendedForExport ?? r.intendedForExport;
                     const showOrig = useGeminiTranslation && tJ;
                     return (
-                    <div key={idx} className="p-5 rounded-2xl border border-amber-100 bg-amber-50/50 hover:border-amber-200 transition-colors">
+                    <div key={idx} className="pdf-avoid-break p-5 rounded-2xl border border-amber-100 bg-amber-50/50 hover:border-amber-200 transition-colors">
                       <div className="flex flex-wrap items-center gap-2 mb-1">
                         {dispEntity && (
                           <span className="font-semibold text-slate-900">
@@ -901,15 +931,15 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
                             {showOrig && r.entityName && r.entityName !== dispEntity && <span className="block text-[10px] font-normal text-slate-400">({r.entityName})</span>}
                           </span>
                         )}
+                        {dispDisposition && (
+                          <span className="text-sm font-medium text-amber-700 px-2 py-0.5 rounded bg-amber-100/80">
+                            {dispDisposition}
+                            {showOrig && r.disposition && r.disposition !== dispDisposition && <span className="text-slate-400 ml-1 text-xs">({r.disposition})</span>}
+                          </span>
+                        )}
                         {r.location && <span className="text-xs text-slate-500">{r.location}</span>}
                         {r.obtainedDate && <span className="text-xs text-slate-500">{r.obtainedDate}</span>}
                       </div>
-                      {dispDisposition && (
-                        <p className="text-sm text-slate-600">
-                          {dispDisposition}
-                          {showOrig && r.disposition && r.disposition !== dispDisposition && <span className="block text-[10px] text-slate-400 mt-0.5">({r.disposition})</span>}
-                        </p>
-                      )}
                       {dispExport && (
                         <p className="text-xs text-slate-500 mt-1">
                           {t.report.intendedForExport ?? 'Export'}: {dispExport}
@@ -925,7 +955,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
 
             {/* Draudimo įrašai */}
             {displayReport.insuranceRecords && displayReport.insuranceRecords.length > 0 && (
-              <div>
+              <div className="pdf-avoid-break">
                 <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2 mb-4">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-600"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                   {t.report.insuranceRecords ?? 'Insurance records'}
@@ -937,8 +967,8 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
                     const entityName = tI?.entityName ?? r.entityName;
                     const showOrig = useGeminiTranslation && tI && r.entityName && r.entityName !== entityName;
                     return (
-                    <div key={idx} className="p-5 rounded-2xl border border-slate-100 bg-slate-50/50 hover:border-slate-200 transition-colors">
-                      <div className="flex flex-wrap items-center gap-2">
+                    <div key={idx} className="pdf-avoid-break p-5 rounded-2xl border border-slate-100 bg-slate-50/50 hover:border-slate-200 transition-colors">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
                         {entityName && (
                           <span className="font-semibold text-slate-900">
                             {entityName}
@@ -948,6 +978,9 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
                         {r.location && <span className="text-xs text-slate-500">{r.location}</span>}
                         {r.obtainedDate && <span className="text-xs text-slate-500">{r.obtainedDate}</span>}
                       </div>
+                      {r.disposition && (
+                        <p className="text-sm font-medium text-amber-700 mt-1">{r.disposition}</p>
+                      )}
                     </div>
                     );
                   })}
@@ -957,7 +990,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
 
             {/* Įkeitimai / vagystės įvykiai */}
             {displayReport.lienTheftEvents && displayReport.lienTheftEvents.length > 0 && (
-              <div>
+              <div className="pdf-avoid-break">
                 <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2 mb-4">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-rose-600"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
                   {t.report.lienTheftEvents ?? 'Lien & Theft events'}
@@ -969,7 +1002,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
                     const desc = tL?.description ?? e.description;
                     const showOrig = useGeminiTranslation && tL && e.description && e.description !== desc;
                     return (
-                    <div key={idx} className="p-5 rounded-2xl border border-rose-100 bg-rose-50/50 hover:border-rose-200 transition-colors">
+                    <div key={idx} className="pdf-avoid-break p-5 rounded-2xl border border-rose-100 bg-rose-50/50 hover:border-rose-200 transition-colors">
                       <p className="font-semibold text-slate-900">
                         {desc}
                         {showOrig && <span className="block text-[10px] font-normal text-slate-400 mt-0.5">({e.description})</span>}
@@ -988,7 +1021,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
 
             {/* Pavadinimai ant titulo – visi galimi punktai, žalia ✓ neregistruota / raudona ⚠ registruota */}
             {((displayReport.rawApiResponses as Record<string, unknown>)?.carsxeHistory != null || (displayReport.titleBrands && displayReport.titleBrands.length > 0)) && (
-              <div>
+              <div className="pdf-avoid-break">
                 <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2 mb-4">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-600"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
                   {t.report.titleBrands ?? 'Title brands'}
@@ -1024,7 +1057,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
                       const enItem = getTitleBrandItems('en')[code];
                       const showOrig = useGeminiTranslation && lang !== 'en' && enItem && (enItem.name !== name || (enItem.description && enItem.description !== description));
                       return (
-                        <div key={code} className={`p-4 rounded-2xl border transition-colors flex flex-col sm:flex-row sm:items-start gap-3 ${showGreen ? 'border-emerald-200 bg-emerald-50/50' : 'border-2 border-rose-400 bg-rose-50 shadow-md shadow-rose-200/60 ring-1 ring-rose-300/50'}`}>
+                        <div key={code} className={`pdf-avoid-break p-4 rounded-2xl border transition-colors flex flex-col sm:flex-row sm:items-start gap-3 ${showGreen ? 'border-emerald-200 bg-emerald-50/50' : 'border-2 border-rose-400 bg-rose-50 shadow-md shadow-rose-200/60 ring-1 ring-rose-300/50'}`}>
                           <div className="flex items-center shrink-0">
                             {showGreen ? (
                               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-emerald-600">
@@ -1082,7 +1115,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
           {/* Šoninis skydelis */}
           <div className="bg-slate-50 lg:bg-transparent p-6 sm:p-8 lg:p-0 space-y-8 border-t lg:border-t-0 border-slate-100">
             {/* Rinkos vertė */}
-            <div className="bg-indigo-50 rounded-2xl p-6 border border-indigo-100">
+            <div className="pdf-avoid-break bg-indigo-50 rounded-2xl p-6 border border-indigo-100">
               <h4 className="text-indigo-900 font-bold mb-4 text-sm sm:text-base">{t.report.marketValue}</h4>
               <div className="text-3xl sm:text-4xl font-extrabold text-indigo-600 mb-1">
                 ~{displayReport.marketValue.average.toLocaleString()} €
@@ -1104,7 +1137,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
             </div>
 
             {/* AI: problemos ir stiprybės */}
-            <div className="bg-slate-900 rounded-2xl p-6 text-white relative overflow-hidden">
+            <div className="pdf-avoid-break bg-slate-900 rounded-2xl p-6 text-white relative overflow-hidden">
               <div className="absolute top-0 right-0 p-4 opacity-10">
                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
               </div>
@@ -1124,6 +1157,11 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
               )}
               {reportAnalysis && !reportAnalysisLoading && (
                 <div className="space-y-4 mb-4">
+                  {reportAnalysis.summary && (
+                    <p className="text-[13px] text-slate-300 leading-relaxed mb-3">
+                      {reportAnalysis.summary}
+                    </p>
+                  )}
                   {reportAnalysis.problemAreas.length > 0 && (
                     <div>
                       <h5 className="text-[11px] font-bold uppercase tracking-wider text-amber-400/90 mb-2">

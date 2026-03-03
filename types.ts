@@ -36,6 +36,8 @@ export interface InsuranceRecord {
   entityName?: string;
   location?: string;
   obtainedDate?: string;
+  /** Mašinos statusas (pvz. SALVAGE, TOTAL LOSS) */
+  disposition?: string;
 }
 
 /** CarsXE Lien & Theft event (events masyvas arba lienRecords/theftRecords) */
@@ -86,8 +88,10 @@ export interface ChatMessage {
   text: string;
 }
 
-/** AI (Gemini) ataskaitos analizė: problemos ir stiprybės */
+/** AI (Gemini) ataskaitos analizė: problemos, stiprybės ir santrauka */
 export interface ReportAnalysis {
   problemAreas: string[];
   strongPoints: string[];
+  /** Trumpas 2–3 sakiniai apibendrinimas su svarbiausiais įrašais */
+  summary?: string;
 }

@@ -149,6 +149,7 @@ type JunkSalvageRaw = {
 type InsuranceRaw = {
   ReportingEntityAbstract?: { EntityName?: string; LocationCityName?: string; LocationStateUSPostalServiceCode?: string };
   VehicleObtainedDate?: string;
+  VehicleDispositionText?: string;
 };
 
 export interface CarsXeHistoryResponse {
@@ -310,6 +311,7 @@ export function mapCarsXeHistoryToReportFields(h: CarsXeHistoryResponse | undefi
         entityName: abs?.EntityName,
         location: loc || undefined,
         obtainedDate: date,
+        disposition: i.VehicleDispositionText,
       });
     }
   }
