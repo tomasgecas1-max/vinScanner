@@ -625,7 +625,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
     setAnimatedProgress(0);
     progressIntervalRef.current = setInterval(() => {
       const elapsed = (Date.now() - start) / 1000;
-      const target = Math.min(90, elapsed * 15);
+      const target = Math.min(90, elapsed * 7.5);
       setAnimatedProgress(target);
     }, 150);
     return () => {
@@ -839,10 +839,14 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                 const label = useGeminiTranslation
                   ? (key === 'fuelType' ? t.report.fuelType : key === 'power' ? t.report.power : key === 'engine' ? t.report.engine : key === 'transmission' ? t.report.transmission : key === 'bodyType' ? t.report.bodyType : key === 'colour' ? t.report.colour : key === 'co2' ? 'CO₂' : (translatedTechnicalLabels?.[key] ?? getTechnicalLabel(key, t)))
                   : getRawApiLabel(key);
+                const enReport = getTranslations('en').report;
+                const origLabel = (key === 'fuelType' ? enReport?.fuelType : key === 'power' ? enReport?.power : key === 'engine' ? enReport?.engine : key === 'transmission' ? enReport?.transmission : key === 'bodyType' ? enReport?.bodyType : key === 'colour' ? enReport?.colour : key === 'co2' ? 'CO₂' : undefined) ?? getTechnicalLabel(key, getTranslations('en'));
+                const showOrigLabel = useGeminiTranslation && origLabel && label !== origLabel;
                 return (
               <div key={key} className="flex justify-between py-3 border-b border-slate-200/50">
                 <span className="text-slate-500 text-xs sm:text-sm capitalize">
                   {label}
+                  {showOrigLabel && <span className="font-normal text-slate-400 ml-1">({origLabel})</span>}
                 </span>
                 <span className="text-slate-900 text-xs sm:text-sm font-semibold text-right">
                   {displayVal}
