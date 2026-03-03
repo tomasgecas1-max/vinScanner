@@ -169,7 +169,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ open, onClose, t }) => {
                     <path d="M12 16v-4"/>
                     <path d="M12 8h.01"/>
                   </svg>
-                  {t.auth?.continueWithout || 'Continue without signing in'}
+                  {t.auth?.continueWithout || 'Use services without signing in'}
                 </button>
               </div>
 
