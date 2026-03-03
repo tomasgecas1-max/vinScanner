@@ -841,7 +841,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                   ? (key === 'fuelType' ? t.report.fuelType : key === 'power' ? t.report.power : key === 'engine' ? t.report.engine : key === 'transmission' ? t.report.transmission : key === 'bodyType' ? t.report.bodyType : key === 'colour' ? t.report.colour : key === 'co2' ? 'CO₂' : (translatedTechnicalLabels?.[key] ?? getTechnicalLabel(key, t)))
                   : getRawApiLabel(key);
                 const enReport = getTranslations('en').report;
-                const origLabel = (key === 'fuelType' ? enReport?.fuelType : key === 'power' ? enReport?.power : key === 'engine' ? enReport?.engine : key === 'transmission' ? enReport?.transmission : key === 'bodyType' ? enReport?.bodyType : key === 'colour' ? enReport?.colour : key === 'co2' ? 'CO₂' : undefined) ?? getTechnicalLabel(key, getTranslations('en')) || key.replace(/_/g, ' ');
+                const origLabel = (key === 'fuelType' ? enReport?.fuelType : key === 'power' ? enReport?.power : key === 'engine' ? enReport?.engine : key === 'transmission' ? enReport?.transmission : key === 'bodyType' ? enReport?.bodyType : key === 'colour' ? enReport?.colour : key === 'co2' ? 'CO₂' : undefined) ?? (getTechnicalLabel(key, getTranslations('en')) || key.replace(/_/g, ' '));
                 const showOrigLabel = useGeminiTranslation && !!origLabel && label !== origLabel && lang !== 'en';
                 return (
               <div key={key} className="flex justify-between py-3 border-b border-slate-200/50">
