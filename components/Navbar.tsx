@@ -64,7 +64,7 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, t, onMyReportsClick, onS
                 </svg>
               </button>
               {langDropdownOpen && (
-                <div className="absolute right-0 top-full mt-2 w-[min(90vw,520px)] max-h-[min(70vh,420px)] overflow-y-auto bg-white rounded-xl border border-slate-100 shadow-xl p-3 z-50 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1">
+                <div className="absolute right-0 top-full mt-2 w-[min(95vw,560px)] max-h-[min(75vh,440px)] overflow-y-auto bg-white rounded-xl border border-slate-100 shadow-xl p-4 z-50 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2">
                   {ALL_LANGUAGES.map((item) => (
                     <button
                       key={item.code}
@@ -112,41 +112,44 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, t, onMyReportsClick, onS
             )}
           </div>
 
-          <div className="md:hidden flex items-center gap-1.5 relative">
+          <div className="md:hidden flex items-center gap-3 relative mr-4">
             <div className="relative">
               <button
                 onClick={() => { setLangDropdownOpen((o) => !o); setMenuOpen(false); }}
-                className="flex items-center gap-1 px-2 py-1.5 rounded-lg border border-slate-100 bg-slate-50 hover:bg-slate-100 text-[10px] font-black uppercase tracking-wide text-slate-700"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-100 bg-slate-50 hover:bg-slate-100 text-slate-700 transition-colors"
               >
-                <span className="text-sm">{getCurrentLangInfo(lang).flag}</span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className={langDropdownOpen ? 'rotate-180' : ''}>
+                <span className="text-base">{getCurrentLangInfo(lang).flag}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className={langDropdownOpen ? 'rotate-180' : ''}>
                   <path d="m6 9 6 6 6-6"/>
                 </svg>
               </button>
               {langDropdownOpen && (
-                <div className="absolute right-0 top-full mt-2 w-52 max-h-[min(70vh,380px)] overflow-y-auto bg-white rounded-xl border border-slate-100 shadow-xl py-1 z-[120]">
+                <>
+                  <div className="fixed inset-0 z-[115]" aria-hidden onClick={() => setLangDropdownOpen(false)} />
+                  <div className="fixed left-4 right-4 top-20 max-h-[min(70vh,380px)] overflow-y-auto bg-white rounded-xl border border-slate-100 shadow-xl p-3 z-[120] grid grid-cols-2 min-[380px]:grid-cols-3 gap-1.5">
                   {ALL_LANGUAGES.map((item) => (
                     <button
                       key={item.code}
                       onClick={() => { setLang(item.code); setLangDropdownOpen(false); }}
-                      className={`w-full text-left px-4 py-2.5 flex items-center gap-3 text-sm font-medium ${lang === item.code ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50'}`}
+                      className={`text-left px-2.5 py-2 rounded-lg flex items-center gap-2 text-[13px] font-medium transition-colors min-w-0 ${lang === item.code ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50'}`}
                     >
-                      <span className="text-lg">{item.flag}</span>
-                      <span>{item.name}</span>
+                      <span className="text-lg shrink-0">{item.flag}</span>
+                      <span className="truncate">{item.name}</span>
                     </button>
                   ))}
-                </div>
+                  </div>
+                </>
               )}
             </div>
             {isFirebaseEnabled && !loading && !user && (
-              <button onClick={() => onAuthClick?.()} className="bg-slate-950 text-white px-2.5 py-2 rounded-xl text-[9px] font-black uppercase tracking-wide flex items-center gap-1.5 shrink-0">
+              <button onClick={() => onAuthClick?.()} className="bg-slate-950 text-white px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wide shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/></svg>
               </button>
             )}
             {isFirebaseEnabled && user && (
               <>
-                <button onClick={() => setMenuOpen((o) => !o)} className="p-1.5 rounded-lg bg-slate-100">
-                  <span className="w-7 h-7 rounded-full bg-indigo-500 flex items-center justify-center text-white font-bold text-[10px]">{user.email?.[0]?.toUpperCase() ?? '?'}</span>
+                <button onClick={() => setMenuOpen((o) => !o)} className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 transition-colors">
+                  <span className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white font-bold text-xs">{user.email?.[0]?.toUpperCase() ?? '?'}</span>
                 </button>
                 {menuOpen && (
                   <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl border border-slate-100 shadow-xl py-2 z-[110]">
@@ -159,9 +162,6 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, t, onMyReportsClick, onS
                 )}
               </>
             )}
-            <button className="p-2 text-slate-600 hover:bg-slate-50 rounded-xl transition-colors" aria-label="Menu">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
-            </button>
           </div>
         </div>
       </div>
