@@ -537,7 +537,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
     let cancelled = false;
     setReportAnalysisError(null);
     setReportAnalysisLoading(true);
-    getReportAnalysis(displayReport).then((result) => {
+    getReportAnalysis(displayReport, lang).then((result) => {
       if (cancelled) return;
       setReportAnalysisLoading(false);
       if (result.ok) {
@@ -561,7 +561,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
     setReportAnalysisError(null);
     setReportAnalysisLoading(true);
     try {
-      const result = await getReportAnalysis(displayReport);
+      const result = await getReportAnalysis(displayReport, lang);
       if (result.ok) {
         setReportAnalysis(result.data);
       } else {

@@ -160,8 +160,9 @@ export type ReportAnalysisResult =
 
 /**
  * Pagal ataskaitos duomenis su Gemini AI sugeneruoja: galimas problemines vietas ir stipriąsias automobilio puses.
+ * @param lang Kalbos kodas (lt, en, de, …) – išvados generuojamos pasirinkta kalba.
  */
-export const getReportAnalysis = async (report: CarReport): Promise<ReportAnalysisResult> => {
+export const getReportAnalysis = async (report: CarReport, lang: string = 'lt'): Promise<ReportAnalysisResult> => {
   const apiKey = process.env.AI_API_KEY;
   if (!apiKey) {
     return { ok: false, error: "API raktas nenustatytas. Pridėk AI_API_KEY į .env (lokaliai) arba Vercel → Settings → Environment Variables, tada Redeploy." };
@@ -228,9 +229,11 @@ export const getReportAnalysis = async (report: CarReport): Promise<ReportAnalys
 
   const prompt = `Pagal šią automobilio patikros ataskaitos santrauką (visus API duomenis):
 1) Išskirk galimas problemines vietas arba rizikas (pvz. SALVAGE, didelė rida, žalos, vagystė, VIN keistas, junk/salvage įrašai) – trumpai, punktais.
-2) Išskirk stipriąsias automobilio puses (pvz. nuosekli serviso istorija, maža rida, jokių žalų).
+2) Išskirk stipriąsias automobilio puses (pvz. nuosekli serviso istorija jei yra, maža rida, jokių žalų).
 3) Parašyk 2–3 sakinius santrauką (summary) – apibendrink svarbiausius įrašus: ką verta žinoti pirkėjui.
-Atsakyk LIETUVIŲ kalba. Kiekvienas punktas – viena aiški frazė. Jei duomenų trūksta, įvertink tik tai, kas pateikta.
+
+SVARBU: Nekelk kaip problemą ar minusą „trūkstama serviso istorija“ ar „nėra serviso įrašų“ – CarsXE ataskaitose serviso istorijos dažnai nėra, nes API jos neteikia; tai duomenų šaltinio ribotumas, o ne automobilio trūkumas. Vertink tik tai, kas pateikta.
+Atsakyk kalba: ${LANG_NAMES[lang] || 'Lithuanian'}. Visi atsakymai (problemAreas, strongPoints, summary) turi būti šia kalba. Kiekvienas punktas – viena aiški frazė.
 
 Ataskaitos duomenys: ${context}`;
 
