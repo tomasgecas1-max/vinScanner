@@ -621,23 +621,23 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
   return (
     <div className="max-w-5xl mx-auto px-4 pb-20 animate-in fade-in slide-in-from-bottom-8 duration-700 relative">
       {showTranslationOverlay && (
-        <div className="fixed inset-0 z-[100] flex flex-col items-center pt-12 sm:pt-20 bg-slate-900/40 backdrop-blur-xl">
-          <div className="w-full max-w-sm bg-white/95 backdrop-blur rounded-2xl shadow-2xl p-8 flex flex-col items-center gap-6 animate-in zoom-in-95 duration-300 mx-4">
-            <p className="text-slate-900 font-bold text-lg text-center">{t.report.translatingReport ?? 'Translating…'}</p>
-            <p className="text-indigo-600 text-sm uppercase tracking-wider font-medium">{lang.toUpperCase()}</p>
+        <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-[50] animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="flex flex-col items-stretch gap-3 rounded-2xl border border-slate-200 bg-white shadow-lg p-4 min-w-[220px] sm:min-w-[260px]">
+            <p className="text-slate-900 font-bold text-sm text-center">{t.report.translatingReport ?? 'Translating…'}</p>
+            <p className="text-indigo-600 text-xs uppercase tracking-wider font-medium text-center">{lang.toUpperCase()}</p>
             <div className="w-full">
-              <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+              <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full transition-all duration-300 ease-out"
                   style={{ width: `${displayProgress}%` }}
                 />
               </div>
-              <p className="text-slate-500 text-xs mt-2 text-center font-medium">{Math.round(displayProgress)}%</p>
+              <p className="text-slate-500 text-[10px] mt-1 text-center font-medium">{Math.round(displayProgress)}%</p>
             </div>
             <button
               type="button"
               onClick={() => setTranslationCancelled(true)}
-              className="px-6 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm transition-colors"
+              className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition-colors"
             >
               {t.report.cancelTranslation ?? 'Cancel translation'}
             </button>
