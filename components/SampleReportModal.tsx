@@ -464,8 +464,6 @@ const FIELD_LABELS: Record<string, TranslationMap> = {
   oem_interior_trim_desc: { lt: 'Interjero apdaila', en: 'Interior trim', de: 'Innenausstattung', pl: 'Wykończenie wnętrza', fr: 'Garniture intérieure', es: 'Acabado interior', it: 'Rivestimento interni', nl: 'Interieurafwerking', cs: 'Výbava interiéru', uk: 'Оздоблення салону', ro: 'Tapițerie interioară', sv: 'Inredning', el: 'Εσωτερική επένδυση', pt: 'Acabamento interior', hu: 'Belső kárpitozás', bg: 'Интериорна тапицерия', sr: 'Унутрашња облога', da: 'Interiørbeklædning', no: 'Innvendig bekledning', fi: 'Sisäverhoilu', sk: 'Výbava interiéru', hr: 'Unutarnja obloga', bs: 'Unutrašnja obloga', sq: 'Veshja e brendshme', sl: 'Notranja obloga', lv: 'Salona apdare', mk: 'Внатрешна облога', et: 'Salongi viimistlus', ca: 'Acabat interior', lb: 'Innenausstattung', cnr: 'Unutrašnja obloga', mt: 'Finitura interna', is: 'Innréttingar', tr: 'İç döşeme' },
 };
 
-const MARKET_VALUE = { min: 9500, average: 12500, max: 15500 };
-
 const AI_ANALYSIS: Record<string, { problemAreas: string[]; strongPoints: string[] }> = {
   lt: { problemAreas: ['Didelė rida (201 986 km) – gali reikėti papildomų patikrinimų', 'Paskutiniai serviso įrašai be detalių apie atliktus darbus'], strongPoints: ['Reguliariai prižiūrėtas oficialiuose BMW servisuose', 'Nuosekli ridos istorija be manipuliacijų požymių', 'Pilna serviso istorija nuo pirmos dienos', 'Stabdžių skysčio keitimas atliktas reguliariai'] },
   en: { problemAreas: ['High mileage (201,986 km) – may require additional checks', 'Recent service records without details about work performed'], strongPoints: ['Regularly maintained at official BMW service centers', 'Consistent mileage history with no signs of tampering', 'Complete service history from day one', 'Brake fluid changed regularly'] },
@@ -662,24 +660,6 @@ const SampleReportModal: React.FC<SampleReportModalProps> = ({ open, onClose, t,
 
             {/* Sidebar */}
             <div className="bg-slate-50 lg:bg-transparent p-6 sm:p-8 lg:p-0 space-y-8 border-t lg:border-t-0 border-slate-100">
-              {/* Market value */}
-              <div className="bg-indigo-50 rounded-2xl p-6 border border-indigo-100">
-                <h4 className="text-indigo-900 font-bold mb-4 text-sm sm:text-base">{t.report.marketValue}</h4>
-                <div className="text-3xl sm:text-4xl font-extrabold text-indigo-600 mb-1">~{MARKET_VALUE.average.toLocaleString()} €</div>
-                <p className="text-xs text-indigo-700/70 mb-6">{t.report.marketValueBased}</p>
-                <div className="space-y-3">
-                  <div className="flex justify-between text-[11px] sm:text-xs uppercase font-bold tracking-wider">
-                    <span className="text-indigo-900/40">{t.report.min}</span>
-                    <span className="text-indigo-900/40">{t.report.max}</span>
-                  </div>
-                  <div className="w-full bg-indigo-200/50 h-2 rounded-full overflow-hidden"><div className="bg-indigo-600 h-full w-2/3 ml-[15%]"></div></div>
-                  <div className="flex justify-between text-xs font-bold text-indigo-900">
-                    <span>{MARKET_VALUE.min.toLocaleString()} €</span>
-                    <span>{MARKET_VALUE.max.toLocaleString()} €</span>
-                  </div>
-                </div>
-              </div>
-
               {/* AI Analysis */}
               <div className="bg-slate-900 rounded-2xl p-6 text-white relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 opacity-10">

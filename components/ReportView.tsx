@@ -29,7 +29,6 @@ const SOURCE_LABELS: Record<string, string> = {
   vehicleIdentity: 'Experian Vehicle Identity',
   cartellVindecoder: 'Cartell VIN Decoder',
   experianAutoCheck: 'Experian AutoCheck',
-  valuation: 'Brego Vertė (Valuation from VIN)',
   previousAdverts: 'Previous Adverts from VIN',
 };
 
@@ -1114,28 +1113,6 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
 
           {/* Šoninis skydelis */}
           <div className="bg-slate-50 lg:bg-transparent p-6 sm:p-8 lg:p-0 space-y-8 border-t lg:border-t-0 border-slate-100">
-            {/* Rinkos vertė */}
-            <div className="pdf-avoid-break bg-indigo-50 rounded-2xl p-6 border border-indigo-100">
-              <h4 className="text-indigo-900 font-bold mb-4 text-sm sm:text-base">{t.report.marketValue}</h4>
-              <div className="text-3xl sm:text-4xl font-extrabold text-indigo-600 mb-1">
-                ~{displayReport.marketValue.average.toLocaleString()} €
-              </div>
-              <p className="text-xs text-indigo-700/70 mb-6">{t.report.marketValueBased}</p>
-              <div className="space-y-3">
-                <div className="flex justify-between text-[11px] sm:text-xs uppercase font-bold tracking-wider">
-                  <span className="text-indigo-900/40">{t.report.min}</span>
-                  <span className="text-indigo-900/40">{t.report.max}</span>
-                </div>
-                <div className="w-full bg-indigo-200/50 h-2 rounded-full overflow-hidden">
-                  <div className="bg-indigo-600 h-full w-2/3 ml-[15%]"></div>
-                </div>
-                <div className="flex justify-between text-xs font-bold text-indigo-900">
-                  <span>{displayReport.marketValue.min.toLocaleString()} €</span>
-                  <span>{displayReport.marketValue.max.toLocaleString()} €</span>
-                </div>
-              </div>
-            </div>
-
             {/* AI: problemos ir stiprybės */}
             <div className="pdf-avoid-break bg-slate-900 rounded-2xl p-6 text-white relative overflow-hidden">
               <div className="absolute top-0 right-0 p-4 opacity-10">
