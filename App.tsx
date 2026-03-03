@@ -760,14 +760,6 @@ const App: React.FC = () => {
           onSampleReportClick={handleSampleReportDemo}
           loading={loading}
           t={t}
-          useServiceHistory={useServiceHistory}
-          useVinLookup={useVinLookup}
-          useVehicleSpecs={useVehicleSpecs}
-          useCarsXeHistory={useCarsXeHistory}
-          onUseServiceHistoryChange={setUseServiceHistory}
-          onUseVinLookupChange={setUseVinLookup}
-          onUseVehicleSpecsChange={setUseVehicleSpecs}
-          onUseCarsXeHistoryChange={setUseCarsXeHistory}
         />
 
         {loading && (
