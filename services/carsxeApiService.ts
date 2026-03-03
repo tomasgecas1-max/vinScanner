@@ -243,14 +243,18 @@ export function mapCarsXeHistoryToReportFields(h: CarsXeHistoryResponse | undefi
     };
     for (const b of brands) {
       if (!b.record) continue;
+      const rec = b.record as { VehicleBrandDate?: { Date?: string }; ReportingEntityAbstract?: { EntityName?: string } };
       const code = String(b.code ?? "").padStart(2, "0");
       const name = b.name ?? TITLE_BRAND_DESCRIPTIONS[code]?.name ?? `Brand ${code}`;
       const description = b.description ?? TITLE_BRAND_DESCRIPTIONS[code]?.description;
+      const date = rec.VehicleBrandDate?.Date?.slice(0, 10);
+      const reportingEntity = rec.ReportingEntityAbstract?.EntityName;
       titleBrands.push({
         code,
         name,
         ...(description ? { description } : {}),
-        ...(b.record ? { date: (b.record as { VehicleBrandDate?: { Date?: string } }).VehicleBrandDate?.Date?.slice(0, 10) } : {}),
+        ...(date ? { date } : {}),
+        ...(reportingEntity ? { reportingEntity } : {}),
       });
       if (b.code && b.name) {
         const rec = b.record as { VehicleBrandDate?: { Date?: string } };

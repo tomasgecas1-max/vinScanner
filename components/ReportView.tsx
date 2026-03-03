@@ -40,6 +40,16 @@ function getTitleBrandCodes(titleBrands: { code: string }[] | undefined): Set<st
   return new Set(titleBrands.map((b) => String(b.code).padStart(2, '0').slice(-2)));
 }
 
+function getTitleBrandDetailsMap(titleBrands: { code: string; date?: string; reportingEntity?: string }[] | undefined): Record<string, { date?: string; reportingEntity?: string }> {
+  if (!titleBrands?.length) return {};
+  const map: Record<string, { date?: string; reportingEntity?: string }> = {};
+  for (const b of titleBrands) {
+    const code = String(b.code).padStart(2, '0').slice(-2);
+    if (b.date || b.reportingEntity) map[code] = { date: b.date, reportingEntity: b.reportingEntity };
+  }
+  return map;
+}
+
 /** Žinomi laukai – lietuviškos etiketės. Kiti API laukai rodomi kaip techninis pavadinimas (pvz. co2_gkm). */
 const FIELD_LABELS: Record<string, string> = {
   vehicle_identification_number: 'VIN',
@@ -228,6 +238,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
   const [reportAnalysisError, setReportAnalysisError] = useState<string | null>(null);
   const [analysisCooldownSec, setAnalysisCooldownSec] = useState(0);
   const [useGeminiTranslation, setUseGeminiTranslation] = useState(true);
+  const [translationCancelled, setTranslationCancelled] = useState(false);
   const showOriginalServiceTexts = !useGeminiTranslation;
   const showOriginalTitleBrands = !useGeminiTranslation;
   const [geminiTranslatedTitleBrands, setGeminiTranslatedTitleBrands] = useState<Record<string, { name: string; description: string }> | null>(null);
@@ -245,6 +256,10 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
   const [serviceTranslationError, setServiceTranslationError] = useState<string | null>(null);
   const reportPdfRef = useRef<HTMLDivElement>(null);
   const emailSentForRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    setTranslationCancelled(false);
+  }, [report.vin]);
 
   useEffect(() => {
     if (!report.serviceEvents?.length || !lang) {
@@ -555,16 +570,34 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
   const translationLoading = useGeminiTranslation && lang !== 'en' && (
     serviceTranslationLoading || titleBrandTranslationLoading || technicalSpecsTranslationLoading
   );
+  const showTranslationOverlay = translationLoading && !translationCancelled;
+  const loadingCount = [serviceTranslationLoading, titleBrandTranslationLoading, technicalSpecsTranslationLoading].filter(Boolean).length;
+  const translationProgress = loadingCount === 0 ? 100 : Math.round(((3 - loadingCount) / 3) * 100);
 
   return (
     <div className="max-w-5xl mx-auto px-4 pb-20 animate-in fade-in slide-in-from-bottom-8 duration-700 relative">
-      {translationLoading && (
-        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-slate-900/70 backdrop-blur-md rounded-3xl">
-          <div className="w-12 h-12 border-4 border-indigo-400/30 border-t-indigo-400 rounded-full animate-spin mb-6" />
-          <p className="text-white font-bold text-lg">{t.report.translatingReport ?? 'Translating…'}</p>
-          <p className="text-indigo-300/90 text-sm mt-1 uppercase tracking-wider font-medium">
-            {lang.toUpperCase()} (Gemini)
-          </p>
+      {showTranslationOverlay && (
+        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-md rounded-3xl p-4">
+          <div className="w-full max-w-sm bg-white rounded-2xl shadow-2xl p-8 flex flex-col items-center gap-6 animate-in zoom-in-95 duration-300">
+            <p className="text-slate-900 font-bold text-lg text-center">{t.report.translatingReport ?? 'Translating…'}</p>
+            <p className="text-indigo-600 text-sm uppercase tracking-wider font-medium">{lang.toUpperCase()} (Gemini)</p>
+            <div className="w-full">
+              <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full transition-all duration-500 ease-out"
+                  style={{ width: `${translationProgress}%` }}
+                />
+              </div>
+              <p className="text-slate-500 text-xs mt-2 text-center font-medium">{translationProgress}%</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setTranslationCancelled(true)}
+              className="px-6 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm transition-colors"
+            >
+              {t.report.cancelTranslation ?? 'Cancel translation'}
+            </button>
+          </div>
         </div>
       )}
       <div ref={reportPdfRef} className="bg-white rounded-3xl border border-slate-200 shadow-2xl overflow-hidden">
@@ -1012,9 +1045,12 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                   )
                     .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true }))
                     .map(([code, { name, description }]) => {
+                      const codeNorm = String(code).padStart(2, '0').slice(-2);
                       const codesSet = getTitleBrandCodes(displayReport.titleBrands);
-                      const registered = codesSet.has(String(code).padStart(2, '0').slice(-2));
-                      const isNeutralOrGood = ['00', '68'].includes(String(code).padStart(2, '0').slice(-2));
+                      const registered = codesSet.has(codeNorm);
+                      const detailsMap = getTitleBrandDetailsMap(displayReport.titleBrands);
+                      const details = detailsMap[codeNorm];
+                      const isNeutralOrGood = ['00', '68'].includes(codeNorm);
                       const showGreen = !registered || (registered && isNeutralOrGood);
                       const enItem = getTitleBrandItems('en')[code];
                       const showOrig = useGeminiTranslation && lang !== 'en' && enItem && (enItem.name !== name || (enItem.description && enItem.description !== description));
@@ -1049,6 +1085,16 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                               <p className="text-sm text-slate-600 leading-relaxed">
                                 {description}
                                 {showOrig && enItem?.description && enItem.description !== description && <span className="block text-[10px] text-slate-400 mt-0.5">({enItem.description})</span>}
+                              </p>
+                            )}
+                            {registered && (details?.date || details?.reportingEntity) && (
+                              <p className="text-xs text-slate-500 mt-2 flex flex-wrap gap-x-4 gap-y-0.5">
+                                {details.reportingEntity && (
+                                  <span><span className="font-medium text-slate-600">{t.report.titleBrandRegisteredAt ?? 'Location'}:</span> {details.reportingEntity}</span>
+                                )}
+                                {details.date && (
+                                  <span><span className="font-medium text-slate-600">{t.report.titleBrandRegisteredDate ?? 'Date'}:</span> {details.date}</span>
+                                )}
                               </p>
                             )}
                           </div>

@@ -185,6 +185,7 @@ export interface Translations {
     downloadPdf: string;
     translateReportWithGemini?: string;
     translatingReport?: string;
+    cancelTranslation?: string;
     supplementTitle: string;
     supplementButton: string;
     supplementLoading: string;
@@ -199,6 +200,8 @@ export interface Translations {
     titleBrandStatusCheck?: string;
     titleBrandRegistered?: string;
     titleBrandNotRegistered?: string;
+    titleBrandRegisteredAt?: string;
+    titleBrandRegisteredDate?: string;
     titleBrandLabelFlood?: string;
     titleBrandLabelFire?: string;
     titleBrandLabelHail?: string;
@@ -435,11 +438,14 @@ const translationsMap: Record<SupportedLang, Translations> = {
       damageLabel: 'Žala:',
       translateReportWithGemini: 'Versti ataskaitą su Gemini',
       translatingReport: 'Vertima…',
+      cancelTranslation: 'Atšaukti vertimą',
       titleBrands: 'Pavadinimai ant titulo',
       titleBrandsDesc: 'CarsXE / NMVTIS ženklai iš transporto priemonės istorijos',
       titleBrandStatusCheck: 'Ar įvykiai registruoti',
       titleBrandRegistered: 'Registruota',
       titleBrandNotRegistered: 'Neregistruota',
+      titleBrandRegisteredAt: 'Vieta',
+      titleBrandRegisteredDate: 'Data',
       titleBrandLabelFlood: 'Potvandis',
       titleBrandLabelFire: 'Gaisras',
       titleBrandLabelHail: 'Kruša',
@@ -742,11 +748,14 @@ const translationsMap: Record<SupportedLang, Translations> = {
       damageLabel: 'Damage:',
       translateReportWithGemini: 'Translate report with Gemini',
       translatingReport: 'Translating…',
+      cancelTranslation: 'Cancel translation',
       titleBrands: 'Title brands',
       titleBrandsDesc: 'CarsXE / NMVTIS brands from vehicle history',
       titleBrandStatusCheck: 'Event registration status',
       titleBrandRegistered: 'Registered',
       titleBrandNotRegistered: 'Not registered',
+      titleBrandRegisteredAt: 'Location',
+      titleBrandRegisteredDate: 'Date',
       titleBrandLabelFlood: 'Flood',
       titleBrandLabelFire: 'Fire',
       titleBrandLabelHail: 'Hail',
