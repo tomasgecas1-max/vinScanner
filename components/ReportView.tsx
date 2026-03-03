@@ -370,9 +370,10 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
     setTechnicalSpecsTranslationLoading(true);
     const keys = entries.map(([k]) => k);
     const values = entries.map(([, v]) => String(v));
+    const enT = getTranslations('en');
     const labelsToTranslate = keys.map((k) => {
       if (['fuelType', 'power', 'engine', 'transmission', 'bodyType', 'colour'].includes(k)) return null;
-      return getTechnicalLabel(k, t);
+      return getTechnicalLabel(k, enT);
     });
     const labelsFiltered = labelsToTranslate.filter((l): l is string => l != null && l.trim() !== '');
     Promise.all([
@@ -840,8 +841,8 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                   ? (key === 'fuelType' ? t.report.fuelType : key === 'power' ? t.report.power : key === 'engine' ? t.report.engine : key === 'transmission' ? t.report.transmission : key === 'bodyType' ? t.report.bodyType : key === 'colour' ? t.report.colour : key === 'co2' ? 'CO₂' : (translatedTechnicalLabels?.[key] ?? getTechnicalLabel(key, t)))
                   : getRawApiLabel(key);
                 const enReport = getTranslations('en').report;
-                const origLabel = (key === 'fuelType' ? enReport?.fuelType : key === 'power' ? enReport?.power : key === 'engine' ? enReport?.engine : key === 'transmission' ? enReport?.transmission : key === 'bodyType' ? enReport?.bodyType : key === 'colour' ? enReport?.colour : key === 'co2' ? 'CO₂' : undefined) ?? getTechnicalLabel(key, getTranslations('en'));
-                const showOrigLabel = useGeminiTranslation && origLabel && label !== origLabel;
+                const origLabel = (key === 'fuelType' ? enReport?.fuelType : key === 'power' ? enReport?.power : key === 'engine' ? enReport?.engine : key === 'transmission' ? enReport?.transmission : key === 'bodyType' ? enReport?.bodyType : key === 'colour' ? enReport?.colour : key === 'co2' ? 'CO₂' : undefined) ?? getTechnicalLabel(key, getTranslations('en')) || key.replace(/_/g, ' ');
+                const showOrigLabel = useGeminiTranslation && !!origLabel && label !== origLabel && lang !== 'en';
                 return (
               <div key={key} className="flex justify-between py-3 border-b border-slate-200/50">
                 <span className="text-slate-500 text-xs sm:text-sm capitalize">
