@@ -571,24 +571,48 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
     serviceTranslationLoading || titleBrandTranslationLoading || technicalSpecsTranslationLoading
   );
   const showTranslationOverlay = translationLoading && !translationCancelled;
-  const loadingCount = [serviceTranslationLoading, titleBrandTranslationLoading, technicalSpecsTranslationLoading].filter(Boolean).length;
-  const translationProgress = loadingCount === 0 ? 100 : Math.round(((3 - loadingCount) / 3) * 100);
+
+  const [animatedProgress, setAnimatedProgress] = useState(0);
+  const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (!showTranslationOverlay) {
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
+      setAnimatedProgress(0);
+      return;
+    }
+    const start = Date.now();
+    setAnimatedProgress(0);
+    progressIntervalRef.current = setInterval(() => {
+      const elapsed = (Date.now() - start) / 1000;
+      const target = Math.min(90, elapsed * 15);
+      setAnimatedProgress(target);
+    }, 150);
+    return () => {
+      if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
+    };
+  }, [showTranslationOverlay]);
+
+  const displayProgress = Math.round(animatedProgress);
 
   return (
     <div className="max-w-5xl mx-auto px-4 pb-20 animate-in fade-in slide-in-from-bottom-8 duration-700 relative">
       {showTranslationOverlay && (
-        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-md rounded-3xl p-4">
-          <div className="w-full max-w-sm bg-white rounded-2xl shadow-2xl p-8 flex flex-col items-center gap-6 animate-in zoom-in-95 duration-300">
+        <div className="fixed inset-0 z-[100] flex flex-col items-center pt-12 sm:pt-20 bg-slate-900/40 backdrop-blur-xl">
+          <div className="w-full max-w-sm bg-white/95 backdrop-blur rounded-2xl shadow-2xl p-8 flex flex-col items-center gap-6 animate-in zoom-in-95 duration-300 mx-4">
             <p className="text-slate-900 font-bold text-lg text-center">{t.report.translatingReport ?? 'Translating…'}</p>
             <p className="text-indigo-600 text-sm uppercase tracking-wider font-medium">{lang.toUpperCase()} (Gemini)</p>
             <div className="w-full">
               <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full transition-all duration-500 ease-out"
-                  style={{ width: `${translationProgress}%` }}
+                  className="h-full bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full transition-all duration-300 ease-out"
+                  style={{ width: `${displayProgress}%` }}
                 />
               </div>
-              <p className="text-slate-500 text-xs mt-2 text-center font-medium">{translationProgress}%</p>
+              <p className="text-slate-500 text-xs mt-2 text-center font-medium">{Math.round(displayProgress)}%</p>
             </div>
             <button
               type="button"
