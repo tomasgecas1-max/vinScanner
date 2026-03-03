@@ -727,6 +727,8 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                 const displayVal = useGeminiTranslation && translatedTechnicalSpecs?.[key] != null
                   ? translatedTechnicalSpecs[key]
                   : val;
+                const origVal = val;
+                const showOrig = useGeminiTranslation && origVal && displayVal !== origVal;
                 const label = useGeminiTranslation
                   ? (key === 'fuelType' ? t.report.fuelType : key === 'power' ? t.report.power : key === 'engine' ? t.report.engine : key === 'transmission' ? t.report.transmission : key === 'bodyType' ? t.report.bodyType : key === 'colour' ? t.report.colour : key === 'co2' ? 'CO₂' : (translatedTechnicalLabels?.[key] ?? getTechnicalLabel(key, t)))
                   : getRawApiLabel(key);
@@ -735,7 +737,10 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                 <span className="text-slate-500 text-xs sm:text-sm capitalize">
                   {label}
                 </span>
-                <span className="text-slate-900 text-xs sm:text-sm font-semibold text-right">{displayVal}</span>
+                <span className="text-slate-900 text-xs sm:text-sm font-semibold text-right">
+                  {displayVal}
+                  {showOrig && <span className="block text-[10px] font-normal text-slate-400 mt-0.5">({origVal})</span>}
+                </span>
               </div>
                 );
             })}
@@ -800,7 +805,10 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                   </div>
                 )}
                 <div className="space-y-4">
-                  {(showOriginalServiceTexts ? report.serviceEvents : (translatedServiceEvents ?? report.serviceEvents)).map((event, idx) => (
+                  {(showOriginalServiceTexts ? report.serviceEvents : (translatedServiceEvents ?? report.serviceEvents)).map((event, idx) => {
+                    const orig = report.serviceEvents?.[idx];
+                    const showOrig = useGeminiTranslation && orig && translatedServiceEvents?.[idx];
+                    return (
                     <div key={idx} className="p-5 rounded-2xl border border-slate-100 bg-slate-50/50 hover:border-slate-200 transition-colors">
                       <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                         <span className="font-mono text-sm font-bold text-slate-800">{event.date_of_service_event}</span>
@@ -809,22 +817,36 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                         </span>
                       </div>
                       {event.service_provider && (
-                        <p className="text-xs sm:text-sm text-slate-600 mb-2">{event.service_provider}</p>
+                        <p className="text-xs sm:text-sm text-slate-600 mb-2">
+                          {event.service_provider}
+                          {showOrig && orig.service_provider && orig.service_provider !== event.service_provider && (
+                            <span className="block text-[10px] text-slate-400 mt-0.5">({orig.service_provider})</span>
+                          )}
+                        </p>
                       )}
                       {event.service_type && (
                         <span className="inline-block px-2 py-0.5 rounded-lg bg-indigo-100 text-indigo-700 text-xs font-bold uppercase tracking-wider mb-3">
                           {event.service_type}
+                          {showOrig && orig?.service_type && orig.service_type !== event.service_type && (
+                            <span className="ml-1 font-normal normal-case text-indigo-500/80">({orig.service_type})</span>
+                          )}
                         </span>
                       )}
                       {event.service_actions && event.service_actions.length > 0 && (
                         <ul className="list-disc list-inside space-y-1 text-sm text-slate-700">
                           {event.service_actions.map((action, i) => (
-                            <li key={i}>{action}</li>
+                            <li key={i}>
+                              {action}
+                              {showOrig && orig?.service_actions?.[i] && orig.service_actions[i] !== action && (
+                                <span className="block text-[10px] text-slate-400 ml-4 mt-0.5">({orig.service_actions[i]})</span>
+                              )}
+                            </li>
                           ))}
                         </ul>
                       )}
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -848,15 +870,34 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                 <div className="space-y-4">
                   {displayReport.junkSalvageRecords.map((r, idx) => {
                     const tJ = useGeminiTranslation && translatedJunkSalvage?.[idx];
+                    const dispEntity = tJ?.entityName ?? r.entityName;
+                    const dispDisposition = tJ?.disposition ?? r.disposition;
+                    const dispExport = tJ?.intendedForExport ?? r.intendedForExport;
+                    const showOrig = useGeminiTranslation && tJ;
                     return (
                     <div key={idx} className="p-5 rounded-2xl border border-amber-100 bg-amber-50/50 hover:border-amber-200 transition-colors">
                       <div className="flex flex-wrap items-center gap-2 mb-1">
-                        {(tJ?.entityName ?? r.entityName) && <span className="font-semibold text-slate-900">{tJ?.entityName ?? r.entityName}</span>}
+                        {dispEntity && (
+                          <span className="font-semibold text-slate-900">
+                            {dispEntity}
+                            {showOrig && r.entityName && r.entityName !== dispEntity && <span className="block text-[10px] font-normal text-slate-400">({r.entityName})</span>}
+                          </span>
+                        )}
                         {r.location && <span className="text-xs text-slate-500">{r.location}</span>}
                         {r.obtainedDate && <span className="text-xs text-slate-500">{r.obtainedDate}</span>}
                       </div>
-                      {(tJ?.disposition ?? r.disposition) && <p className="text-sm text-slate-600">{tJ?.disposition ?? r.disposition}</p>}
-                      {(tJ?.intendedForExport ?? r.intendedForExport) && <p className="text-xs text-slate-500 mt-1">{t.report.intendedForExport ?? 'Export'}: {tJ?.intendedForExport ?? r.intendedForExport}</p>}
+                      {dispDisposition && (
+                        <p className="text-sm text-slate-600">
+                          {dispDisposition}
+                          {showOrig && r.disposition && r.disposition !== dispDisposition && <span className="block text-[10px] text-slate-400 mt-0.5">({r.disposition})</span>}
+                        </p>
+                      )}
+                      {dispExport && (
+                        <p className="text-xs text-slate-500 mt-1">
+                          {t.report.intendedForExport ?? 'Export'}: {dispExport}
+                          {showOrig && r.intendedForExport && r.intendedForExport !== dispExport && <span className="text-slate-400 ml-1">({r.intendedForExport})</span>}
+                        </p>
+                      )}
                     </div>
                     );
                   })}
@@ -876,10 +917,16 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                   {displayReport.insuranceRecords.map((r, idx) => {
                     const tI = useGeminiTranslation && translatedInsurance?.[idx];
                     const entityName = tI?.entityName ?? r.entityName;
+                    const showOrig = useGeminiTranslation && tI && r.entityName && r.entityName !== entityName;
                     return (
                     <div key={idx} className="p-5 rounded-2xl border border-slate-100 bg-slate-50/50 hover:border-slate-200 transition-colors">
                       <div className="flex flex-wrap items-center gap-2">
-                        {entityName && <span className="font-semibold text-slate-900">{entityName}</span>}
+                        {entityName && (
+                          <span className="font-semibold text-slate-900">
+                            {entityName}
+                            {showOrig && <span className="block text-[10px] font-normal text-slate-400">({r.entityName})</span>}
+                          </span>
+                        )}
                         {r.location && <span className="text-xs text-slate-500">{r.location}</span>}
                         {r.obtainedDate && <span className="text-xs text-slate-500">{r.obtainedDate}</span>}
                       </div>
@@ -902,9 +949,13 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                   {displayReport.lienTheftEvents.map((e, idx) => {
                     const tL = useGeminiTranslation && translatedLienTheft?.[idx];
                     const desc = tL?.description ?? e.description;
+                    const showOrig = useGeminiTranslation && tL && e.description && e.description !== desc;
                     return (
                     <div key={idx} className="p-5 rounded-2xl border border-rose-100 bg-rose-50/50 hover:border-rose-200 transition-colors">
-                      <p className="font-semibold text-slate-900">{desc}</p>
+                      <p className="font-semibold text-slate-900">
+                        {desc}
+                        {showOrig && <span className="block text-[10px] font-normal text-slate-400 mt-0.5">({e.description})</span>}
+                      </p>
                       <div className="flex flex-wrap gap-2 mt-2 text-xs text-slate-500">
                         {e.location && <span>{e.location}</span>}
                         {e.date && <span>{e.date}</span>}
@@ -952,6 +1003,8 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                       const registered = codesSet.has(String(code).padStart(2, '0').slice(-2));
                       const isNeutralOrGood = ['00', '68'].includes(String(code).padStart(2, '0').slice(-2));
                       const showGreen = !registered || (registered && isNeutralOrGood);
+                      const enItem = getTitleBrandItems('en')[code];
+                      const showOrig = useGeminiTranslation && lang !== 'en' && enItem && (enItem.name !== name || (enItem.description && enItem.description !== description));
                       return (
                         <div key={code} className={`p-4 rounded-2xl border transition-colors flex flex-col sm:flex-row sm:items-start gap-3 ${showGreen ? 'border-emerald-200 bg-emerald-50/50' : 'border-rose-200 bg-rose-50/50'}`}>
                           <div className="flex items-center shrink-0">
@@ -971,13 +1024,19 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                           <div className="flex-1 min-w-0">
                             <div className="flex flex-wrap items-center gap-2 mb-1">
                               <span className="font-mono text-xs font-bold text-indigo-600 bg-indigo-100 px-2 py-0.5 rounded">{code}</span>
-                              <span className="font-semibold text-slate-900">{name}</span>
+                              <span className="font-semibold text-slate-900">
+                                {name}
+                                {showOrig && enItem?.name && enItem.name !== name && <span className="block text-[10px] font-normal text-slate-400">({enItem.name})</span>}
+                              </span>
                               <span className={`text-xs font-semibold ml-auto ${showGreen ? 'text-emerald-600' : 'text-rose-600'}`}>
                                 {showGreen ? (t.report.titleBrandNotRegistered ?? 'Not registered') : (t.report.titleBrandRegistered ?? 'Registered')}
                               </span>
                             </div>
                             {description && (
-                              <p className="text-sm text-slate-600 leading-relaxed">{description}</p>
+                              <p className="text-sm text-slate-600 leading-relaxed">
+                                {description}
+                                {showOrig && enItem?.description && enItem.description !== description && <span className="block text-[10px] text-slate-400 mt-0.5">({enItem.description})</span>}
+                              </p>
                             )}
                           </div>
                         </div>
