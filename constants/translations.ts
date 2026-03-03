@@ -202,6 +202,7 @@ export interface Translations {
     titleBrandNotRegistered?: string;
     titleBrandRegisteredAt?: string;
     titleBrandRegisteredDate?: string;
+    titleBrandCategory?: string;
     titleBrandLabelFlood?: string;
     titleBrandLabelFire?: string;
     titleBrandLabelHail?: string;
@@ -446,6 +447,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
       titleBrandNotRegistered: 'Neregistruota',
       titleBrandRegisteredAt: 'Vieta',
       titleBrandRegisteredDate: 'Data',
+      titleBrandCategory: 'Kategorija',
       titleBrandLabelFlood: 'Potvandis',
       titleBrandLabelFire: 'Gaisras',
       titleBrandLabelHail: 'Kruša',
@@ -756,6 +758,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
       titleBrandNotRegistered: 'Not registered',
       titleBrandRegisteredAt: 'Location',
       titleBrandRegisteredDate: 'Date',
+      titleBrandCategory: 'Category',
       titleBrandLabelFlood: 'Flood',
       titleBrandLabelFire: 'Fire',
       titleBrandLabelHail: 'Hail',

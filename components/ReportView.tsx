@@ -40,12 +40,49 @@ function getTitleBrandCodes(titleBrands: { code: string }[] | undefined): Set<st
   return new Set(titleBrands.map((b) => String(b.code).padStart(2, '0').slice(-2)));
 }
 
-function getTitleBrandDetailsMap(titleBrands: { code: string; date?: string; reportingEntity?: string }[] | undefined): Record<string, { date?: string; reportingEntity?: string }> {
-  if (!titleBrands?.length) return {};
-  const map: Record<string, { date?: string; reportingEntity?: string }> = {};
-  for (const b of titleBrands) {
-    const code = String(b.code).padStart(2, '0').slice(-2);
-    if (b.date || b.reportingEntity) map[code] = { date: b.date, reportingEntity: b.reportingEntity };
+type TitleBrandDetails = {
+  date?: string;
+  reportingEntity?: string;
+  reportingEntityId?: string;
+  reportingEntityCategoryCode?: string;
+};
+
+function getTitleBrandDetailsMap(
+  titleBrands: { code: string; date?: string; reportingEntity?: string; reportingEntityId?: string; reportingEntityCategoryCode?: string }[] | undefined,
+  rawBrands?: Array<{ code?: string; record?: unknown }>
+): Record<string, TitleBrandDetails> {
+  const map: Record<string, TitleBrandDetails> = {};
+  if (Array.isArray(rawBrands)) {
+    for (const b of rawBrands) {
+      if (!b.record) continue;
+      const rec = b.record as {
+        VehicleBrandDate?: { Date?: string };
+        ReportingEntityAbstract?: { EntityName?: string; IdentificationID?: string; ReportingEntityCategoryCode?: string };
+      };
+      const code = String(b.code ?? '').padStart(2, '0').slice(-2);
+      const abs = rec.ReportingEntityAbstract;
+      if (rec.VehicleBrandDate || abs) {
+        map[code] = {
+          date: rec.VehicleBrandDate?.Date?.slice(0, 10),
+          reportingEntity: abs?.EntityName,
+          reportingEntityId: abs?.IdentificationID,
+          reportingEntityCategoryCode: abs?.ReportingEntityCategoryCode,
+        };
+      }
+    }
+  }
+  if (Array.isArray(titleBrands) && Object.keys(map).length === 0) {
+    for (const b of titleBrands) {
+      const code = String(b.code).padStart(2, '0').slice(-2);
+      if (b.date || b.reportingEntity || b.reportingEntityId) {
+        map[code] = {
+          date: b.date,
+          reportingEntity: b.reportingEntity,
+          reportingEntityId: b.reportingEntityId,
+          reportingEntityCategoryCode: b.reportingEntityCategoryCode,
+        };
+      }
+    }
   }
   return map;
 }
@@ -1072,14 +1109,16 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                       const codeNorm = String(code).padStart(2, '0').slice(-2);
                       const codesSet = getTitleBrandCodes(displayReport.titleBrands);
                       const registered = codesSet.has(codeNorm);
-                      const detailsMap = getTitleBrandDetailsMap(displayReport.titleBrands);
+                      const rawHistory = (displayReport.rawApiResponses as Record<string, { result?: { brandsInformation?: unknown[] } }>)?.carsxeHistory;
+                      const rawBrands = rawHistory?.result?.brandsInformation as Array<{ code?: string; record?: unknown }> | undefined;
+                      const detailsMap = getTitleBrandDetailsMap(displayReport.titleBrands, rawBrands);
                       const details = detailsMap[codeNorm];
                       const isNeutralOrGood = ['00', '68'].includes(codeNorm);
                       const showGreen = !registered || (registered && isNeutralOrGood);
                       const enItem = getTitleBrandItems('en')[code];
                       const showOrig = useGeminiTranslation && lang !== 'en' && enItem && (enItem.name !== name || (enItem.description && enItem.description !== description));
                       return (
-                        <div key={code} className={`p-4 rounded-2xl border transition-colors flex flex-col sm:flex-row sm:items-start gap-3 ${showGreen ? 'border-emerald-200 bg-emerald-50/50' : 'border-rose-200 bg-rose-50/50'}`}>
+                        <div key={code} className={`p-4 rounded-2xl border transition-colors flex flex-col sm:flex-row sm:items-start gap-3 ${showGreen ? 'border-emerald-200 bg-emerald-50/50' : 'border-2 border-rose-400 bg-rose-50 shadow-md shadow-rose-200/60 ring-1 ring-rose-300/50'}`}>
                           <div className="flex items-center shrink-0">
                             {showGreen ? (
                               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-emerald-600">
@@ -1087,7 +1126,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                                 <polyline points="22 4 12 14.01 9 11.01"/>
                               </svg>
                             ) : (
-                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-rose-600">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-rose-600 shrink-0">
                                 <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
                                 <line x1="12" y1="9" x2="12" y2="13"/>
                                 <line x1="12" y1="17" x2="12.01" y2="17"/>
@@ -1101,7 +1140,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                                 {name}
                                 {showOrig && enItem?.name && enItem.name !== name && <span className="block text-[10px] font-normal text-slate-400">({enItem.name})</span>}
                               </span>
-                              <span className={`text-xs font-semibold ml-auto ${showGreen ? 'text-emerald-600' : 'text-rose-600'}`}>
+                              <span className={`ml-auto shrink-0 px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wide ${showGreen ? 'text-emerald-600 bg-emerald-100/80' : 'bg-rose-500 text-white shadow-sm'}`}>
                                 {showGreen ? (t.report.titleBrandNotRegistered ?? 'Not registered') : (t.report.titleBrandRegistered ?? 'Registered')}
                               </span>
                             </div>
@@ -1111,15 +1150,18 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                                 {showOrig && enItem?.description && enItem.description !== description && <span className="block text-[10px] text-slate-400 mt-0.5">({enItem.description})</span>}
                               </p>
                             )}
-                            {registered && (details?.date || details?.reportingEntity) && (
-                              <p className="text-xs text-slate-500 mt-2 flex flex-wrap gap-x-4 gap-y-0.5">
-                                {details.reportingEntity && (
-                                  <span><span className="font-medium text-slate-600">{t.report.titleBrandRegisteredAt ?? 'Location'}:</span> {details.reportingEntity}</span>
+                            {registered && (details?.date || details?.reportingEntity || details?.reportingEntityId) && (
+                              <div className="text-xs text-slate-500 mt-2 flex flex-wrap gap-x-4 gap-y-1.5">
+                                {(details.reportingEntity || details.reportingEntityId) && (
+                                  <span><span className="font-medium text-slate-600">{t.report.titleBrandRegisteredAt ?? 'Location'}:</span> {details.reportingEntity ?? details.reportingEntityId}{details.reportingEntity && details.reportingEntityId ? ` (${details.reportingEntityId})` : ''}</span>
                                 )}
                                 {details.date && (
                                   <span><span className="font-medium text-slate-600">{t.report.titleBrandRegisteredDate ?? 'Date'}:</span> {details.date}</span>
                                 )}
-                              </p>
+                                {details.reportingEntityCategoryCode && (
+                                  <span><span className="font-medium text-slate-600">{t.report.titleBrandCategory ?? 'Category'}:</span> {details.reportingEntityCategoryCode}</span>
+                                )}
+                              </div>
                             )}
                           </div>
                         </div>

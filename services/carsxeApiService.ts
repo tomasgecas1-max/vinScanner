@@ -243,18 +243,27 @@ export function mapCarsXeHistoryToReportFields(h: CarsXeHistoryResponse | undefi
     };
     for (const b of brands) {
       if (!b.record) continue;
-      const rec = b.record as { VehicleBrandDate?: { Date?: string }; ReportingEntityAbstract?: { EntityName?: string } };
-      const code = String(b.code ?? "").padStart(2, "0");
+      const rec = b.record as {
+        VehicleBrandDate?: { Date?: string };
+        VehicleBrandCode?: string;
+        ReportingEntityAbstract?: { EntityName?: string; IdentificationID?: string; ReportingEntityCategoryCode?: string };
+      };
+      const abs = rec.ReportingEntityAbstract;
+      const code = String(b.code ?? rec.VehicleBrandCode ?? "").padStart(2, "0");
       const name = b.name ?? TITLE_BRAND_DESCRIPTIONS[code]?.name ?? `Brand ${code}`;
       const description = b.description ?? TITLE_BRAND_DESCRIPTIONS[code]?.description;
       const date = rec.VehicleBrandDate?.Date?.slice(0, 10);
-      const reportingEntity = rec.ReportingEntityAbstract?.EntityName;
+      const reportingEntity = abs?.EntityName;
+      const reportingEntityId = abs?.IdentificationID;
+      const reportingEntityCategoryCode = abs?.ReportingEntityCategoryCode;
       titleBrands.push({
         code,
         name,
         ...(description ? { description } : {}),
         ...(date ? { date } : {}),
         ...(reportingEntity ? { reportingEntity } : {}),
+        ...(reportingEntityId ? { reportingEntityId } : {}),
+        ...(reportingEntityCategoryCode ? { reportingEntityCategoryCode } : {}),
       });
       if (b.code && b.name) {
         const rec = b.record as { VehicleBrandDate?: { Date?: string } };
@@ -483,7 +492,7 @@ export function enrichReportFromRawCarsXe(report: CarReport): CarReport {
       out.vinChanged = true;
       changed = true;
     }
-    if (fromH.titleBrands?.length && !out.titleBrands?.length) {
+    if (fromH.titleBrands?.length) {
       out.titleBrands = fromH.titleBrands;
       changed = true;
     }

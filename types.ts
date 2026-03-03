@@ -16,6 +16,10 @@ export interface TitleBrandRecord {
   date?: string;
   /** Reporting jurisdiction (e.g. NORTH CAROLINA, WISCONSIN) */
   reportingEntity?: string;
+  /** Jurisdiction ID (e.g. NC, WI) */
+  reportingEntityId?: string;
+  /** Category code (e.g. S = State) */
+  reportingEntityCategoryCode?: string;
 }
 
 /** CarsXE junkAndSalvageInformation įrašas */
