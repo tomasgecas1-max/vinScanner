@@ -621,8 +621,8 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
   return (
     <div className="max-w-5xl mx-auto px-4 pb-20 animate-in fade-in slide-in-from-bottom-8 duration-700 relative">
       {showTranslationOverlay && (
-        <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-[50] animate-in fade-in slide-in-from-top-2 duration-200">
-          <div className="flex flex-col items-stretch gap-3 rounded-2xl border border-slate-200 bg-white shadow-lg p-4 min-w-[220px] sm:min-w-[260px]">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 pointer-events-none">
+          <div className="pointer-events-auto flex flex-col items-stretch gap-3 rounded-2xl border border-slate-200 bg-white shadow-xl p-6 min-w-[260px] sm:min-w-[300px] animate-in fade-in zoom-in-95 duration-200">
             <p className="text-slate-900 font-bold text-sm text-center">{t.report.translatingReport ?? 'Translating…'}</p>
             <p className="text-indigo-600 text-xs uppercase tracking-wider font-medium text-center">{lang.toUpperCase()}</p>
             <div className="w-full">
