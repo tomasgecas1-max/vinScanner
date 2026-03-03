@@ -2,7 +2,42 @@ import React from 'react';
 import { USAGE_INSTRUCTIONS } from '../content/usage-instructions';
 import type { LangCode } from '../constants/translations';
 
-const POLICY_LANGS = ['lt', 'en', 'de'] as const;
+const TITLES: Record<string, string> = {
+  lt: 'Naudojimo instrukcija',
+  en: 'Usage instructions',
+  de: 'Nutzungsanleitung',
+  pl: 'Instrukcja obsługi',
+  fr: "Instructions d'utilisation",
+  es: 'Instrucciones de uso',
+  it: "Istruzioni per l'uso",
+  nl: 'Gebruiksinstructies',
+  uk: 'Інструкція з використання',
+  cs: 'Návod k použití',
+  ro: 'Instrucțiuni de utilizare',
+  sv: 'Användningsinstruktioner',
+  el: 'Οδηγίες χρήσης',
+  pt: 'Instruções de uso',
+  hu: 'Használati útmutató',
+  bg: 'Инструкции за ползване',
+  sr: 'Упутства за употребу',
+  da: 'Brugsanvisning',
+  no: 'Bruksanvisning',
+  fi: 'Käyttöohjeet',
+  sk: 'Návod na použitie',
+  hr: 'Upute za korištenje',
+  bs: 'Upute za korištenje',
+  sq: 'Udhëzimet e përdorimit',
+  sl: 'Navodila za uporabo',
+  lv: 'Lietošanas instrukcija',
+  mk: 'Упатство за употреба',
+  et: 'Kasutusjuhend',
+  ca: 'Instruccions',
+  lb: 'Instruktioune',
+  cnr: 'Uputstva za korištenje',
+  mt: 'Istruzzjonijiet',
+  is: 'Notkunarleiðbeiningar',
+  tr: 'Kullanım Talimatları',
+};
 
 interface UsageInstructionsModalProps {
   open: boolean;
@@ -47,10 +82,10 @@ function formatPolicyText(text: string): string {
 const UsageInstructionsModal: React.FC<UsageInstructionsModalProps> = ({ open, onClose, lang, closeLabel }) => {
   if (!open) return null;
 
-  const contentLang = POLICY_LANGS.includes(lang as (typeof POLICY_LANGS)[number]) ? (lang as 'lt' | 'en' | 'de') : 'en';
-  const content = USAGE_INSTRUCTIONS[contentLang];
+  const contentLang = (lang in USAGE_INSTRUCTIONS ? lang : 'en') as keyof typeof USAGE_INSTRUCTIONS;
+  const content = USAGE_INSTRUCTIONS[contentLang] ?? USAGE_INSTRUCTIONS.en;
   const html = formatPolicyText(content);
-  const title = contentLang === 'lt' ? 'Naudojimo instrukcija' : contentLang === 'en' ? 'Usage instructions' : 'Nutzungsanleitung';
+  const title = TITLES[contentLang] ?? TITLES.en;
 
   return (
     <div

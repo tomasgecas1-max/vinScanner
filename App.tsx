@@ -645,11 +645,6 @@ const App: React.FC = () => {
     }
   };
 
-  const handleSaveReport = async (r: CarReport) => {
-    if (!user) return;
-    await saveReport(user.uid, r);
-  };
-
   const [supplementLoading, setSupplementLoading] = useState(false);
   const handleSupplementReport = async (vin: string, opts: { useServiceHistory: boolean; useVinLookup: boolean; useVehicleSpecs?: boolean; useCarsXeHistory?: boolean }) => {
     if (!report || (!opts.useServiceHistory && !opts.useVinLookup && !opts.useVehicleSpecs && !opts.useCarsXeHistory)) return;
@@ -814,8 +809,6 @@ const App: React.FC = () => {
               report={report}
               t={t}
               lang={lang}
-              canSave={!!user}
-              onSaveReport={user ? () => handleSaveReport(report) : undefined}
               onSupplementReport={handleSupplementReport}
               supplementLoading={supplementLoading}
               pendingEmailReport={pendingEmailReport}

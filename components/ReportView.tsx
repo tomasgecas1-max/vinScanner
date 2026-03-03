@@ -13,8 +13,6 @@ interface ReportViewProps {
   report: CarReport;
   t: Translations;
   lang?: string;
-  canSave?: boolean;
-  onSaveReport?: () => Promise<void>;
   onSupplementReport?: (vin: string, opts: { useServiceHistory: boolean; useVinLookup: boolean; useVehicleSpecs?: boolean; useCarsXeHistory?: boolean }) => Promise<void>;
   supplementLoading?: boolean;
   pendingEmailReport?: { email: string; vin: string; token?: string; reportsRemaining?: number; orderId?: string; lang?: string } | null;
@@ -259,13 +257,11 @@ function formatValue(val: unknown, t?: { report: { yes: string; no: string } }):
   return String(val);
 }
 
-const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave, onSaveReport, onSupplementReport, supplementLoading, pendingEmailReport, onEmailWithPdfSent, orderId }) => {
+const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSupplementReport, supplementLoading, pendingEmailReport, onEmailWithPdfSent, orderId }) => {
   /** Iš raw CarsXE duomenų papildo ataskaitą – rodo VIN keitimą, junk/salvage, draudimą, lien/theft ir senesnėse išsaugotose ataskaitose */
   const displayReport = useMemo(() => enrichReportFromRawCarsXe(report), [report]);
   const [showRawApi, setShowRawApi] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
-  const [saveCloudLoading, setSaveCloudLoading] = useState(false);
-  const [saveCloudDone, setSaveCloudDone] = useState(false);
   const [supplementServiceHistory, setSupplementServiceHistory] = useState(true);
   const [supplementVinLookup, setSupplementVinLookup] = useState(true);
   const [supplementVehicleSpecs, setSupplementVehicleSpecs] = useState(true);
@@ -554,20 +550,6 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
     }
   };
 
-  const handleSaveToCloud = async () => {
-    if (!onSaveReport) return;
-    setSaveCloudLoading(true);
-    setSaveCloudDone(false);
-    try {
-      await onSaveReport();
-      setSaveCloudDone(true);
-    } catch (e) {
-      if (typeof console !== 'undefined' && console.error) console.error('Save to cloud:', e);
-    } finally {
-      setSaveCloudLoading(false);
-    }
-  };
-
   const rawApi = report.rawApiResponses as Record<string, { success?: boolean }> | undefined;
   const rawJson = report.rawApiResponses != null ? JSON.stringify(report.rawApiResponses, null, 2) : null;
 
@@ -728,23 +710,6 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', canSave
                 {displayReport.theftStatus === 'flagged' ? '!' : '✓'}
               </span>
             </div>
-            {canSave && onSaveReport && (
-              <button
-                type="button"
-                onClick={handleSaveToCloud}
-                disabled={saveCloudLoading}
-                className="p-1.5 sm:p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors disabled:opacity-60 flex items-center gap-2 shrink-0"
-                title={t.report.saveToCloud}
-              >
-                {saveCloudLoading ? (
-                  <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : saveCloudDone ? (
-                  <span className="text-[10px] font-bold text-emerald-300">✓</span>
-                ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="sm:w-[18px] sm:h-[18px]"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                )}
-              </button>
-            )}
             <button
               type="button"
               onClick={handleDownloadPdf}
