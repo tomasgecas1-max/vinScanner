@@ -14,7 +14,7 @@ const MobilePlanSheet: React.FC<MobilePlanSheetProps> = ({ pendingVin, t, onPlan
     // TESTAVIMUI: kainos sumažintos iki 0.50 EUR (grąžinti prieš production!)
     { name: t.pricing.planSingle, count: t.pricing.report1, price: 12, oldPrice: 24, highlight: false },
     { name: t.pricing.planPopular, count: t.pricing.reports2, price: 20, oldPrice: 40, highlight: false },
-    { name: t.pricing.planBestValue, count: t.pricing.reports3, price: 27, oldPrice: 54, highlight: true },
+    { name: t.pricing.planBestValue, count: t.pricing.reports3, price: 0.5, oldPrice: 27, highlight: true },
   ];
 
   const handleConfirm = () => {

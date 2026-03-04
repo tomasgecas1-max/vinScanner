@@ -457,7 +457,7 @@ const App: React.FC = () => {
 
   const handlePaymentPay = (vin: string, customerEmail?: string, orderId?: string, paymentIntentId?: string) => {
     if (orderId) {
-      const prices = [12, 20, 27];
+      const prices = [12, 20, 0.5];
       trackPurchase(orderId, prices[planIndexForOrder] ?? 12);
     }
     setShowPaymentModal(false);
