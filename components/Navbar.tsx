@@ -19,6 +19,7 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ lang, setLang, t, onMyReportsClick, onSampleReportClick, onAuthClick }) => {
   const { user, loading, signOut, deleteAccount, isFirebaseEnabled } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -95,11 +96,11 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, t, onMyReportsClick, onS
                           {t.nav.myReports}
                         </button>
                       )}
+                      <button onClick={() => { setMenuOpen(false); setSettingsModalOpen(true); }} className="w-full text-left px-4 py-2.5 text-[11px] font-bold text-slate-700 hover:bg-slate-50">
+                        {t.nav.settings}
+                      </button>
                       <button onClick={() => { signOut(); setMenuOpen(false); }} className="w-full text-left px-4 py-2.5 text-[11px] font-bold text-slate-600 hover:bg-slate-50">
                         {t.nav.signOut}
-                      </button>
-                      <button onClick={() => { setMenuOpen(false); setDeleteModalOpen(true); setDeleteError(null); }} className="w-full text-left px-4 py-2.5 text-[11px] font-bold text-rose-600 hover:bg-rose-50">
-                        {t.nav.deleteAccount}
                       </button>
                     </div>
                   )}
@@ -156,8 +157,8 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, t, onMyReportsClick, onS
                     {onMyReportsClick && (
                       <button onClick={() => { onMyReportsClick(); setMenuOpen(false); }} className="w-full text-left px-4 py-2.5 text-[11px] font-bold text-slate-700 hover:bg-slate-50">{t.nav.myReports}</button>
                     )}
+                    <button onClick={() => { setMenuOpen(false); setSettingsModalOpen(true); }} className="w-full text-left px-4 py-2.5 text-[11px] font-bold text-slate-700 hover:bg-slate-50">{t.nav.settings}</button>
                     <button onClick={() => { signOut(); setMenuOpen(false); }} className="w-full text-left px-4 py-2.5 text-[11px] font-bold text-slate-600 hover:bg-slate-50">{t.nav.signOut}</button>
-                    <button onClick={() => { setMenuOpen(false); setDeleteModalOpen(true); setDeleteError(null); }} className="w-full text-left px-4 py-2.5 text-[11px] font-bold text-rose-600 hover:bg-rose-50">{t.nav.deleteAccount}</button>
                   </div>
                 )}
               </>
@@ -165,6 +166,26 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, t, onMyReportsClick, onS
           </div>
         </div>
       </div>
+
+      {settingsModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[200]" onClick={() => setSettingsModalOpen(false)}>
+          <div className="bg-white rounded-2xl shadow-xl max-w-md mx-4 p-6" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-slate-800 mb-4">{t.nav.settings}</h3>
+            <button
+              onClick={() => { setSettingsModalOpen(false); setDeleteModalOpen(true); setDeleteError(null); }}
+              className="w-full text-left px-4 py-3 rounded-xl border border-rose-200 text-rose-600 font-bold text-sm hover:bg-rose-50 transition-colors"
+            >
+              {t.nav.deleteAccount}
+            </button>
+            <button
+              onClick={() => setSettingsModalOpen(false)}
+              className="mt-4 w-full py-3 rounded-xl border border-slate-200 text-slate-700 font-bold text-sm hover:bg-slate-50"
+            >
+              {t.pricing.close}
+            </button>
+          </div>
+        </div>
+      )}
 
       {deleteModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[200]" onClick={() => !deleteLoading && setDeleteModalOpen(false)}>

@@ -80,7 +80,7 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect }) => {
                   <div className="text-3xl font-black mb-4 tracking-tight">{plan.count}</div>
                   <div className="flex items-center justify-center gap-3">
                     <span className="text-4xl font-black tracking-tighter">{plan.price} €</span>
-                    <span className="text-lg text-slate-400 line-through decoration-rose-500/50 font-bold">{plan.oldPrice} €</span>
+                    <span className="text-lg text-slate-400 line-through decoration-2 decoration-rose-500 font-bold">{plan.oldPrice} €</span>
                   </div>
                 </div>
 

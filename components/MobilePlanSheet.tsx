@@ -57,7 +57,7 @@ const MobilePlanSheet: React.FC<MobilePlanSheetProps> = ({ pendingVin, t, onPlan
                 </div>
                 <div className="flex items-center justify-center gap-1.5 flex-wrap">
                   <span className="text-lg font-black tracking-tighter text-slate-900">{plan.price} €</span>
-                  <span className="text-[10px] text-slate-400 line-through decoration-rose-500/50 font-bold">{plan.oldPrice} €</span>
+                  <span className="text-[10px] text-slate-400 line-through decoration-2 decoration-rose-500 font-bold">{plan.oldPrice} €</span>
                 </div>
                 <div className="text-[9px] text-slate-500 mt-1">
                   {t.pricing.perReport} {Number.isInteger(plan.price / (idx + 1)) ? plan.price / (idx + 1) : (plan.price / (idx + 1)).toFixed(1)} €
