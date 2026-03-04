@@ -26,7 +26,17 @@ const MyReports: React.FC<MyReportsProps> = ({ t, lang, isOpen, refreshKey = 0, 
     if (!user || !isOpen) return;
     setLoading(true);
     setError(null);
-    (isAdmin ? getSavedReportsForAdmin() : getSavedReports(user.uid))
+    const fetchReports = async () => {
+      if (isAdmin) {
+        try {
+          return await getSavedReportsForAdmin();
+        } catch {
+          return await getSavedReports(user.uid);
+        }
+      }
+      return getSavedReports(user.uid);
+    };
+    fetchReports()
       .then(setList)
       .catch((e) => setError(e instanceof Error ? e.message : 'Error'))
       .finally(() => setLoading(false));
