@@ -210,29 +210,32 @@ export const getReportAnalysis = async (report: CarReport, lang: string = 'lt'):
       ? "Lien/Theft: " + report.lienTheftEvents.map((e) => `${e.type}: ${e.description}`).join("; ")
       : "Lien/Theft įrašų nėra.";
   const vinChangedStr = report.vinChanged === true ? "VIN buvo keistas!" : "";
+  const raw = report.rawApiResponses as Record<string, unknown> | undefined;
+  const hasCarsXeHistory = !!raw?.carsxeHistory;
+  const isOneAutoOnly = !hasCarsXeHistory;
 
-  const context = [
+  const oneAutoContextParts = [
     `Automobilis: ${report.year} ${report.make} ${report.model}, VIN: ${report.vin}.`,
     mileageStr,
     `Serviso įrašų skaičius: ${serviceCount}.`,
-    `Žalos / remontai: ${damagesStr}`,
+    damagesStr !== "Žalų įrašų nėra." ? `Žalos / remontai: ${damagesStr}` : null,
     theftStr,
     specsStr,
-    junkStr,
-    insStr,
-    brandsStr,
-    lienStr,
     vinChangedStr,
-  ]
-    .filter(Boolean)
-    .join(" ");
+  ];
+  const carsXeContextParts = hasCarsXeHistory ? [junkStr, insStr, brandsStr, lienStr] : [];
+  const context = [...oneAutoContextParts.filter(Boolean), ...carsXeContextParts].join(" ");
+
+  const oneAutoInstruction = isOneAutoOnly
+    ? `KRITIŠKAI SVARBU: Ši ataskaita iš One Auto API. One Auto API NETIKRINA avarijų istorijos, junk/salvage įrašų, titulo ženklų (NMVTIS), draudimo istorijos. NIEKADA neminėk šių temų – nei kaip problemą, nei kaip pastabą, nei santraukoje. Vertink tik tai, ką One Auto tikrina: serviso istoriją, ridą, technines specifikacijas. `
+    : "";
 
   const prompt = `Pagal šią automobilio patikros ataskaitos santrauką (visus API duomenis):
-1) Išskirk galimas problemines vietas arba rizikas (pvz. SALVAGE, didelė rida, žalos, vagystė, VIN keistas, junk/salvage įrašai) – trumpai, punktais.
-2) Išskirk stipriąsias automobilio puses (pvz. nuosekli serviso istorija jei yra, maža rida, jokių žalų).
+1) Išskirk galimas problemines vietas arba rizikas – trumpai, punktais.${hasCarsXeHistory ? " (pvz. SALVAGE, didelė rida, žalos, vagystė, VIN keistas, junk/salvage įrašai)" : " (pvz. didelė rida, vagystė, VIN keistas – tik tai, kas pateikta ataskaitoje)"}
+2) Išskirk stipriąsias automobilio puses (pvz. nuosekli serviso istorija jei yra, maža rida).
 3) Parašyk 2–3 sakinius santrauką (summary) – apibendrink svarbiausius įrašus: ką verta žinoti pirkėjui.
 
-SVARBU: Nekelk kaip problemą ar minusą „trūkstama serviso istorija“ ar „nėra serviso įrašų“ – CarsXE ataskaitose serviso istorijos dažnai nėra, nes API jos neteikia; tai duomenų šaltinio ribotumas, o ne automobilio trūkumas. Vertink tik tai, kas pateikta.
+${oneAutoInstruction}SVARBU: Nekelk kaip problemą „trūkstama serviso istorija“ ar „nėra serviso įrašų“ – tai duomenų šaltinio ribotumas, ne automobilio trūkumas. Vertink tik tai, kas pateikta.
 Atsakyk kalba: ${LANG_NAMES[lang] || 'Lithuanian'}. Visi atsakymai (problemAreas, strongPoints, summary) turi būti šia kalba. Kiekvienas punktas – viena aiški frazė.
 
 Ataskaitos duomenys: ${context}`;
