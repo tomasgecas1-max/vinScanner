@@ -9,14 +9,7 @@ export const PRIVACY_POLICY = {
 
 Ši Privatumo politika taikoma naudojantis svetaine vinscanner.eu, užsakant VIN ataskaitas, mokant už paslaugas, susisiekiant el. paštu, naudojant „Prisijungti su Google“ ar išsaugant ataskaitas debesyje. „Asmens duomenys“ – bet kokia informacija, pagal kurią galima nustatyti jūsų tapatybę.
 
-**2. DUOMENŲ VALDYTOJAS**
-
-Duomenų valdytojas: **TOMAS GEČAS** (individuali veikla pagal individualią pažymą)
-Identifikacinis numeris: 39202200463
-El. paštas: info@vinscanner.eu
-Svetainė: https://vinscanner.eu
-
-**3. KOKIUS DUOMENIS RENKAME IR KODĖL**
+**2. KOKIUS DUOMENIS RENKAME IR KODĖL**
 
 | Duomenų tipas | Tikslas | Teisinis pagrindas (BDAR 6 str.) |
 |---------------|---------|----------------------------------|
@@ -30,7 +23,7 @@ Svetainė: https://vinscanner.eu
 
 Mokėjimo kortelės numeriai nesaugomi mūsų serveriuose – jie apdorojami tik mokėjimų tarpininko.
 
-**4. DUOMENŲ GAVĖJAI (KATEGORIJOS)**
+**3. DUOMENŲ GAVĖJAI (KATEGORIJOS)**
 
 Duomenis perduodame šioms **kategorijoms** trečiųjų šalių:
 
@@ -42,7 +35,7 @@ Duomenis perduodame šioms **kategorijoms** trečiųjų šalių:
 
 Visos šios kategorijos apdoroja duomenis tik mūsų nurodytu tikslu ir pagal sutartis, užtikrinančias BDAR reikalavimus.
 
-**5. SAUGOJIMO LAIKOTARPIAI**
+**4. SAUGOJIMO LAIKOTARPIAI**
 
 | Duomenų tipas | Laikotarpis |
 |---------------|-------------|
@@ -51,6 +44,13 @@ Visos šios kategorijos apdoroja duomenis tik mūsų nurodytu tikslu ir pagal su
 | Paskyros duomenys (prisijungimas) | Kol naudojate paskyrą; po ištrynimo – 30 dienų (backup) |
 | Pirkimo tokenai (likusios ataskaitos) | Iki paskutinės ataskaitos panaudojimo ar 3 metai |
 | Mokėjimo duomenys | Mūsų serveriuose nesaugomi; tarpininkas laiko pagal savo politiką |
+
+**5. DUOMENŲ VALDYTOJAS**
+
+Duomenų valdytojas: Tomas Gečas (individuali veikla pagal individualią pažymą)
+Identifikacinis numeris: 39202200463
+El. paštas: info@vinscanner.eu
+Svetainė: https://vinscanner.eu
 
 **6. JŪSŲ TEISĖS IR KONTAKTAI**
 
@@ -72,14 +72,7 @@ Politiką galime keisti. Reikšmingi pakeitimai bus paskelbti svetainėje. „Pa
 
 This Privacy Policy applies when you use vinscanner.eu, order VIN reports, pay for services, contact us by email, use “Sign in with Google”, or save reports to the cloud. “Personal data” means any information by which you can be identified.
 
-**2. DATA CONTROLLER**
-
-Data controller: **TOMAS GEČAS** (individual activity under individual activity certificate)
-Identification number: 39202200463
-Email: info@vinscanner.eu
-Website: https://vinscanner.eu
-
-**3. WHAT DATA WE COLLECT AND WHY**
+**2. WHAT DATA WE COLLECT AND WHY**
 
 | Data type | Purpose | Legal basis (GDPR Art. 6) |
 |-----------|---------|---------------------------|
@@ -93,7 +86,7 @@ Website: https://vinscanner.eu
 
 Card numbers are not stored on our servers – they are processed only by the payment intermediary.
 
-**4. RECIPIENTS (CATEGORIES)**
+**3. RECIPIENTS (CATEGORIES)**
 
 We share data with these **categories** of third parties:
 
@@ -105,7 +98,7 @@ We share data with these **categories** of third parties:
 
 All categories process data only for our specified purposes under agreements ensuring GDPR compliance.
 
-**5. RETENTION PERIODS**
+**4. RETENTION PERIODS**
 
 | Data type | Period |
 |-----------|--------|
@@ -114,6 +107,13 @@ All categories process data only for our specified purposes under agreements ens
 | Account data (sign-in) | While you use the account; 30 days after deletion (backup) |
 | Purchase tokens (remaining reports) | Until last report used or 3 years |
 | Payment data | Not stored on our servers; intermediary retains per its policy |
+
+**5. DATA CONTROLLER**
+
+Data controller: Tomas Gečas (individual activity under individual activity certificate)
+Identification number: 39202200463
+Email: info@vinscanner.eu
+Website: https://vinscanner.eu
 
 **6. YOUR RIGHTS AND CONTACT**
 
@@ -135,14 +135,7 @@ We may update this policy. Significant changes will be announced on the site. �
 
 Diese Datenschutzrichtlinie gilt bei Nutzung von vinscanner.eu, Bestellung von FIN-Berichten, Zahlung für Leistungen, Kontakt per E-Mail, Nutzung von „Mit Google anmelden“ oder Speicherung von Berichten in der Cloud. „Personenbezogene Daten“ – jede Information, anhand derer Sie identifiziert werden können.
 
-**2. VERANTWORTLICHER**
-
-Verantwortlicher: **TOMAS GEČAS** (Einzelunternehmen gemäß Einzelunternehmerbescheinigung)
-Identifikationsnummer: 39202200463
-E-Mail: info@vinscanner.eu
-Webseite: https://vinscanner.eu
-
-**3. WELCHE DATEN WIR ERHEBEN UND WARUM**
+**2. WELCHE DATEN WIR ERHEBEN UND WARUM**
 
 | Datentyp | Zweck | Rechtsgrundlage (DSGVO Art. 6) |
 |----------|-------|--------------------------------|
@@ -156,7 +149,7 @@ Webseite: https://vinscanner.eu
 
 Kartennummern werden nicht auf unseren Servern gespeichert – sie werden nur vom Zahlungsdienstleister verarbeitet.
 
-**4. EMPFÄNGER (KATEGORIEN)**
+**3. EMPFÄNGER (KATEGORIEN)**
 
 Wir geben Daten an diese **Kategorien** von Dritten weiter:
 
@@ -168,7 +161,7 @@ Wir geben Daten an diese **Kategorien** von Dritten weiter:
 
 Alle Kategorien verarbeiten Daten nur für unsere festgelegten Zwecke gemäß Verträgen, die die DSGVO-Konformität gewährleisten.
 
-**5. AUFBEWAHRUNGSDAUER**
+**4. AUFBEWAHRUNGSDAUER**
 
 | Datentyp | Dauer |
 |----------|-------|
@@ -177,6 +170,13 @@ Alle Kategorien verarbeiten Daten nur für unsere festgelegten Zwecke gemäß Ve
 | Kontodaten (Anmeldung) | Während der Kontonutzung; 30 Tage nach Löschung (Backup) |
 | Kauf-Tokens (restliche Berichte) | Bis letzter Bericht genutzt oder 3 Jahre |
 | Zahlungsdaten | Nicht auf unseren Servern; Dienstleister behält gemäß eigener Politik |
+
+**5. VERANTWORTLICHER**
+
+Verantwortlicher: Tomas Gečas (Einzelunternehmen gemäß Einzelunternehmerbescheinigung)
+Identifikationsnummer: 39202200463
+E-Mail: info@vinscanner.eu
+Webseite: https://vinscanner.eu
 
 **6. IHRE RECHTE UND KONTAKT**
 
@@ -196,186 +196,186 @@ Wir können diese Richtlinie aktualisieren. Wesentliche Änderungen werden auf d
   pl: `
 **POLITYKA PRYWATNOŚCI - vinscanner.eu**
 
-Zbieramy: VIN (raporty), e-mail, dane Google (logowanie), dane techniczne. Odbiorcy: pośrednicy płatności, dostawcy chmury, API VIN. Przechowywanie: VIN 3 lata, e-mail 10 lat. Prawa: dostęp, sprostowanie, usunięcie. Kontakt: info@vinscanner.eu. HTTPS, cookies, transfer poza UE z SCC.
+Administrator danych: Tomas Gečas. Zbieramy: VIN (raporty), e-mail, dane Google (logowanie), dane techniczne. Odbiorcy: pośrednicy płatności, dostawcy chmury, API VIN. Przechowywanie: VIN 3 lata, e-mail 10 lat. Prawa: dostęp, sprostowanie, usunięcie. Kontakt: info@vinscanner.eu. HTTPS, cookies, transfer poza UE z SCC.
 `,
 
   fr: `
 **POLITIQUE DE CONFIDENTIALITÉ - vinscanner.eu**
 
-Données collectées: VIN (rapports), e-mail, données Google (connexion), données techniques. Destinataires: intermédiaires de paiement, fournisseurs cloud, API VIN. Conservation: VIN 3 ans, e-mail 10 ans. Droits: accès, rectification, effacement. Contact: info@vinscanner.eu. HTTPS, cookies, transfert hors UE avec CCT.
+Responsable du traitement : Tomas Gečas. Données collectées: VIN (rapports), e-mail, données Google (connexion), données techniques. Destinataires: intermédiaires de paiement, fournisseurs cloud, API VIN. Conservation: VIN 3 ans, e-mail 10 ans. Droits: accès, rectification, effacement. Contact: info@vinscanner.eu. HTTPS, cookies, transfert hors UE avec CCT.
 `,
 
   es: `
 **POLÍTICA DE PRIVACIDAD - vinscanner.eu**
 
-Datos recopilados: VIN (informes), correo, datos Google (inicio sesión), datos técnicos. Destinatarios: intermediarios pago, proveedores cloud, API VIN. Conservación: VIN 3 años, correo 10 años. Derechos: acceso, rectificación, supresión. Contacto: info@vinscanner.eu. HTTPS, cookies, transferencia fuera UE con CCT.
+Responsable del tratamiento: Tomas Gečas. Datos recopilados: VIN (informes), correo, datos Google (inicio sesión), datos técnicos. Destinatarios: intermediarios pago, proveedores cloud, API VIN. Conservación: VIN 3 años, correo 10 años. Derechos: acceso, rectificación, supresión. Contacto: info@vinscanner.eu. HTTPS, cookies, transferencia fuera UE con CCT.
 `,
 
   it: `
 **INFORMATIVA SULLA PRIVACY - vinscanner.eu**
 
-Dati raccolti: VIN (rapporti), e-mail, dati Google (accesso), dati tecnici. Destinatari: intermediari pagamento, fornitori cloud, API VIN. Conservazione: VIN 3 anni, e-mail 10 anni. Diritti: accesso, rettifica, cancellazione. Contatto: info@vinscanner.eu. HTTPS, cookie, trasferimento fuori UE con SCC.
+Titolare del trattamento: Tomas Gečas. Dati raccolti: VIN (rapporti), e-mail, dati Google (accesso), dati tecnici. Destinatari: intermediari pagamento, fornitori cloud, API VIN. Conservazione: VIN 3 anni, e-mail 10 anni. Diritti: accesso, rettifica, cancellazione. Contatto: info@vinscanner.eu. HTTPS, cookie, trasferimento fuori UE con SCC.
 `,
 
   nl: `
 **PRIVACYBELEID - vinscanner.eu**
 
-Verzamelde gegevens: VIN (rapporten), e-mail, Google-gegevens (inloggen), technische gegevens. Ontvangers: betalingstussenpersonen, cloudproviders, VIN API. Bewaring: VIN 3 jaar, e-mail 10 jaar. Rechten: inzage, rectificatie, wissing. Contact: info@vinscanner.eu. HTTPS, cookies, doorgifte buiten EU met SCC.
+Verantwoordelijke voor gegevens: Tomas Gečas. Verzamelde gegevens: VIN (rapporten), e-mail, Google-gegevens (inloggen), technische gegevens. Ontvangers: betalingstussenpersonen, cloudproviders, VIN API. Bewaring: VIN 3 jaar, e-mail 10 jaar. Rechten: inzage, rectificatie, wissing. Contact: info@vinscanner.eu. HTTPS, cookies, doorgifte buiten EU met SCC.
 `,
 
   cs: `
 **ZÁSADY OCHRANY OSOBNÍCH ÚDAJŮ - vinscanner.eu**
 
-Shromažďované údaje: VIN (reporty), e-mail, Google údaje (přihlášení), technické údaje. Příjemci: platební zprostředkovatelé, poskytovatelé cloudu, VIN API. Uchovávání: VIN 3 roky, e-mail 10 let. Práva: přístup, oprava, výmaz. Kontakt: info@vinscanner.eu. HTTPS, cookies, předání mimo EU s SCC.
+Správce údajů: Tomas Gečas. Shromažďované údaje: VIN (reporty), e-mail, Google údaje (přihlášení), technické údaje. Příjemci: platební zprostředkovatelé, poskytovatelé cloudu, VIN API. Uchovávání: VIN 3 roky, e-mail 10 let. Práva: přístup, oprava, výmaz. Kontakt: info@vinscanner.eu. HTTPS, cookies, předání mimo EU s SCC.
 `,
 
   uk: `
 **ПОЛІТИКА КОНФІДЕНЦІЙНОСТІ - vinscanner.eu**
 
-Зібрані дані: VIN (звіти), email, дані Google (вхід), технічні дані. Одержувачі: платіжні посередники, хмарні провайдери, VIN API. Зберігання: VIN 3 роки, email 10 років. Права: доступ, виправлення, видалення. Контакт: info@vinscanner.eu. HTTPS, cookies, передача за межі ЄС з SCC.
+Відповідальний за обробку: Tomas Gečas. Зібрані дані: VIN (звіти), email, дані Google (вхід), технічні дані. Одержувачі: платіжні посередники, хмарні провайдери, VIN API. Зберігання: VIN 3 роки, email 10 років. Права: доступ, виправлення, видалення. Контакт: info@vinscanner.eu. HTTPS, cookies, передача за межі ЄС з SCC.
 `,
 
   ro: `
 **POLITICA DE CONFIDENȚIALITATE - vinscanner.eu**
 
-Date colectate: VIN (rapoarte), e-mail, date Google (conectare), date tehnice. Destinatari: intermediari plăți, furnizori cloud, VIN API. Păstrare: VIN 3 ani, e-mail 10 ani. Drepturi: acces, rectificare, ștergere. Contact: info@vinscanner.eu. HTTPS, cookies, transfer în afara UE cu SCC.
+Operatorul datelor: Tomas Gečas. Date colectate: VIN (rapoarte), e-mail, date Google (conectare), date tehnice. Destinatari: intermediari plăți, furnizori cloud, VIN API. Păstrare: VIN 3 ani, e-mail 10 ani. Drepturi: acces, rectificare, ștergere. Contact: info@vinscanner.eu. HTTPS, cookies, transfer în afara UE cu SCC.
 `,
 
   sv: `
 **INTEGRITETSPOLICY - vinscanner.eu**
 
-Insamlade uppgifter: VIN (rapporter), e-post, Google-uppgifter (inloggning), tekniska uppgifter. Mottagare: betalningsförmedlare, molnleverantörer, VIN API. Lagring: VIN 3 år, e-post 10 år. Rättigheter: tillgång, rättelse, radering. Kontakt: info@vinscanner.eu. HTTPS, cookies, överföring utanför EU med SCC.
+Personuppgiftsansvarig: Tomas Gečas. Insamlade uppgifter: VIN (rapporter), e-post, Google-uppgifter (inloggning), tekniska uppgifter. Mottagare: betalningsförmedlare, molnleverantörer, VIN API. Lagring: VIN 3 år, e-post 10 år. Rättigheter: tillgång, rättelse, radering. Kontakt: info@vinscanner.eu. HTTPS, cookies, överföring utanför EU med SCC.
 `,
 
   el: `
 **ΠΟΛΙΤΙΚΉ ΑΠΟΡΡΉΤΟΥ - vinscanner.eu**
 
-Συλλεγμένα δεδομένα: VIN (αναφορές), email, δεδομένα Google (σύνδεση), τεχνικά δεδομένα. Αποδέκτες: διαμεσολαβητές πληρωμών, πάροχοι cloud, VIN API. Διατήρηση: VIN 3 χρόνια, email 10 χρόνια. Δικαιώματα: πρόσβαση, διόρθωση, διαγραφή. Επικοινωνία: info@vinscanner.eu. HTTPS, cookies, μεταφορά εκτός ΕΕ με SCC.
+Υπεύθυνος επεξεργασίας: Tomas Gečas. Συλλεγμένα δεδομένα: VIN (αναφορές), email, δεδομένα Google (σύνδεση), τεχνικά δεδομένα. Αποδέκτες: διαμεσολαβητές πληρωμών, πάροχοι cloud, VIN API. Διατήρηση: VIN 3 χρόνια, email 10 χρόνια. Δικαιώματα: πρόσβαση, διόρθωση, διαγραφή. Επικοινωνία: info@vinscanner.eu. HTTPS, cookies, μεταφορά εκτός ΕΕ με SCC.
 `,
 
   pt: `
 **POLÍTICA DE PRIVACIDADE - vinscanner.eu**
 
-Dados recolhidos: VIN (relatórios), e-mail, dados Google (login), dados técnicos. Destinatários: intermediários pagamento, fornecedores cloud, VIN API. Retenção: VIN 3 anos, e-mail 10 anos. Direitos: acesso, retificação, apagamento. Contacto: info@vinscanner.eu. HTTPS, cookies, transferência fora UE com CCT.
+Responsável pelo tratamento: Tomas Gečas. Dados recolhidos: VIN (relatórios), e-mail, dados Google (login), dados técnicos. Destinatários: intermediários pagamento, fornecedores cloud, VIN API. Retenção: VIN 3 anos, e-mail 10 anos. Direitos: acesso, retificação, apagamento. Contacto: info@vinscanner.eu. HTTPS, cookies, transferência fora UE com CCT.
 `,
 
   hu: `
 **ADATVÉDELMI SZABÁLYZAT - vinscanner.eu**
 
-Gyűjtött adatok: VIN (jelentések), e-mail, Google adatok (bejelentkezés), technikai adatok. Címzettek: fizetési közvetítők, felhő szolgáltatók, VIN API. Megőrzés: VIN 3 év, e-mail 10 év. Jogok: hozzáférés, helyesbítés, törlés. Kapcsolat: info@vinscanner.eu. HTTPS, sütik, EU-n kívüli továbbítás SCC-vel.
+Adatkezelő: Tomas Gečas. Gyűjtött adatok: VIN (jelentések), e-mail, Google adatok (bejelentkezés), technikai adatok. Címzettek: fizetési közvetítők, felhő szolgáltatók, VIN API. Megőrzés: VIN 3 év, e-mail 10 év. Jogok: hozzáférés, helyesbítés, törlés. Kapcsolat: info@vinscanner.eu. HTTPS, sütik, EU-n kívüli továbbítás SCC-vel.
 `,
 
   bg: `
 **ПОЛИТИКА ЗА ПОВЕРИТЕЛНОСТ - vinscanner.eu**
 
-Събирани данни: VIN (справки), имейл, Google данни (вход), технически данни. Получатели: платежни посредници, облачни доставчици, VIN API. Съхранение: VIN 3 години, имейл 10 години. Права: достъп, коригиране, изтриване. Контакт: info@vinscanner.eu. HTTPS, бисквитки, прехвърляне извън ЕС със SCC.
+Администратор на данни: Tomas Gečas. Събирани данни: VIN (справки), имейл, Google данни (вход), технически данни. Получатели: платежни посредници, облачни доставчици, VIN API. Съхранение: VIN 3 години, имейл 10 години. Права: достъп, коригиране, изтриване. Контакт: info@vinscanner.eu. HTTPS, бисквитки, прехвърляне извън ЕС със SCC.
 `,
 
   sr: `
 **ПОЛИТИКА ПРИВАТНОСТИ - vinscanner.eu**
 
-Прикупљени подаци: VIN (извештаји), е-пошта, Google подаци (пријава), технички подаци. Примаоци: посредници за плаћање, провајдери облака, VIN API. Чување: VIN 3 године, е-пошта 10 година. Права: приступ, исправка, брисање. Контакт: info@vinscanner.eu. HTTPS, колачићи, пренос ван ЕУ са SCC.
+Надлежан за управљање подацима: Tomas Gečas. Прикупљени подаци: VIN (извештаји), е-пошта, Google подаци (пријава), технички подаци. Примаоци: посредници за плаћање, провајдери облака, VIN API. Чување: VIN 3 године, е-пошта 10 година. Права: приступ, исправка, брисање. Контакт: info@vinscanner.eu. HTTPS, колачићи, пренос ван ЕУ са SCC.
 `,
 
   da: `
 **PRIVATLIVSPOLITIK - vinscanner.eu**
 
-Indsamlede data: VIN (rapporter), e-mail, Google-data (login), tekniske data. Modtagere: betalingsformidlere, cloud-udbydere, VIN API. Opbevaring: VIN 3 år, e-mail 10 år. Rettigheder: indsigt, berigtigelse, sletning. Kontakt: info@vinscanner.eu. HTTPS, cookies, overførsel uden for EU med SCC.
+Datansvarlig: Tomas Gečas. Indsamlede data: VIN (rapporter), e-mail, Google-data (login), tekniske data. Modtagere: betalingsformidlere, cloud-udbydere, VIN API. Opbevaring: VIN 3 år, e-mail 10 år. Rettigheder: indsigt, berigtigelse, sletning. Kontakt: info@vinscanner.eu. HTTPS, cookies, overførsel uden for EU med SCC.
 `,
 
   no: `
 **PERSONVERNPOLICY - vinscanner.eu**
 
-Innsamlede data: VIN (rapporter), e-post, Google-data (innlogging), tekniske data. Mottakere: betalingsformidlere, skyleverandører, VIN API. Lagring: VIN 3 år, e-post 10 år. Rettigheter: innsyn, retting, sletting. Kontakt: info@vinscanner.eu. HTTPS, informasjonskapsler, overføring utenfor EU med SCC.
+Personvernansvarlig: Tomas Gečas. Innsamlede data: VIN (rapporter), e-post, Google-data (innlogging), tekniske data. Mottakere: betalingsformidlere, skyleverandører, VIN API. Lagring: VIN 3 år, e-post 10 år. Rettigheter: innsyn, retting, sletting. Kontakt: info@vinscanner.eu. HTTPS, informasjonskapsler, overføring utenfor EU med SCC.
 `,
 
   fi: `
 **TIETOSUOJAKÄYTÄNTÖ - vinscanner.eu**
 
-Kerätyt tiedot: VIN (raportit), sähköposti, Google-tiedot (kirjautuminen), tekniset tiedot. Vastaanottajat: maksuvälittäjät, pilvipalveluntarjoajat, VIN API. Säilytys: VIN 3 vuotta, sähköposti 10 vuotta. Oikeudet: pääsy, oikaisu, poisto. Yhteys: info@vinscanner.eu. HTTPS, evästeet, siirto EU:n ulkopuolelle SCC:llä.
+Rekisterinpitäjä: Tomas Gečas. Kerätyt tiedot: VIN (raportit), sähköposti, Google-tiedot (kirjautuminen), tekniset tiedot. Vastaanottajat: maksuvälittäjät, pilvipalveluntarjoajat, VIN API. Säilytys: VIN 3 vuotta, sähköposti 10 vuotta. Oikeudet: pääsy, oikaisu, poisto. Yhteys: info@vinscanner.eu. HTTPS, evästeet, siirto EU:n ulkopuolelle SCC:llä.
 `,
 
   sk: `
 **ZÁSADY OCHRANY OSOBNÝCH ÚDAJOV - vinscanner.eu**
 
-Zhromažďované údaje: VIN (reporty), e-mail, Google údaje (prihlásenie), technické údaje. Príjemcovia: platoví sprostredkovatelia, poskytovatelia cloudu, VIN API. Uchovávanie: VIN 3 roky, e-mail 10 rokov. Práva: prístup, oprava, vymazanie. Kontakt: info@vinscanner.eu. HTTPS, cookies, prenos mimo EÚ so SCC.
+Správca údajov: Tomas Gečas. Zhromažďované údaje: VIN (reporty), e-mail, Google údaje (prihlásenie), technické údaje. Príjemcovia: platoví sprostredkovatelia, poskytovatelia cloudu, VIN API. Uchovávanie: VIN 3 roky, e-mail 10 rokov. Práva: prístup, oprava, vymazanie. Kontakt: info@vinscanner.eu. HTTPS, cookies, prenos mimo EÚ so SCC.
 `,
 
   hr: `
 **POLITIKA PRIVATNOSTI - vinscanner.eu**
 
-Prikupljeni podaci: VIN (izvješća), e-pošta, Google podaci (prijava), tehnički podaci. Primatelji: posrednici za plaćanje, pružatelji oblaka, VIN API. Čuvanje: VIN 3 godine, e-pošta 10 godina. Prava: pristup, ispravak, brisanje. Kontakt: info@vinscanner.eu. HTTPS, kolačići, prijenos izvan EU sa SCC.
+Voditelj obrade: Tomas Gečas. Prikupljeni podaci: VIN (izvješća), e-pošta, Google podaci (prijava), tehnički podaci. Primatelji: posrednici za plaćanje, pružatelji oblaka, VIN API. Čuvanje: VIN 3 godine, e-pošta 10 godina. Prava: pristup, ispravak, brisanje. Kontakt: info@vinscanner.eu. HTTPS, kolačići, prijenos izvan EU sa SCC.
 `,
 
   bs: `
 **POLITIKA PRIVATNOSTI - vinscanner.eu**
 
-Prikupljeni podaci: VIN (izvještaji), e-pošta, Google podaci (prijava), tehnički podaci. Primatelji: posrednici za plaćanje, pružatelji oblaka, VIN API. Čuvanje: VIN 3 godine, e-pošta 10 godina. Prava: pristup, ispravak, brisanje. Kontakt: info@vinscanner.eu. HTTPS, kolačići, prijenos izvan EU sa SCC.
+Voditelj obrade: Tomas Gečas. Prikupljeni podaci: VIN (izvještaji), e-pošta, Google podaci (prijava), tehnički podaci. Primatelji: posrednici za plaćanje, pružatelji oblaka, VIN API. Čuvanje: VIN 3 godine, e-pošta 10 godina. Prava: pristup, ispravak, brisanje. Kontakt: info@vinscanner.eu. HTTPS, kolačići, prijenos izvan EU sa SCC.
 `,
 
   sq: `
 **POLITIKA E PRIVATËSISË - vinscanner.eu**
 
-Të dhëna të mbledhura: VIN (raporte), email, të dhëna Google (hyrje), të dhëna teknike. Marrës: ndërmjetës pagesash, ofrues cloud, VIN API. Ruajtje: VIN 3 vjet, email 10 vjet. Të drejta: akses, ndreqje, fshirje. Kontakt: info@vinscanner.eu. HTTPS, cookies, transferim jashtë BE me SCC.
+Përgjegjës i të dhënave: Tomas Gečas. Të dhëna të mbledhura: VIN (raporte), email, të dhëna Google (hyrje), të dhëna teknike. Marrës: ndërmjetës pagesash, ofrues cloud, VIN API. Ruajtje: VIN 3 vjet, email 10 vjet. Të drejta: akses, ndreqje, fshirje. Kontakt: info@vinscanner.eu. HTTPS, cookies, transferim jashtë BE me SCC.
 `,
 
   sl: `
 **POLITIKA ZASEBNOSTI - vinscanner.eu**
 
-Zbrani podatki: VIN (poročila), e-pošta, Google podatki (prijava), tehnični podatki. Prejemniki: plačilni posredniki, ponudniki oblaka, VIN API. Hramba: VIN 3 leta, e-pošta 10 let. Pravice: dostop, popravek, izbris. Kontakt: info@vinscanner.eu. HTTPS, piškotki, prenos izven EU s SCC.
+Upravljavec podatkov: Tomas Gečas. Zbrani podatki: VIN (poročila), e-pošta, Google podatki (prijava), tehnični podatki. Prejemniki: plačilni posredniki, ponudniki oblaka, VIN API. Hramba: VIN 3 leta, e-pošta 10 let. Pravice: dostop, popravek, izbris. Kontakt: info@vinscanner.eu. HTTPS, piškotki, prenos izven EU s SCC.
 `,
 
   lv: `
 **PRIVĀTUMA POLITIKA - vinscanner.eu**
 
-Savāktie dati: VIN (pārskati), e-pasts, Google dati (pieteikšanās), tehniskie dati. Saņēmēji: maksājumu starpnieki, mākoņa nodrošinātāji, VIN API. Glabāšana: VIN 3 gadi, e-pasts 10 gadi. Tiesības: piekļuve, labošana, dzēšana. Kontakts: info@vinscanner.eu. HTTPS, sīkfaili, pārsūtīšana ārpus ES ar SCC.
+Datu pārzinis: Tomas Gečas. Savāktie dati: VIN (pārskati), e-pasts, Google dati (pieteikšanās), tehniskie dati. Saņēmēji: maksājumu starpnieki, mākoņa nodrošinātāji, VIN API. Glabāšana: VIN 3 gadi, e-pasts 10 gadi. Tiesības: piekļuve, labošana, dzēšana. Kontakts: info@vinscanner.eu. HTTPS, sīkfaili, pārsūtīšana ārpus ES ar SCC.
 `,
 
   mk: `
 **ПОЛИТИКА ЗА ПРИВАТНОСТ - vinscanner.eu**
 
-Собрани податоци: VIN (извештаи), е-пошта, Google податоци (најава), технички податоци. Приматели: посредници за плаќање, провајдери на облак, VIN API. Чување: VIN 3 години, е-пошта 10 години. Права: пристап, исправка, бришење. Контакт: info@vinscanner.eu. HTTPS, колачиња, пренос надвор од ЕУ со SCC.
+Одговорен за податоци: Tomas Gečas. Собрани податоци: VIN (извештаи), е-пошта, Google податоци (најава), технички податоци. Приматели: посредници за плаќање, провајдери на облак, VIN API. Чување: VIN 3 години, е-пошта 10 години. Права: пристап, исправка, бришење. Контакт: info@vinscanner.eu. HTTPS, колачиња, пренос надвор од ЕУ со SCC.
 `,
 
   et: `
 **PRIVAATSUSPOLIITIKA - vinscanner.eu**
 
-Kogutud andmed: VIN (aruanded), e-post, Google andmed (sisselogimine), tehnilised andmed. Saajad: maksevahendajad, pilveteenuse pakkujad, VIN API. Säilitamine: VIN 3 aastat, e-post 10 aastat. Õigused: juurdepääs, parandamine, kustutamine. Kontakt: info@vinscanner.eu. HTTPS, küpsised, edastamine väljapoole EL-i SCC-ga.
+Andmekaitse vastutav: Tomas Gečas. Kogutud andmed: VIN (aruanded), e-post, Google andmed (sisselogimine), tehnilised andmed. Saajad: maksevahendajad, pilveteenuse pakkujad, VIN API. Säilitamine: VIN 3 aastat, e-post 10 aastat. Õigused: juurdepääs, parandamine, kustutamine. Kontakt: info@vinscanner.eu. HTTPS, küpsised, edastamine väljapoole EL-i SCC-ga.
 `,
 
   ca: `
 **POLÍTICA DE PRIVADESA - vinscanner.eu**
 
-Dades recollides: VIN (informes), correu, dades Google (inici sessió), dades tècniques. Destinataris: intermediaris pagament, proveïdors núvol, VIN API. Retenció: VIN 3 anys, correu 10 anys. Drets: accés, rectificació, supressió. Contacte: info@vinscanner.eu. HTTPS, galetes, transferència fora UE amb CCT.
+Responsable del tractament: Tomas Gečas. Dades recollides: VIN (informes), correu, dades Google (inici sessió), dades tècniques. Destinataris: intermediaris pagament, proveïdors núvol, VIN API. Retenció: VIN 3 anys, correu 10 anys. Drets: accés, rectificació, supressió. Contacte: info@vinscanner.eu. HTTPS, galetes, transferència fora UE amb CCT.
 `,
 
   lb: `
 **DATESCHUTZRICHTLINN - vinscanner.eu**
 
-Gesammelt Daten: VIN (Berichter), E-Mail, Google-Daten (Aloggen), technesch Daten. Empfänger: Bezuelmëttelsmänner, Cloud-Provider, VIN API. Späicherung: VIN 3 Joer, E-Mail 10 Joer. Rechter: Zougang, Korrektur, Läschen. Kontakt: info@vinscanner.eu. HTTPS, Cookien, Transfer ausserhalb EU mat SCC.
+Verantwortleche fir Donnéeën: Tomas Gečas. Gesammelt Daten: VIN (Berichter), E-Mail, Google-Daten (Aloggen), technesch Daten. Empfänger: Bezuelmëttelsmänner, Cloud-Provider, VIN API. Späicherung: VIN 3 Joer, E-Mail 10 Joer. Rechter: Zougang, Korrektur, Läschen. Kontakt: info@vinscanner.eu. HTTPS, Cookien, Transfer ausserhalb EU mat SCC.
 `,
 
   cnr: `
 **POLITIKA PRIVATNOSTI - vinscanner.eu**
 
-Prikupljeni podaci: VIN (izvještaji), e-pošta, Google podaci (prijava), tehnički podaci. Primatelji: posrednici za plaćanje, pružatelji oblaka, VIN API. Čuvanje: VIN 3 godine, e-pošta 10 godina. Prava: pristup, ispravak, brisanje. Kontakt: info@vinscanner.eu. HTTPS, kolačići, prijenos izvan EU sa SCC.
+Voditelj obrade: Tomas Gečas. Prikupljeni podaci: VIN (izvještaji), e-pošta, Google podaci (prijava), tehnički podaci. Primatelji: posrednici za plaćanje, pružatelji oblaka, VIN API. Čuvanje: VIN 3 godine, e-pošta 10 godina. Prava: pristup, ispravak, brisanje. Kontakt: info@vinscanner.eu. HTTPS, kolačići, prijenos izvan EU sa SCC.
 `,
 
   mt: `
 **POLITIKA TAL-PRIVATEZZA - vinscanner.eu**
 
-Data miġbur: VIN (rapporti), email, data Google (dħul), data teknika. Riċevituri: intermedjarji tal-ħlas, provdituri cloud, VIN API. Żamma: VIN 3 snin, email 10 snin. Drittijiet: aċċess, rettifika, tħassir. Kuntatt: info@vinscanner.eu. HTTPS, cookies, trasferiment barra mill-UE b'SCC.
+Responsabbli tad-dejta: Tomas Gečas. Data miġbur: VIN (rapporti), email, data Google (dħul), data teknika. Riċevituri: intermedjarji tal-ħlas, provdituri cloud, VIN API. Żamma: VIN 3 snin, email 10 snin. Drittijiet: aċċess, rettifika, tħassir. Kuntatt: info@vinscanner.eu. HTTPS, cookies, trasferiment barra mill-UE b'SCC.
 `,
 
   is: `
 **PERSÓNUVERNDARSTEFNA - vinscanner.eu**
 
-Söfnuð gögn: VIN (skýrslur), tölvupóstur, Google-gögn (innskráning), tæknileg gögn. Viðtakendur: greiðslumilliliðir, skýjaþjónustur, VIN API. Geymsla: VIN 3 ár, tölvupóstur 10 ár. Réttindi: aðgangur, leiðrétting, eyðing. Samband: info@vinscanner.eu. HTTPS, kökur, flutningur utan ESB með SCC.
+Umsjónarmaður gagna: Tomas Gečas. Söfnuð gögn: VIN (skýrslur), tölvupóstur, Google-gögn (innskráning), tæknileg gögn. Viðtakendur: greiðslumilliliðir, skýjaþjónustur, VIN API. Geymsla: VIN 3 ár, tölvupóstur 10 ár. Réttindi: aðgangur, leiðrétting, eyðing. Samband: info@vinscanner.eu. HTTPS, kökur, flutningur utan ESB með SCC.
 `,
 
   tr: `
 **GİZLİLİK POLİTİKASI - vinscanner.eu**
 
-Toplanan veriler: VIN (raporlar), e-posta, Google verileri (giriş), teknik veriler. Alıcılar: ödeme aracıları, bulut sağlayıcıları, VIN API. Saklama: VIN 3 yıl, e-posta 10 yıl. Haklar: erişim, düzeltme, silme. İletişim: info@vinscanner.eu. HTTPS, çerezler, AB dışı aktarım SCC ile.
+Veri sorumlusu: Tomas Gečas. Toplanan veriler: VIN (raporlar), e-posta, Google verileri (giriş), teknik veriler. Alıcılar: ödeme aracıları, bulut sağlayıcıları, VIN API. Saklama: VIN 3 yıl, e-posta 10 yıl. Haklar: erişim, düzeltme, silme. İletişim: info@vinscanner.eu. HTTPS, çerezler, AB dışı aktarım SCC ile.
 `,
 } as const;
