@@ -762,10 +762,10 @@ const App: React.FC = () => {
 
         {loading && (
           <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-300">
-            <div className="w-full max-w-md bg-white p-10 rounded-[3rem] border border-white shadow-[0_30px_70px_rgba(0,0,0,0.2)] animate-in zoom-in-95 duration-500">
-              <div className="text-center mb-10">
-                <div className="inline-flex mb-8">
-                   <Logo size="lg" />
+            <div className="w-full max-w-xl min-w-[20rem] bg-white p-10 rounded-[3rem] border border-white shadow-[0_30px_70px_rgba(0,0,0,0.2)] animate-in zoom-in-95 duration-500 overflow-visible">
+              <div className="text-center mb-10 overflow-visible">
+                <div className="flex justify-center w-full overflow-visible mb-8">
+                   <Logo size="lg" className="flex-shrink-0" />
                 </div>
                 <h3 className="text-2xl font-black text-slate-900 mb-2 tracking-tight">
                   {t.loading.scanningHistory}
