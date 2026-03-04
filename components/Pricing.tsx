@@ -10,11 +10,11 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect }) => {
   const [refundModalOpen, setRefundModalOpen] = useState(false);
   const [selectedPlanIdx, setSelectedPlanIdx] = useState<number>(1); // default: 2 ataskaitos (vidurinis planas)
 
-  // TESTAVIMUI: kainos sumažintos iki 0.50 EUR (grąžinti prieš production!)
+  // kaina = dabartinė; oldPrice = sena kaina (už paketą – 2→16×2=32, 3→13×3=39)
   const plans = [
-    { name: t.pricing.planSingle, count: t.pricing.report1, price: 0.50, oldPrice: 1.00, bestValue: false },
-    { name: t.pricing.planPopular, count: t.pricing.reports2, price: 0.50, oldPrice: 1.00, bestValue: false },
-    { name: t.pricing.planBestValue, count: t.pricing.reports3, price: 0.50, oldPrice: 1.00, bestValue: true },
+    { name: t.pricing.planSingle, count: t.pricing.report1, price: 12, oldPrice: 18, bestValue: false },
+    { name: t.pricing.planPopular, count: t.pricing.reports2, price: 22, oldPrice: 32, bestValue: false },
+    { name: t.pricing.planBestValue, count: t.pricing.reports3, price: 27, oldPrice: 39, bestValue: true },
   ];
 
   const scrollToVinInput = () => {

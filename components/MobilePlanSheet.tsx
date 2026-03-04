@@ -12,9 +12,9 @@ const MobilePlanSheet: React.FC<MobilePlanSheetProps> = ({ pendingVin, t, onPlan
   const [refundModalOpen, setRefundModalOpen] = React.useState(false);
   const plans = [
     // TESTAVIMUI: kainos sumažintos iki 0.50 EUR (grąžinti prieš production!)
-    { name: t.pricing.planSingle, count: t.pricing.report1, price: 0.50, oldPrice: 1.00, highlight: false },
-    { name: t.pricing.planPopular, count: t.pricing.reports2, price: 0.50, oldPrice: 1.00, highlight: false },
-    { name: t.pricing.planBestValue, count: t.pricing.reports3, price: 0.50, oldPrice: 1.00, highlight: true },
+    { name: t.pricing.planSingle, count: t.pricing.report1, price: 12, oldPrice: 18, highlight: false },
+    { name: t.pricing.planPopular, count: t.pricing.reports2, price: 22, oldPrice: 32, highlight: false },
+    { name: t.pricing.planBestValue, count: t.pricing.reports3, price: 27, oldPrice: 39, highlight: true },
   ];
 
   const handleConfirm = () => {
