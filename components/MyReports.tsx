@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { getSavedReports, type SavedReport } from '../services/reportsFirestore';
+import { getSavedReports, getSavedReportsForAdmin, type SavedReport } from '../services/reportsFirestore';
 import type { CarReport } from '../types';
 import type { Translations } from '../constants/translations';
 
@@ -20,15 +20,17 @@ const MyReports: React.FC<MyReportsProps> = ({ t, lang, isOpen, refreshKey = 0, 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const isAdmin = user?.email === 'tomasgecas1@gmail.com';
+
   useEffect(() => {
     if (!user || !isOpen) return;
     setLoading(true);
     setError(null);
-    getSavedReports(user.uid)
+    (isAdmin ? getSavedReportsForAdmin() : getSavedReports(user.uid))
       .then(setList)
       .catch((e) => setError(e instanceof Error ? e.message : 'Error'))
       .finally(() => setLoading(false));
-  }, [user, isOpen, refreshKey]);
+  }, [user, isOpen, refreshKey, isAdmin]);
 
   const formatDate = (ms: number) => {
     const d = new Date(ms);
@@ -64,6 +66,9 @@ const MyReports: React.FC<MyReportsProps> = ({ t, lang, isOpen, refreshKey = 0, 
                     <span className="font-mono font-bold text-slate-900">{s.vin}</span>
                     <span className="block text-[11px] text-slate-500 mt-1">
                       {s.report.make} {s.report.model} · {formatDate(s.createdAt)}
+                      {isAdmin && s.ownerId && (
+                        <span className="block text-[10px] text-slate-400 mt-0.5">UID: {s.ownerId.slice(0, 8)}…</span>
+                      )}
                     </span>
                   </button>
                 </li>

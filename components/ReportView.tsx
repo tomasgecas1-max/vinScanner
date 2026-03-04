@@ -636,7 +636,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
     setAnimatedProgress(0);
     progressIntervalRef.current = setInterval(() => {
       const elapsed = (Date.now() - start) / 1000;
-      const target = Math.min(90, elapsed * 7.5);
+      const target = Math.min(90, elapsed * (7.5 / 1.3));
       setAnimatedProgress(target);
     }, 150);
     return () => {
