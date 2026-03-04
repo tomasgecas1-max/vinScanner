@@ -269,7 +269,7 @@ const App: React.FC = () => {
       trackVinSearch(vinNorm);
 
       // 1. Cache – jei rasta, grąžinti ir sustoti (išjungti: VITE_SKIP_CACHE=true)
-      const skipCache = process.env.VITE_SKIP_CACHE === 'true' || process.env.VITE_SKIP_CACHE === '1';
+      const skipCache = import.meta.env.VITE_SKIP_CACHE === 'true' || import.meta.env.VITE_SKIP_CACHE === '1';
       if (!skipCache) {
         const cacheRes = await fetch(`/api/report-cache?vin=${encodeURIComponent(vinNorm)}`);
         if (cacheRes.ok) {

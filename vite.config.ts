@@ -62,14 +62,15 @@ export default defineConfig(({ mode }) => {
         host: '0.0.0.0',
       },
       plugins: [react(), carsxeProxyPlugin(carsxeApiKey)],
+      build: {
+        chunkSizeWarningLimit: 3500, // ~3.2 MB bundle; didesnis limitas, kad neberodytų įspėjimo
+      },
       define: {
         'process.env.AI_API_KEY': JSON.stringify(aiApiKey),
         'process.env.VIN_API_KEY': JSON.stringify(env.VIN_API_KEY),
         'process.env.VIN_VEHICLE_IDENTITY_ONLY': JSON.stringify(env.VIN_VEHICLE_IDENTITY_ONLY),
         'process.env.VIN_SKIP_SERVICE_HISTORY': JSON.stringify(env.VIN_SKIP_SERVICE_HISTORY),
         'process.env.DISABLE_MOCK_REPORT': JSON.stringify(env.DISABLE_MOCK_REPORT),
-        'process.env.VITE_SKIP_CACHE': JSON.stringify(env.VITE_SKIP_CACHE ?? env.SKIP_CACHE),
-        'process.env.VITE_SKIP_CACHE': JSON.stringify(env.VITE_SKIP_CACHE ?? env.SKIP_CACHE),
         'process.env.FIREBASE_API_KEY': JSON.stringify(firebaseApiKey),
         'process.env.FIREBASE_AUTH_DOMAIN': JSON.stringify(firebaseAuthDomain),
         'process.env.FIREBASE_PROJECT_ID': JSON.stringify(firebaseProjectId),
