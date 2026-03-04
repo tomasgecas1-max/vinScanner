@@ -6,7 +6,7 @@ import { StripePaymentForm } from './StripePaymentForm';
 const stripePk = import.meta.env.VITE_STRIPE_PUBLISHABLE as string | undefined;
 const stripePromise = stripePk ? loadStripe(stripePk) : null;
 
-const PLAN_PRICES = [12, 22, 27] as const;
+const PLAN_PRICES = [12, 20, 27] as const;
 
 const DISCOUNT_CODES: Record<string, { type: 'percent' | 'fixed'; value: number }> = {
   VINS10: { type: 'percent', value: 10 },
