@@ -268,8 +268,8 @@ const App: React.FC = () => {
       const vinNorm = vin.trim().toUpperCase();
       trackVinSearch(vinNorm);
 
-      // 1. Cache – jei rasta, grąžinti ir sustoti (laikinai išjungta: skipCache=true; įjungti: VITE_SKIP_CACHE=false)
-      const skipCache = process.env.VITE_SKIP_CACHE !== 'false' && process.env.VITE_SKIP_CACHE !== '0';
+      // 1. Cache – jei rasta, grąžinti ir sustoti (išjungti: VITE_SKIP_CACHE=true)
+      const skipCache = process.env.VITE_SKIP_CACHE === 'true' || process.env.VITE_SKIP_CACHE === '1';
       if (!skipCache) {
         const cacheRes = await fetch(`/api/report-cache?vin=${encodeURIComponent(vinNorm)}`);
         if (cacheRes.ok) {
