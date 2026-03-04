@@ -2,7 +2,8 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { User } from 'firebase/auth';
 import { auth, isFirebaseEnabled } from '../services/firebase';
 import { 
-  GoogleAuthProvider, 
+  GoogleAuthProvider,
+  FacebookAuthProvider,
   signInWithPopup, 
   signOut as firebaseSignOut, 
   onAuthStateChanged, 
@@ -18,6 +19,7 @@ interface AuthContextValue {
   user: User | null;
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
+  signInWithFacebook: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signUpWithEmail: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   resetPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
@@ -47,6 +49,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithGoogle = async () => {
     if (!auth || !isFirebaseEnabled) return;
     const provider = new GoogleAuthProvider();
+    await signInWithPopup(auth, provider);
+  };
+
+  const signInWithFacebook = async () => {
+    if (!auth || !isFirebaseEnabled) return;
+    const provider = new FacebookAuthProvider();
     await signInWithPopup(auth, provider);
   };
 
@@ -111,7 +119,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const err = e as { code?: string };
       if (err?.code === 'auth/requires-recent-login') {
         try {
-          const provider = new GoogleAuthProvider();
+          const isFacebook = u.providerData?.some((p) => p.providerId === 'facebook.com');
+          const provider = isFacebook ? new FacebookAuthProvider() : new GoogleAuthProvider();
           await reauthenticateWithPopup(u, provider);
           await deleteAllUserReports(u.uid);
           await deleteUser(u);
@@ -130,6 +139,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     loading,
     signInWithGoogle,
+    signInWithFacebook,
     signInWithEmail,
     signUpWithEmail,
     resetPassword,
@@ -148,6 +158,7 @@ export function useAuth(): AuthContextValue {
       user: null,
       loading: false,
       signInWithGoogle: async () => {},
+      signInWithFacebook: async () => {},
       signInWithEmail: async () => ({ success: false }),
       signUpWithEmail: async () => ({ success: false }),
       resetPassword: async () => ({ success: false }),

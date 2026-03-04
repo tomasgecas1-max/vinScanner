@@ -274,6 +274,7 @@ export interface Translations {
     title: string;
     subtitle: string;
     googleButton: string;
+    facebookButton?: string;
     emailButton: string;
     continueWithout: string;
     or: string;
@@ -294,6 +295,7 @@ export interface Translations {
     resetButton: string;
     forgotPassword: string;
     googleError: string;
+    facebookError?: string;
     loginError: string;
     registerError: string;
     resetError: string;
@@ -588,6 +590,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
       title: 'Prisijungti',
       subtitle: 'Pasirinkite kaip norite tęsti',
       googleButton: 'Tęsti su Google',
+      facebookButton: 'Tęsti su Facebook',
       emailButton: 'Tęsti su el. paštu',
       continueWithout: 'Naudotis paslaugomis neprisijungus',
       or: 'arba',
@@ -608,6 +611,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
       resetButton: 'Siųsti atkūrimo nuorodą',
       forgotPassword: 'Pamiršote slaptažodį?',
       googleError: 'Google prisijungimas nepavyko',
+      facebookError: 'Facebook prisijungimas nepavyko',
       loginError: 'Prisijungti nepavyko',
       registerError: 'Registracija nepavyko',
       resetError: 'Nepavyko išsiųsti atkūrimo laiško',
@@ -899,6 +903,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
       title: 'Sign In',
       subtitle: 'Choose how you want to continue',
       googleButton: 'Continue with Google',
+      facebookButton: 'Continue with Facebook',
       emailButton: 'Continue with Email',
       continueWithout: 'Use services without signing in',
       or: 'or',
@@ -919,6 +924,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
       resetButton: 'Send Reset Link',
       forgotPassword: 'Forgot password?',
       googleError: 'Google login failed',
+      facebookError: 'Facebook login failed',
       loginError: 'Login failed',
       registerError: 'Registration failed',
       resetError: 'Failed to send reset email',
@@ -1137,6 +1143,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
       title: 'Anmelden',
       subtitle: 'Wählen Sie, wie Sie fortfahren möchten',
       googleButton: 'Mit Google fortfahren',
+      facebookButton: 'Mit Facebook fortfahren',
       emailButton: 'Mit E-Mail fortfahren',
       continueWithout: 'Dienste ohne Anmeldung nutzen',
       or: 'oder',
@@ -1157,6 +1164,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
       resetButton: 'Link senden',
       forgotPassword: 'Passwort vergessen?',
       googleError: 'Google-Anmeldung fehlgeschlagen',
+      facebookError: 'Facebook-Anmeldung fehlgeschlagen',
       loginError: 'Anmeldung fehlgeschlagen',
       registerError: 'Registrierung fehlgeschlagen',
       resetError: 'E-Mail konnte nicht gesendet werden',
