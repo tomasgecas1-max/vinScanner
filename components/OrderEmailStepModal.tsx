@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PRIVACY_POLICY } from '../content/privacy-policy';
+import UsageInstructionsModal from './UsageInstructionsModal';
 import type { LangCode } from '../constants/translations';
 
 function formatPolicyText(text: string): string {
@@ -73,7 +74,8 @@ const OrderEmailStepModal: React.FC<OrderEmailStepModalProps> = ({
 }) => {
   const [email, setEmail] = useState('');
   const [agreeTerms, setAgreeTerms] = useState(false);
-  const [infoModal, setInfoModal] = useState<'terms' | 'privacy' | null>(null);
+  const [infoModal, setInfoModal] = useState<'privacy' | null>(null);
+  const [showUsageInstructions, setShowUsageInstructions] = useState(false);
 
   useEffect(() => {
     if (open && defaultEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(defaultEmail)) {
@@ -132,7 +134,7 @@ const OrderEmailStepModal: React.FC<OrderEmailStepModalProps> = ({
               {t.pricing.orderStepAgreeBeforeTerms}
               <button
                 type="button"
-                onClick={(e) => { e.preventDefault(); setInfoModal('terms'); }}
+                onClick={(e) => { e.preventDefault(); setShowUsageInstructions(true); }}
                 className="font-bold text-indigo-600 underline underline-offset-2 hover:text-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 rounded px-0.5"
               >
                 {t.pricing.orderStepTermsLink}
@@ -147,6 +149,12 @@ const OrderEmailStepModal: React.FC<OrderEmailStepModalProps> = ({
               </button>
             </span>
           </label>
+          <UsageInstructionsModal
+            open={showUsageInstructions}
+            onClose={() => setShowUsageInstructions(false)}
+            lang={lang}
+            closeLabel={t.pricing.close}
+          />
           {infoModal && (
             <div className="fixed inset-0 z-[310] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" onClick={() => setInfoModal(null)}>
               <div
@@ -154,14 +162,10 @@ const OrderEmailStepModal: React.FC<OrderEmailStepModalProps> = ({
                 onClick={(e) => e.stopPropagation()}
               >
                 <h4 className="text-lg font-black text-slate-900 mb-4 shrink-0">
-                  {infoModal === 'terms' ? t.pricing.orderStepTermsLink : t.pricing.orderStepPrivacyLink}
+                  {t.pricing.orderStepPrivacyLink}
                 </h4>
                 <div className="overflow-y-auto flex-1 pr-2 [&_strong]:font-bold [&_strong]:text-slate-900">
-                  {infoModal === 'privacy' ? (
-                    <div dangerouslySetInnerHTML={{ __html: formatPolicyText(PRIVACY_POLICY[lang === 'lt' || lang === 'en' || lang === 'de' ? lang : 'en']) }} />
-                  ) : (
-                    <p className="text-slate-600 text-sm font-medium leading-relaxed">{t.pricing.orderStepTermsText}</p>
-                  )}
+                  <div dangerouslySetInnerHTML={{ __html: formatPolicyText(PRIVACY_POLICY[lang === 'lt' || lang === 'en' || lang === 'de' ? lang : 'en']) }} />
                 </div>
                 <button
                   type="button"
