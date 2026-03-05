@@ -5,6 +5,8 @@ import {
   GoogleAuthProvider,
   FacebookAuthProvider,
   signInWithPopup, 
+  signInWithRedirect,
+  getRedirectResult,
   signOut as firebaseSignOut, 
   onAuthStateChanged, 
   deleteUser, 
@@ -39,6 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
       return;
     }
+    getRedirectResult(auth).catch(() => {});
     const unsubscribe = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setLoading(false);
@@ -57,7 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const provider = new FacebookAuthProvider();
     provider.addScope('public_profile');
     provider.setCustomParameters({ scope: 'public_profile' });
-    await signInWithPopup(auth, provider);
+    await signInWithRedirect(auth, provider);
   };
 
   const signInWithEmail = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
