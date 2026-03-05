@@ -27,6 +27,8 @@ import type { LangCode } from './constants/translations';
 import { useGoogleAnalytics, trackPurchase, trackVinSearch } from './hooks/useGoogleAnalytics';
 import { useMetaTags } from './hooks/useMetaTags';
 import { captureError } from './services/sentry';
+import { getLangFromIp } from './services/geoLangService';
+import { getLangFromIp } from './services/geoLangService';
 
 const App: React.FC = () => {
   const { user } = useAuth();
@@ -41,29 +43,6 @@ const App: React.FC = () => {
     setLangState(newLang);
     localStorage.setItem('vinscanner_lang', newLang);
   };
-
-  // IP pagrindu nustatyti pradinę kalbą (tik jei vartotojas dar nesirinko)
-  useEffect(() => {
-    if (localStorage.getItem('vinscanner_lang')) return;
-    const COUNTRY_TO_LANG: Record<string, LangCode> = {
-      LT: 'lt', DE: 'de', PL: 'pl', FR: 'fr', ES: 'es', IT: 'it', NL: 'nl', CZ: 'cs',
-      UA: 'uk', RO: 'ro', SE: 'sv', GR: 'el', PT: 'pt', HU: 'hu', BG: 'bg', RS: 'sr',
-      DK: 'da', NO: 'no', FI: 'fi', SK: 'sk', HR: 'hr', BA: 'bs', AL: 'sq', SI: 'sl',
-      LV: 'lv', MK: 'mk', EE: 'et', LU: 'lb', ME: 'cnr', MT: 'mt', IS: 'is', TR: 'tr',
-      AD: 'ca',
-    };
-    fetch('https://ipapi.co/json/')
-      .then((r) => r.json())
-      .then((data: { country_code?: string }) => {
-        const code = data?.country_code?.toUpperCase();
-        const detected = code && COUNTRY_TO_LANG[code];
-        if (detected) {
-          setLangState(detected);
-          localStorage.setItem('vinscanner_lang', detected);
-        }
-      })
-      .catch(() => {});
-  }, []);
   
   const [report, setReport] = useState<CarReport | null>(null);
   const [loading, setLoading] = useState(false);
@@ -135,6 +114,25 @@ const App: React.FC = () => {
     const handleOpenPrivacy = () => setShowPrivacyModal(true);
     window.addEventListener('openPrivacyPolicy', handleOpenPrivacy);
     return () => window.removeEventListener('openPrivacyPolicy', handleOpenPrivacy);
+  }, []);
+
+  // Pradinė kalba pagal IP, jei nėra išsaugotos
+  useEffect(() => {
+    if (localStorage.getItem('vinscanner_lang')) return;
+    getLangFromIp().then((detected) => {
+      if (detected) {
+        setLangState(detected);
+        localStorage.setItem('vinscanner_lang', detected);
+      }
+    });
+  }, []);
+
+  // Kalba pagal IP, jei nėra išsaugotos
+  useEffect(() => {
+    if (localStorage.getItem('vinscanner_lang')) return;
+    getLangFromIp().then((detected) => {
+      if (detected) setLang(detected);
+    });
   }, []);
 
   // Show language selection bar on first visit
