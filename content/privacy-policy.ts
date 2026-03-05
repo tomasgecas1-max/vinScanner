@@ -48,7 +48,7 @@ Visos šios kategorijos apdoroja duomenis tik mūsų nurodytu tikslu ir pagal su
 **5. DUOMENŲ VALDYTOJAS**
 
 Duomenų valdytojas: Tomas Gečas (individuali veikla pagal individualią pažymą)
-Identifikacinis numeris: 39202200463
+Identifikacinis numeris: 1493175
 El. paštas: info@vinscanner.eu
 Svetainė: https://vinscanner.eu
 
@@ -111,7 +111,7 @@ All categories process data only for our specified purposes under agreements ens
 **5. DATA CONTROLLER**
 
 Data controller: Tomas Gečas (individual activity under individual activity certificate)
-Identification number: 39202200463
+Identification number: 1493175
 Email: info@vinscanner.eu
 Website: https://vinscanner.eu
 
@@ -174,7 +174,7 @@ Alle Kategorien verarbeiten Daten nur für unsere festgelegten Zwecke gemäß Ve
 **5. VERANTWORTLICHER**
 
 Verantwortlicher: Tomas Gečas (Einzelunternehmen gemäß Einzelunternehmerbescheinigung)
-Identifikationsnummer: 39202200463
+Identifikationsnummer: 1493175
 E-Mail: info@vinscanner.eu
 Webseite: https://vinscanner.eu
 
