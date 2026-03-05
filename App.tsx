@@ -28,7 +28,6 @@ import { useGoogleAnalytics, trackPurchase, trackVinSearch } from './hooks/useGo
 import { useMetaTags } from './hooks/useMetaTags';
 import { captureError } from './services/sentry';
 import { getLangFromIp } from './services/geoLangService';
-import { getLangFromIp } from './services/geoLangService';
 
 const App: React.FC = () => {
   const { user } = useAuth();
