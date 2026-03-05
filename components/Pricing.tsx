@@ -10,11 +10,10 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect }) => {
   const [refundModalOpen, setRefundModalOpen] = useState(false);
   const [selectedPlanIdx, setSelectedPlanIdx] = useState<number>(1); // default: 2 ataskaitos (vidurinis planas)
 
-  // Laikinai: 3 ataskaitų rinkinys 0,5 €
   const plans = [
     { name: t.pricing.planSingle, count: t.pricing.report1, price: 12, oldPrice: 24, bestValue: false },
     { name: t.pricing.planPopular, count: t.pricing.reports2, price: 20, oldPrice: 40, bestValue: false },
-    { name: t.pricing.planBestValue, count: t.pricing.reports3, price: 0.5, oldPrice: 27, bestValue: true },
+    { name: t.pricing.planBestValue, count: t.pricing.reports3, price: 27, oldPrice: undefined, bestValue: true },
   ];
 
   const scrollToVinInput = () => {
@@ -80,7 +79,9 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect }) => {
                   <div className="text-3xl font-black mb-4 tracking-tight">{plan.count}</div>
                   <div className="flex items-center justify-center gap-3">
                     <span className="text-4xl font-black tracking-tighter">{plan.price} €</span>
-                    <span className="text-lg text-slate-400 line-through decoration-2 decoration-rose-500 font-bold">{plan.oldPrice} €</span>
+                    {plan.oldPrice != null && (
+                      <span className="text-lg text-slate-400 line-through decoration-2 decoration-rose-500 font-bold">{plan.oldPrice} €</span>
+                    )}
                   </div>
                 </div>
 
