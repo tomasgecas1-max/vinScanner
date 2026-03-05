@@ -26,6 +26,11 @@ function initGA() {
     window.dataLayer.push(args);
   };
   window.gtag('js', new Date());
+  // Consent Mode v2 – leidžia GA geriau veikti su sutikimu (ypač mobilėje)
+  window.gtag('consent', 'update', {
+    analytics_storage: 'granted',
+    ad_storage: 'denied',
+  });
   window.gtag('config', GA_MEASUREMENT_ID, {
     anonymize_ip: true,
   });
