@@ -55,6 +55,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithFacebook = async () => {
     if (!auth || !isFirebaseEnabled) return;
     const provider = new FacebookAuthProvider();
+    provider.addScope('public_profile');
+    provider.setCustomParameters({ scope: 'public_profile' });
     await signInWithPopup(auth, provider);
   };
 
