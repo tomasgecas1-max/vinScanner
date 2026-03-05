@@ -268,8 +268,13 @@ const App: React.FC = () => {
       const vinNorm = vin.trim().toUpperCase();
       trackVinSearch(vinNorm);
 
-      // 1. Cache – jei rasta, grąžinti ir sustoti (išjungti: VITE_SKIP_CACHE=true)
-      const skipCache = import.meta.env.VITE_SKIP_CACHE === 'true' || import.meta.env.VITE_SKIP_CACHE === '1';
+      // 1. Cache – jei rasta, grąžinti ir sustoti (išjungti: VITE_SKIP_CACHE=true; LAIKINAI: praleidžiama kai VITE_TEST_ONE_AUTO_ENDPOINTS)
+      const useTestEndpoints =
+        import.meta.env.VITE_TEST_ONE_AUTO_ENDPOINTS === 'true' || import.meta.env.VITE_TEST_ONE_AUTO_ENDPOINTS === '1';
+      const skipCache =
+        import.meta.env.VITE_SKIP_CACHE === 'true' ||
+        import.meta.env.VITE_SKIP_CACHE === '1' ||
+        useTestEndpoints;
       if (!skipCache) {
         const cacheRes = await fetch(`/api/report-cache?vin=${encodeURIComponent(vinNorm)}`);
         if (cacheRes.ok) {
@@ -281,7 +286,6 @@ const App: React.FC = () => {
       }
 
       // 2a. Test režimui: TIK 4 One Auto endpointai (VIN Decoder, Salvage, OE Europe, OE Global) – be fallback
-      const useTestEndpoints = import.meta.env.VITE_TEST_ONE_AUTO_ENDPOINTS === 'true' || import.meta.env.VITE_TEST_ONE_AUTO_ENDPOINTS === '1';
       if (useTestEndpoints) {
         const testReport = await fetchCarReportFromOneAutoTestEndpoints(vin);
         return testReport; // grąžina null jei visi 4 nepavyko – nieko daugiau nekviečiame
