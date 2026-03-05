@@ -122,6 +122,22 @@ const App: React.FC = () => {
     }
   }, []);
 
+  // Test One Auto: išsaugoti ?testOneAuto=1 į localStorage kai tik puslapis užsikrauna
+  const [isTestOneAutoMode, setIsTestOneAutoMode] = useState(false);
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlTest = urlParams.get('testOneAuto');
+    if (urlTest === '1') {
+      localStorage.setItem('vinscanner_testOneAuto', '1');
+      setIsTestOneAutoMode(true);
+    } else if (urlTest === '0') {
+      localStorage.removeItem('vinscanner_testOneAuto');
+      setIsTestOneAutoMode(false);
+    } else {
+      setIsTestOneAutoMode(localStorage.getItem('vinscanner_testOneAuto') === '1');
+    }
+  }, []);
+
   const handleLanguageSelect = (selectedLang: LangCode) => {
     setLang(selectedLang);
     setShowLanguageBar(false);
@@ -268,10 +284,21 @@ const App: React.FC = () => {
       const vinNorm = vin.trim().toUpperCase();
       trackVinSearch(vinNorm);
 
-      // 1. Cache – jei rasta, grąžinti ir sustoti (išjungti: VITE_SKIP_CACHE=true; LAIKINAI: praleidžiama kai VITE_TEST_ONE_AUTO_ENDPOINTS)
+      // 1. Cache – jei rasta, grąžinti ir sustoti (išjungti: ?skipCache=1 URL; VITE_SKIP_CACHE; arba test režimas)
+      const urlParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+      const urlSkipCache = urlParams.get('skipCache') === '1';
+      const urlTest = urlParams.get('testOneAuto');
+      if (typeof window !== 'undefined') {
+        if (urlTest === '1') localStorage.setItem('vinscanner_testOneAuto', '1');
+        else if (urlTest === '0') localStorage.removeItem('vinscanner_testOneAuto');
+      }
       const useTestEndpoints =
-        import.meta.env.VITE_TEST_ONE_AUTO_ENDPOINTS === 'true' || import.meta.env.VITE_TEST_ONE_AUTO_ENDPOINTS === '1';
+        urlTest === '1' ||
+        (typeof window !== 'undefined' && localStorage.getItem('vinscanner_testOneAuto') === '1') ||
+        import.meta.env.VITE_TEST_ONE_AUTO_ENDPOINTS === 'true' ||
+        import.meta.env.VITE_TEST_ONE_AUTO_ENDPOINTS === '1';
       const skipCache =
+        urlSkipCache ||
         import.meta.env.VITE_SKIP_CACHE === 'true' ||
         import.meta.env.VITE_SKIP_CACHE === '1' ||
         useTestEndpoints;
@@ -388,8 +415,11 @@ const App: React.FC = () => {
         
         const mileageCount = reportResult.mileageHistory?.length ?? 0;
         const serviceCount = reportResult.serviceEvents?.length ?? 0;
+        const urlParamsCheck = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
         const isFromTestEndpoints =
-          import.meta.env.VITE_TEST_ONE_AUTO_ENDPOINTS === 'true' || import.meta.env.VITE_TEST_ONE_AUTO_ENDPOINTS === '1';
+          urlParamsCheck.get('testOneAuto') === '1' ||
+          import.meta.env.VITE_TEST_ONE_AUTO_ENDPOINTS === 'true' ||
+          import.meta.env.VITE_TEST_ONE_AUTO_ENDPOINTS === '1';
         const hasEnoughData =
           mileageCount >= 2 ||
           serviceCount >= 2 ||
@@ -766,6 +796,21 @@ const App: React.FC = () => {
                   </p>
                 )}
               </div>
+            </div>
+          </div>
+        )}
+        {isTestOneAutoMode && (
+          <div className="max-w-xl mx-auto px-4 mb-4">
+            <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-2xl flex items-center justify-between gap-4">
+              <span className="text-sm font-bold">
+                🧪 Test režimas: naudojami tik 4 One Auto API (VIN Decoder, Salvage, OE Europe, OE Global)
+              </span>
+              <a
+                href="?testOneAuto=0"
+                className="text-amber-600 hover:text-amber-800 text-xs font-bold underline shrink-0"
+              >
+                Išjungti
+              </a>
             </div>
           </div>
         )}
