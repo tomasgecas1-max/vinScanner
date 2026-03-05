@@ -288,6 +288,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
   const [translatedTechnicalLabels, setTranslatedTechnicalLabels] = useState<Record<string, string> | null>(null);
   const [technicalSpecsTranslationLoading, setTechnicalSpecsTranslationLoading] = useState(false);
   const [translatedJunkSalvage, setTranslatedJunkSalvage] = useState<Array<{ entityName?: string; disposition?: string; intendedForExport?: string }> | null>(null);
+  const [translatedSalvageNoRecords, setTranslatedSalvageNoRecords] = useState<string | null>(null);
   const [translatedInsurance, setTranslatedInsurance] = useState<Array<{ entityName?: string }> | null>(null);
   const [translatedLienTheft, setTranslatedLienTheft] = useState<Array<{ description: string }> | null>(null);
   const [translatedServiceEvents, setTranslatedServiceEvents] = useState<ServiceEventRecord[] | null>(null);
@@ -412,6 +413,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
   useEffect(() => {
     if (!useGeminiTranslation || !lang || lang === 'en') {
       setTranslatedJunkSalvage(null);
+      setTranslatedSalvageNoRecords(null);
       setTranslatedInsurance(null);
       setTranslatedLienTheft(null);
       return;
@@ -419,9 +421,19 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
     const junk = displayReport.junkSalvageRecords ?? [];
     const ins = displayReport.insuranceRecords ?? [];
     const lien = displayReport.lienTheftEvents ?? [];
+    const raw = displayReport.rawApiResponses as Record<string, { success?: boolean }> | undefined;
+    const salvageSuccessNoRecords = !!raw?.salvage?.success && junk.length === 0;
     let cancelled = false;
 
     const run = async () => {
+      if (salvageSuccessNoRecords) {
+        const res = await translateStrings(['Salvage check performed – no records found'], lang, 'positive vehicle check result');
+        if (cancelled) return;
+        setTranslatedSalvageNoRecords(res.ok && res.strings[0] ? res.strings[0] : null);
+      } else {
+        setTranslatedSalvageNoRecords(null);
+      }
+
       if (junk.length > 0) {
         const texts: string[] = [];
         const map: { idx: number; field: 'entityName' | 'disposition' | 'intendedForExport' }[] = [];
@@ -463,7 +475,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
     };
     run();
     return () => { cancelled = true; };
-  }, [useGeminiTranslation, lang, displayReport.junkSalvageRecords, displayReport.insuranceRecords, displayReport.lienTheftEvents]);
+  }, [useGeminiTranslation, lang, displayReport.junkSalvageRecords, displayReport.insuranceRecords, displayReport.lienTheftEvents, displayReport.rawApiResponses]);
 
   useEffect(() => {
     if (!pendingEmailReport || !onEmailWithPdfSent || report.vin !== pendingEmailReport.vin) return;
@@ -913,7 +925,18 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
               </div>
             )}
 
-            {/* Junk & Salvage įrašai */}
+            {/* Junk & Salvage įrašai – rodoma kai yra įrašų ARBA kai Salvage API buvo sėkmingas (teigiama info) */}
+            {((displayReport.rawApiResponses as Record<string, { success?: boolean }>)?.salvage?.success && (displayReport.junkSalvageRecords?.length ?? 0) === 0) && (
+              <div className="pdf-avoid-break p-5 rounded-2xl border border-emerald-200 bg-emerald-50/50">
+                <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2 mb-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-emerald-600"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  {t.report.junkSalvage ?? 'Junk & Salvage records'}
+                </h3>
+                <p className="text-sm text-emerald-700 font-medium">
+                  {useGeminiTranslation && translatedSalvageNoRecords ? translatedSalvageNoRecords : (t.report.junkSalvageNoRecords ?? 'Salvage check performed – no records found')}
+                </p>
+              </div>
+            )}
             {displayReport.junkSalvageRecords && displayReport.junkSalvageRecords.length > 0 && (
               <div className="pdf-avoid-break">
                 <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2 mb-4">

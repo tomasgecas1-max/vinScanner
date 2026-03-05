@@ -219,6 +219,7 @@ export interface Translations {
     vinChanged: string;
     junkSalvage: string;
     junkSalvageDesc: string;
+    junkSalvageNoRecords?: string;
     intendedForExport: string;
     insuranceRecords: string;
     insuranceRecordsDesc: string;
@@ -466,6 +467,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
       vinChanged: 'VIN numeris buvo keistas',
       junkSalvage: 'Laužyno / Salvage įrašai',
       junkSalvageDesc: 'Transporto priemonės istorija iš laužyno ir salvage aukcionų',
+      junkSalvageNoRecords: 'Salvage patikra atlikta – įrašų nerasta',
       intendedForExport: 'Eksportas',
       insuranceRecords: 'Draudimo įrašai',
       insuranceRecordsDesc: 'Draudimo bendrovės, pranešusios apie šią transporto priemonę',
@@ -779,6 +781,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
       vinChanged: 'VIN has been changed',
       junkSalvage: 'Junk & Salvage records',
       junkSalvageDesc: 'Vehicle history from junk and salvage auctions',
+      junkSalvageNoRecords: 'Salvage check performed – no records found',
       intendedForExport: 'Export',
       insuranceRecords: 'Insurance records',
       insuranceRecordsDesc: 'Insurance companies that have reported on this vehicle',
@@ -1089,6 +1092,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
       vinChanged: 'VIN wurde geändert',
       junkSalvage: 'Schrott- & Salvage-Einträge',
       junkSalvageDesc: 'Fahrzeughistorie aus Schrott- und Salvage-Auktionen',
+      junkSalvageNoRecords: 'Salvage-Prüfung durchgeführt – keine Einträge gefunden',
       intendedForExport: 'Export',
       insuranceRecords: 'Versicherungseinträge',
       insuranceRecordsDesc: 'Versicherungsgesellschaften, die über dieses Fahrzeug berichtet haben',
