@@ -18,7 +18,7 @@ import AIChat from './components/AIChat';
 import Logo from './components/Logo';
 import { useAuth } from './context/AuthContext';
 import { generateMockReport } from './services/geminiService';
-import { fetchCarReportFromOneAuto } from './services/oneAutoApiService';
+import { fetchCarReportFromOneAuto, fetchCarReportFromOneAutoTestEndpoints } from './services/oneAutoApiService';
 import { fetchVehicleSpecs, mapVehicleSpecsToReportFields, fetchVehicleHistory, mapCarsXeHistoryToReportFields, fetchTheftCheck, mapTheftCheckToReportFields } from './services/carsxeApiService';
 import { saveReport } from './services/reportsFirestore';
 import { CarReport } from './types';
@@ -280,7 +280,14 @@ const App: React.FC = () => {
         }
       }
 
-      // 2. One Auto (Service History → jei rasta, papildyti VIN Lookup) – tik vienas šaltinis
+      // 2a. Test režimui: TIK 4 One Auto endpointai (VIN Decoder, Salvage, OE Europe, OE Global) – be fallback
+      const useTestEndpoints = import.meta.env.VITE_TEST_ONE_AUTO_ENDPOINTS === 'true' || import.meta.env.VITE_TEST_ONE_AUTO_ENDPOINTS === '1';
+      if (useTestEndpoints) {
+        const testReport = await fetchCarReportFromOneAutoTestEndpoints(vin);
+        return testReport; // grąžina null jei visi 4 nepavyko – nieko daugiau nekviečiame
+      }
+
+      // 2b. One Auto (Service History → jei rasta, papildyti VIN Lookup) – tik vienas šaltinis
       if (useServiceHistory || useVinLookup) {
         try {
           const oneAutoData = await fetchCarReportFromOneAuto(vin, {
@@ -377,7 +384,12 @@ const App: React.FC = () => {
         
         const mileageCount = reportResult.mileageHistory?.length ?? 0;
         const serviceCount = reportResult.serviceEvents?.length ?? 0;
-        const hasEnoughData = mileageCount >= 2 || serviceCount >= 2;
+        const isFromTestEndpoints =
+          import.meta.env.VITE_TEST_ONE_AUTO_ENDPOINTS === 'true' || import.meta.env.VITE_TEST_ONE_AUTO_ENDPOINTS === '1';
+        const hasEnoughData =
+          mileageCount >= 2 ||
+          serviceCount >= 2 ||
+          (isFromTestEndpoints && (reportResult.make !== "–" || reportResult.model !== "–" || (reportResult.junkSalvageRecords?.length ?? 0) > 0));
         
         if (!hasEnoughData) {
           setShowInsufficientDataModal(true);

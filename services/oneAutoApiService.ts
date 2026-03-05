@@ -450,8 +450,197 @@ function mapVinLookupToCarReportFields(result: EzyVinLookupResult | undefined): 
   };
 }
 
+/** CarGuide Salvage Check from VIN – laužyno/salvage įrašai */
+async function fetchCarGuideSalvageCheckFromVin(
+  vin: string,
+  apiKey: string,
+  baseUrl: string
+): Promise<{ success: boolean; result?: CarGuideSalvageResult; error?: string }> {
+  const url = new URL("/carguide/salvagecheckfromvin/v2", baseUrl);
+  url.searchParams.set("vehicle_identification_number", vin);
+  const headers: Record<string, string> = { "x-api-key": apiKey, Accept: "application/json" };
+  try {
+    const res = await fetch(url.toString(), { method: "GET", headers });
+    const body = await res.json().catch(() => ({}));
+    if (res.status !== 200) return { success: false, error: (body as { error?: string }).error || res.statusText };
+    if (!(body as { success?: boolean }).success && (body as { error?: string }).error)
+      return { success: false, error: (body as { error: string }).error };
+    return body;
+  } catch (e) {
+    return { success: false, error: (e as Error).message };
+  }
+}
+
+interface CarGuideSalvageResult {
+  salvage_auction_record_found?: boolean;
+  salvage_auction_records?: Array<{
+    salvage_auction_lot_desc?: string;
+    salvage_auction_lot_date?: string;
+    mileage?: number;
+    primary_damage_desc?: string;
+    secondary_damage_desc?: string;
+    salvage_auction_location?: string;
+  }>;
+}
+
+/** One Auto OE Build Sheet (Europe) from VIN */
+async function fetchOneAutoOeBuildSheetEurope(
+  vin: string,
+  apiKey: string,
+  baseUrl: string
+): Promise<{ success: boolean; result?: OneAutoOeBuildSheetResult; error?: string }> {
+  const url = new URL("/oneauto/oebuildsheeteuropefromvin/v2", baseUrl);
+  url.searchParams.set("vehicle_identification_number", vin);
+  const headers: Record<string, string> = { "x-api-key": apiKey, Accept: "application/json" };
+  try {
+    const res = await fetch(url.toString(), { method: "GET", headers });
+    const body = await res.json().catch(() => ({}));
+    if (res.status !== 200) return { success: false, error: (body as { error?: string }).error || res.statusText };
+    if (!(body as { success?: boolean }).success && (body as { error?: string }).error)
+      return { success: false, error: (body as { error: string }).error };
+    return body;
+  } catch (e) {
+    return { success: false, error: (e as Error).message };
+  }
+}
+
+/** One Auto OE Build Sheet (Global) from VIN */
+async function fetchOneAutoOeBuildSheetGlobal(
+  vin: string,
+  apiKey: string,
+  baseUrl: string
+): Promise<{ success: boolean; result?: OneAutoOeBuildSheetGlobalResult; error?: string }> {
+  const url = new URL("/oneauto/oebuildsheetfromvin/v2", baseUrl);
+  url.searchParams.set("vehicle_identification_number", vin);
+  const headers: Record<string, string> = { "x-api-key": apiKey, Accept: "application/json" };
+  try {
+    const res = await fetch(url.toString(), { method: "GET", headers });
+    const body = await res.json().catch(() => ({}));
+    if (res.status !== 200) return { success: false, error: (body as { error?: string }).error || res.statusText };
+    if (!(body as { success?: boolean }).success && (body as { error?: string }).error)
+      return { success: false, error: (body as { error: string }).error };
+    return body;
+  } catch (e) {
+    return { success: false, error: (e as Error).message };
+  }
+}
+
+interface OneAutoOeBuildSheetResult {
+  manufactured_date?: string;
+  delivered_date?: string;
+  oem_colour_desc?: string;
+  oem_interior_trim_desc?: string;
+  oem_engine_desc?: string;
+  oem_transmission_type_desc?: string;
+  oem_drivetrain_desc?: string;
+  oem_wheel_desc?: string;
+  options?: Array<{ factory_code?: string; factory_desc?: string; additional_desc?: string }>;
+}
+
+interface OneAutoOeBuildSheetGlobalResult {
+  manufacturer_desc?: string;
+  model_desc?: string;
+  derivative_desc?: string;
+  options?: Array<{ factory_code?: string; factory_desc?: string }>;
+}
+
+function mapOeBuildSheetEuropeToReport(r: OneAutoOeBuildSheetResult | undefined): Partial<CarReport> {
+  if (!r) return {};
+  return {
+    technicalSpecs: {
+      engine: r.oem_engine_desc ?? "–",
+      power: "–",
+      fuelType: "–",
+      transmission: r.oem_transmission_type_desc ?? "–",
+      drivetrain: r.oem_drivetrain_desc ?? "–",
+      colour: r.oem_colour_desc ?? "–",
+    },
+  };
+}
+
+function mapOeBuildSheetGlobalToReport(r: OneAutoOeBuildSheetGlobalResult | undefined): Partial<CarReport> {
+  if (!r) return {};
+  return {
+    make: r.manufacturer_desc ?? "–",
+    model: [r.model_desc, r.derivative_desc].filter(Boolean).join(" ") || r.derivative_desc || "–",
+  };
+}
+
+function mapSalvageToJunkRecords(r: CarGuideSalvageResult | undefined): import("../types").JunkSalvageRecord[] {
+  if (!r?.salvage_auction_records?.length) return [];
+  return r.salvage_auction_records.map((rec) => ({
+    disposition: [rec.salvage_auction_lot_desc, rec.primary_damage_desc, rec.secondary_damage_desc].filter(Boolean).join("; "),
+    location: rec.salvage_auction_location,
+    obtainedDate: rec.salvage_auction_lot_date,
+  }));
+}
+
 /** Klaida, kai serviso istorija nerandama ir sustabdoma tikrinimo eilė (sequential). */
 export const HISTORY_NOT_FOUND_ERROR = "Istorija nebuvo rasta.";
+
+/**
+ * Testiniam režimui: kviečia 4 One Auto API endpointus (VIN Decoder, Salvage, OE Europe, OE Global)
+ * ir sudaro ataskaitą iš jų duomenų. Naudoti su VITE_TEST_ONE_AUTO_ENDPOINTS=true.
+ *
+ * Endpointai:
+ * - Cartell VIN Decoder: /cartell/vindecoder/
+ * - CarGuide Salvage: /carguide/salvagecheckfromvin/v2
+ * - OE Build Sheet Europe: /oneauto/oebuildsheeteuropefromvin/v2
+ * - OE Build Sheet Global: /oneauto/oebuildsheetfromvin/v2
+ */
+export async function fetchCarReportFromOneAutoTestEndpoints(
+  vin: string,
+  options?: { useSandbox?: boolean }
+): Promise<CarReport | null> {
+  const apiKey = getApiKey();
+  if (!apiKey) return null;
+
+  const baseUrl = getBaseUrl(options?.useSandbox ? "sandbox" : "live");
+
+  const [vinDecoderRes, salvageRes, oeEuropeRes, oeGlobalRes] = await Promise.all([
+    fetchCartellVindecoder(vin, apiKey, baseUrl),
+    fetchCarGuideSalvageCheckFromVin(vin, apiKey, baseUrl),
+    fetchOneAutoOeBuildSheetEurope(vin, apiKey, baseUrl),
+    fetchOneAutoOeBuildSheetGlobal(vin, apiKey, baseUrl),
+  ]);
+
+  if (typeof console !== "undefined" && console.log) {
+    console.log("[VIN API Test] VIN Decoder:", vinDecoderRes.success ? "OK" : vinDecoderRes.error);
+    console.log("[VIN API Test] Salvage Check:", salvageRes.success ? "OK" : salvageRes.error);
+    console.log("[VIN API Test] OE Build Sheet Europe:", oeEuropeRes.success ? "OK" : oeEuropeRes.error);
+    console.log("[VIN API Test] OE Build Sheet Global:", oeGlobalRes.success ? "OK" : oeGlobalRes.error);
+  }
+
+  const fromDecoder = mapCartellVindecoderToReportFields(vinDecoderRes.result);
+  const fromOeEurope = mapOeBuildSheetEuropeToReport(oeEuropeRes.result);
+  const fromOeGlobal = mapOeBuildSheetGlobalToReport(oeGlobalRes.result);
+  const junkSalvage = mapSalvageToJunkRecords(salvageRes.result);
+
+  const anySuccess = vinDecoderRes.success || salvageRes.success || oeEuropeRes.success || oeGlobalRes.success;
+  if (!anySuccess) return null;
+
+  const report: CarReport = {
+    vin,
+    make: fromDecoder.make ?? fromOeGlobal.make ?? "–",
+    model: fromDecoder.model ?? fromOeGlobal.model ?? "–",
+    year: fromDecoder.year ?? 0,
+    mileageHistory: [{ date: new Date().toISOString().slice(0, 7), value: 0 }],
+    serviceEvents: [],
+    damages: [],
+    theftStatus: "unknown",
+    technicalSpecs: { engine: "–", power: "–", fuelType: "–", ...fromDecoder.technicalSpecs, ...fromOeEurope.technicalSpecs },
+    marketValue: { min: 0, max: 0, average: 0 },
+    rawApiResponses: {
+      vinDecoder: vinDecoderRes,
+      salvage: salvageRes,
+      oeBuildSheetEurope: oeEuropeRes,
+      oeBuildSheetGlobal: oeGlobalRes,
+    },
+  };
+  if (junkSalvage.length) report.junkSalvageRecords = junkSalvage;
+
+  return report;
+}
 
 /**
  * Gauna automobilio ataskaitą iš One Auto API.
