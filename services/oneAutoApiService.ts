@@ -575,82 +575,26 @@ function mapSalvageToJunkRecords(r: CarGuideSalvageResult | undefined): import("
   }));
 }
 
+/** Iš raw One Auto (salvage) papildo ataskaitą junkSalvageRecords – kad būtų rodoma projekte */
+export function enrichReportFromRawOneAuto(report: CarReport): CarReport {
+  const raw = report.rawApiResponses as Record<string, { success?: boolean; result?: CarGuideSalvageResult }> | undefined;
+  const salvage = raw?.salvage;
+  if (!salvage?.success || !salvage?.result || report.junkSalvageRecords?.length) return report;
+  const junk = mapSalvageToJunkRecords(salvage.result);
+  if (junk.length === 0) return report;
+  return { ...report, junkSalvageRecords: junk };
+}
+
 /** Klaida, kai serviso istorija nerandama ir sustabdoma tikrinimo eilė (sequential). */
 export const HISTORY_NOT_FOUND_ERROR = "Istorija nebuvo rasta.";
 
 /**
- * Testiniam režimui: kviečia 4 One Auto API endpointus (VIN Decoder, Salvage, OE Europe, OE Global)
- * ir sudaro ataskaitą iš jų duomenų. Naudoti su VITE_TEST_ONE_AUTO_ENDPOINTS=true.
- *
- * Endpointai:
- * - Cartell VIN Decoder: /cartell/vindecoder/
- * - CarGuide Salvage: /carguide/salvagecheckfromvin/v2
- * - OE Build Sheet Europe: /oneauto/oebuildsheeteuropefromvin/v2
- * - OE Build Sheet Global: /oneauto/oebuildsheetfromvin/v2
- */
-export async function fetchCarReportFromOneAutoTestEndpoints(
-  vin: string,
-  options?: { useSandbox?: boolean }
-): Promise<CarReport | null> {
-  const apiKey = getApiKey();
-  if (!apiKey) return null;
-
-  const baseUrl = getBaseUrl(options?.useSandbox ? "sandbox" : "live");
-
-  const [vinDecoderRes, salvageRes, oeEuropeRes, oeGlobalRes] = await Promise.all([
-    fetchCartellVindecoder(vin, apiKey, baseUrl),
-    fetchCarGuideSalvageCheckFromVin(vin, apiKey, baseUrl),
-    fetchOneAutoOeBuildSheetEurope(vin, apiKey, baseUrl),
-    fetchOneAutoOeBuildSheetGlobal(vin, apiKey, baseUrl),
-  ]);
-
-  if (typeof console !== "undefined" && console.log) {
-    console.log("[VIN API Test] VIN Decoder:", vinDecoderRes.success ? "OK" : vinDecoderRes.error);
-    console.log("[VIN API Test] Salvage Check:", salvageRes.success ? "OK" : salvageRes.error);
-    console.log("[VIN API Test] OE Build Sheet Europe:", oeEuropeRes.success ? "OK" : oeEuropeRes.error);
-    console.log("[VIN API Test] OE Build Sheet Global:", oeGlobalRes.success ? "OK" : oeGlobalRes.error);
-  }
-
-  const fromDecoder = mapCartellVindecoderToReportFields(vinDecoderRes.result);
-  const fromOeEurope = mapOeBuildSheetEuropeToReport(oeEuropeRes.result);
-  const fromOeGlobal = mapOeBuildSheetGlobalToReport(oeGlobalRes.result);
-  const junkSalvage = mapSalvageToJunkRecords(salvageRes.result);
-
-  const anySuccess = vinDecoderRes.success || salvageRes.success || oeEuropeRes.success || oeGlobalRes.success;
-  if (!anySuccess) return null;
-
-  const report: CarReport = {
-    vin,
-    make: fromDecoder.make ?? fromOeGlobal.make ?? "–",
-    model: fromDecoder.model ?? fromOeGlobal.model ?? "–",
-    year: fromDecoder.year ?? 0,
-    mileageHistory: [{ date: new Date().toISOString().slice(0, 7), value: 0 }],
-    serviceEvents: [],
-    damages: [],
-    theftStatus: "unknown",
-    technicalSpecs: { engine: "–", power: "–", fuelType: "–", ...fromDecoder.technicalSpecs, ...fromOeEurope.technicalSpecs },
-    marketValue: { min: 0, max: 0, average: 0 },
-    rawApiResponses: {
-      vinDecoder: vinDecoderRes,
-      salvage: salvageRes,
-      oeBuildSheetEurope: oeEuropeRes,
-      oeBuildSheetGlobal: oeGlobalRes,
-    },
-  };
-  if (junkSalvage.length) report.junkSalvageRecords = junkSalvage;
-
-  return report;
-}
-
-/**
  * Gauna automobilio ataskaitą iš One Auto API.
- * Kviečiami 2 šaltiniai: EzyVIN Service History ir OE VIN Lookup (Europe).
  *
- * Kai sequential=true ir useServiceHistory=true: pirmiausia tikrinama Service History.
- * Jei istorija nerandama – metama HISTORY_NOT_FOUND_ERROR, VIN Lookup nebekviečiamas.
- * Jei istorija randama – tikrinamas VIN Lookup (jei useVinLookup).
- *
- * Jei nėra VIN_API_KEY arba abu kvietimai nepavyksta (ne sequential) – grąžina null.
+ * Pagrindinė logika:
+ * 1. Service History – jei nepavyksta, metama HISTORY_NOT_FOUND_ERROR
+ * 2. VIN Lookup – jei nepavyksta: fallback į OE Build Sheet Europe → Cartell VIN Decoder
+ * 3. Kai Service History sėkmingas – VISADA kviečiamas Salvage Check
  */
 export async function fetchCarReportFromOneAuto(
   vin: string,
@@ -714,10 +658,53 @@ export async function fetchCarReportFromOneAuto(
     }
   }
 
+  // VIN Lookup nepavyko – fallback: OE Build Sheet Europe → Cartell VIN Decoder
+  let fromLookup = mapVinLookupToCarReportFields(lookupRes.result);
+  let oeEuropeRes: { success: boolean; result?: OneAutoOeBuildSheetResult; error?: string } | undefined;
+  let cartellRes: { success: boolean; result?: CartellVindecoderResult; error?: string } | undefined;
+
+  if (!lookupRes.success && !skipVinLookup) {
+    oeEuropeRes = await fetchOneAutoOeBuildSheetEurope(vin, apiKey, baseUrl);
+    if (typeof console !== "undefined" && console.log) {
+      console.log("[VIN API] OE Build Sheet Europe (fallback):", oeEuropeRes.success ? "OK" : oeEuropeRes.error);
+    }
+    if (!oeEuropeRes.success) {
+      cartellRes = await fetchCartellVindecoder(vin, apiKey, baseUrl);
+      if (typeof console !== "undefined" && console.log) {
+        console.log("[VIN API] Cartell VIN Decoder (fallback):", cartellRes.success ? "OK" : cartellRes.error);
+      }
+    }
+    const fromOe = mapOeBuildSheetEuropeToReport(oeEuropeRes?.result);
+    const fromCartell = mapCartellVindecoderToReportFields(cartellRes?.result);
+    fromLookup = {
+      make: fromCartell.make ?? "–",
+      model: fromCartell.model ?? "–",
+      year: fromCartell.year ?? 0,
+      technicalSpecs: { engine: "–", power: "–", fuelType: "–", ...fromOe.technicalSpecs, ...fromCartell.technicalSpecs },
+    };
+  }
+
+  // Kai Service History sėkmingas – VISADA Salvage Check
+  let salvageRes: { success: boolean; result?: CarGuideSalvageResult; error?: string } | undefined;
+  if (historyRes.success) {
+    salvageRes = await fetchCarGuideSalvageCheckFromVin(vin, apiKey, baseUrl);
+    if (typeof console !== "undefined" && console.log) {
+      console.log("[VIN API] Salvage Check:", salvageRes.success ? "OK" : salvageRes.error);
+    }
+  }
+
   const rawEvents = historyRes.result?.service_events;
   const mileageHistory = mapServiceHistoryToMileageHistory(rawEvents);
   const serviceEvents = mapToServiceEventRecords(rawEvents);
-  const fromLookup = mapVinLookupToCarReportFields(lookupRes.result);
+  const junkSalvage = salvageRes ? mapSalvageToJunkRecords(salvageRes.result) : [];
+
+  const rawApiResponses: Record<string, unknown> = {
+    serviceHistory: historyRes,
+    vinLookup: lookupRes,
+    ...(oeEuropeRes && { oeBuildSheetEurope: oeEuropeRes }),
+    ...(cartellRes && { vinDecoder: cartellRes }),
+    ...(salvageRes && { salvage: salvageRes }),
+  };
 
   const report: CarReport = {
     vin,
@@ -730,13 +717,14 @@ export async function fetchCarReportFromOneAuto(
     theftStatus: "unknown",
     technicalSpecs: fromLookup.technicalSpecs ?? { engine: "–", power: "–", fuelType: "–" },
     marketValue: { min: 0, max: 0, average: 0 },
-    rawApiResponses: { serviceHistory: historyRes, vinLookup: lookupRes },
+    rawApiResponses,
   };
+  if (junkSalvage.length) report.junkSalvageRecords = junkSalvage;
 
-  const anySuccess = historyRes.success || lookupRes.success;
+  const anySuccess = historyRes.success || lookupRes.success || oeEuropeRes?.success || cartellRes?.success;
   if (!anySuccess) {
     const err = historyRes.error || lookupRes.error;
-    if (typeof console !== "undefined" && console.warn) console.warn("[VIN API] Abu šaltiniai nepavyko:", err);
+    if (typeof console !== "undefined" && console.warn) console.warn("[VIN API] Duomenų šaltiniai nepavyko:", err);
     if (err) throw new Error(err);
     return null;
   }

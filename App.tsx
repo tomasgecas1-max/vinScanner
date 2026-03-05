@@ -18,7 +18,7 @@ import AIChat from './components/AIChat';
 import Logo from './components/Logo';
 import { useAuth } from './context/AuthContext';
 import { generateMockReport } from './services/geminiService';
-import { fetchCarReportFromOneAuto, fetchCarReportFromOneAutoTestEndpoints } from './services/oneAutoApiService';
+import { fetchCarReportFromOneAuto } from './services/oneAutoApiService';
 import { fetchVehicleSpecs, mapVehicleSpecsToReportFields, fetchVehicleHistory, mapCarsXeHistoryToReportFields, fetchTheftCheck, mapTheftCheckToReportFields } from './services/carsxeApiService';
 import { saveReport } from './services/reportsFirestore';
 import { CarReport } from './types';
@@ -119,22 +119,6 @@ const App: React.FC = () => {
     const hasSelected = localStorage.getItem('vinscanner_lang_selected');
     if (!hasSelected) {
       setShowLanguageBar(true);
-    }
-  }, []);
-
-  // Test One Auto: išsaugoti ?testOneAuto=1 į localStorage kai tik puslapis užsikrauna
-  const [isTestOneAutoMode, setIsTestOneAutoMode] = useState(false);
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const urlTest = urlParams.get('testOneAuto');
-    if (urlTest === '1') {
-      localStorage.setItem('vinscanner_testOneAuto', '1');
-      setIsTestOneAutoMode(true);
-    } else if (urlTest === '0') {
-      localStorage.removeItem('vinscanner_testOneAuto');
-      setIsTestOneAutoMode(false);
-    } else {
-      setIsTestOneAutoMode(localStorage.getItem('vinscanner_testOneAuto') === '1');
     }
   }, []);
 
@@ -284,24 +268,13 @@ const App: React.FC = () => {
       const vinNorm = vin.trim().toUpperCase();
       trackVinSearch(vinNorm);
 
-      // 1. Cache – jei rasta, grąžinti ir sustoti (išjungti: ?skipCache=1 URL; VITE_SKIP_CACHE; arba test režimas)
+      // 1. Cache – jei rasta, grąžinti ir sustoti (išjungti: ?skipCache=1 URL; VITE_SKIP_CACHE)
       const urlParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
       const urlSkipCache = urlParams.get('skipCache') === '1';
-      const urlTest = urlParams.get('testOneAuto');
-      if (typeof window !== 'undefined') {
-        if (urlTest === '1') localStorage.setItem('vinscanner_testOneAuto', '1');
-        else if (urlTest === '0') localStorage.removeItem('vinscanner_testOneAuto');
-      }
-      const useTestEndpoints =
-        urlTest === '1' ||
-        (typeof window !== 'undefined' && localStorage.getItem('vinscanner_testOneAuto') === '1') ||
-        import.meta.env.VITE_TEST_ONE_AUTO_ENDPOINTS === 'true' ||
-        import.meta.env.VITE_TEST_ONE_AUTO_ENDPOINTS === '1';
       const skipCache =
         urlSkipCache ||
         import.meta.env.VITE_SKIP_CACHE === 'true' ||
-        import.meta.env.VITE_SKIP_CACHE === '1' ||
-        useTestEndpoints;
+        import.meta.env.VITE_SKIP_CACHE === '1';
       if (!skipCache) {
         const cacheRes = await fetch(`/api/report-cache?vin=${encodeURIComponent(vinNorm)}`);
         if (cacheRes.ok) {
@@ -312,13 +285,7 @@ const App: React.FC = () => {
         }
       }
 
-      // 2a. Test režimui: TIK 4 One Auto endpointai (VIN Decoder, Salvage, OE Europe, OE Global) – be fallback
-      if (useTestEndpoints) {
-        const testReport = await fetchCarReportFromOneAutoTestEndpoints(vin);
-        return testReport; // grąžina null jei visi 4 nepavyko – nieko daugiau nekviečiame
-      }
-
-      // 2b. One Auto (Service History → jei rasta, papildyti VIN Lookup) – tik vienas šaltinis
+      // 2. One Auto (Service History → VIN Lookup → OE Europe / Cartell fallback; Salvage visada)
       if (useServiceHistory || useVinLookup) {
         try {
           const oneAutoData = await fetchCarReportFromOneAuto(vin, {
@@ -415,15 +382,7 @@ const App: React.FC = () => {
         
         const mileageCount = reportResult.mileageHistory?.length ?? 0;
         const serviceCount = reportResult.serviceEvents?.length ?? 0;
-        const urlParamsCheck = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
-        const isFromTestEndpoints =
-          urlParamsCheck.get('testOneAuto') === '1' ||
-          import.meta.env.VITE_TEST_ONE_AUTO_ENDPOINTS === 'true' ||
-          import.meta.env.VITE_TEST_ONE_AUTO_ENDPOINTS === '1';
-        const hasEnoughData =
-          mileageCount >= 2 ||
-          serviceCount >= 2 ||
-          (isFromTestEndpoints && (reportResult.make !== "–" || reportResult.model !== "–" || (reportResult.junkSalvageRecords?.length ?? 0) > 0));
+        const hasEnoughData = mileageCount >= 2 || serviceCount >= 2;
         
         if (!hasEnoughData) {
           setShowInsufficientDataModal(true);
@@ -708,19 +667,19 @@ const App: React.FC = () => {
           useVinLookup: opts.useVinLookup,
         });
         if (partial) {
-          const raw = partial.rawApiResponses as { serviceHistory?: { success?: boolean }; vinLookup?: { success?: boolean } } | undefined;
-          if (raw?.serviceHistory?.success) {
+          const raw = partial.rawApiResponses as Record<string, unknown> | undefined;
+          if (raw?.serviceHistory && (raw.serviceHistory as { success?: boolean }).success) {
             merged.mileageHistory = partial.mileageHistory;
             merged.serviceEvents = partial.serviceEvents;
-            merged.rawApiResponses = { ...(merged.rawApiResponses as object || {}), serviceHistory: (partial.rawApiResponses as any)?.serviceHistory };
           }
-          if (raw?.vinLookup?.success) {
+          if (raw?.vinLookup && (raw.vinLookup as { success?: boolean }).success) {
             merged.make = partial.make;
             merged.model = partial.model;
             merged.year = partial.year;
             merged.technicalSpecs = partial.technicalSpecs;
-            merged.rawApiResponses = { ...(merged.rawApiResponses as object || {}), vinLookup: (partial.rawApiResponses as any)?.vinLookup };
           }
+          if (partial.junkSalvageRecords?.length) merged.junkSalvageRecords = partial.junkSalvageRecords;
+          merged.rawApiResponses = { ...(merged.rawApiResponses as object || {}), ...(raw || {}) };
         }
       }
 
@@ -796,21 +755,6 @@ const App: React.FC = () => {
                   </p>
                 )}
               </div>
-            </div>
-          </div>
-        )}
-        {isTestOneAutoMode && (
-          <div className="max-w-xl mx-auto px-4 mb-4">
-            <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-2xl flex items-center justify-between gap-4">
-              <span className="text-sm font-bold">
-                🧪 Test režimas: naudojami tik 4 One Auto API (VIN Decoder, Salvage, OE Europe, OE Global)
-              </span>
-              <a
-                href="?testOneAuto=0"
-                className="text-amber-600 hover:text-amber-800 text-xs font-bold underline shrink-0"
-              >
-                Išjungti
-              </a>
             </div>
           </div>
         )}

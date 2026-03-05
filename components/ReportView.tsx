@@ -3,6 +3,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { CarReport, type ReportAnalysis, type ServiceEventRecord } from '../types';
 import { getReportAnalysis, translateServiceEventTexts, translateTitleBrands, translateStrings } from '../services/geminiService';
 import { enrichReportFromRawCarsXe } from '../services/carsxeApiService';
+import { enrichReportFromRawOneAuto } from '../services/oneAutoApiService';
 import { getTitleBrandItems } from '../constants/titleBrandTranslations';
 import type { Translations } from '../constants/translations';
 import { getTranslations } from '../constants/translations';
@@ -24,6 +25,9 @@ interface ReportViewProps {
 const SOURCE_LABELS: Record<string, string> = {
   serviceHistory: 'EzyVIN Service History',
   vinLookup: 'OE VIN Lookup (Europe)',
+  oeBuildSheetEurope: 'OE Build Sheet (Europe)',
+  vinDecoder: 'Cartell VIN Decoder',
+  salvage: 'CarGuide Salvage Check',
   vehicleSpecs: 'CarsXE (Automobilio specifikacijos)',
   carsxeHistory: 'CarsXE History',
   vehicleIdentity: 'Experian Vehicle Identity',
@@ -257,8 +261,11 @@ function formatValue(val: unknown, t?: { report: { yes: string; no: string } }):
 }
 
 const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSupplementReport, supplementLoading, pendingEmailReport, onEmailWithPdfSent, orderId }) => {
-  /** Iš raw CarsXE duomenų papildo ataskaitą – rodo VIN keitimą, junk/salvage, draudimą, lien/theft ir senesnėse išsaugotose ataskaitose */
-  const displayReport = useMemo(() => enrichReportFromRawCarsXe(report), [report]);
+  /** Iš raw CarsXE ir One Auto duomenų papildo ataskaitą – rodo VIN keitimą, junk/salvage, draudimą, OE Europe, Cartell ir kt. */
+  const displayReport = useMemo(
+    () => enrichReportFromRawOneAuto(enrichReportFromRawCarsXe(report)),
+    [report]
+  );
   const [showRawApi, setShowRawApi] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [supplementServiceHistory, setSupplementServiceHistory] = useState(true);
