@@ -1,34 +1,79 @@
-
 <!DOCTYPE html>
 <html lang="lt">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="canonical" href="https://vinscanner.eu/" />
     <title>VinScanner - Automobilių istorijos patikra</title>
-    
+
+    <!-- Hreflang – daugiakalbis puslapis -->
+    <link rel="alternate" hreflang="x-default" href="https://vinscanner.eu/" />
+    <link rel="alternate" hreflang="lt" href="https://vinscanner.eu/" />
+    <link rel="alternate" hreflang="en" href="https://vinscanner.eu/" />
+    <link rel="alternate" hreflang="de" href="https://vinscanner.eu/" />
+    <link rel="alternate" hreflang="pl" href="https://vinscanner.eu/" />
+    <link rel="alternate" hreflang="uk" href="https://vinscanner.eu/" />
+    <link rel="alternate" hreflang="fr" href="https://vinscanner.eu/" />
+    <link rel="alternate" hreflang="es" href="https://vinscanner.eu/" />
+    <link rel="alternate" hreflang="it" href="https://vinscanner.eu/" />
+    <link rel="alternate" hreflang="nl" href="https://vinscanner.eu/" />
+
     <!-- SEO Meta Tags (dinamiškai keičiami pagal kalbą) -->
     <meta name="description" content="Patikrinkite VIN kodą ir sužinokite automobilio istoriją: rida, avarijos, remontai, nuosavybės istorija. Greita ir patikima automobilių patikra." />
-    
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://vinscanner.eu/" />
     <meta property="og:title" content="VinScanner - Automobilių istorijos patikra" />
     <meta property="og:description" content="Patikrinkite VIN kodą ir sužinokite automobilio istoriją: rida, avarijos, remontai, nuosavybės istorija." />
     <meta property="og:image" content="https://vinscanner.eu/og-image.png" />
-    
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="lt_LT" />
+    <meta property="og:site_name" content="VinScanner" />
+
     <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://vinscanner.eu/" />
-    <meta property="twitter:title" content="VinScanner - Automobilių istorijos patikra" />
-    <meta property="twitter:description" content="Patikrinkite VIN kodą ir sužinokite automobilio istoriją: rida, avarijos, remontai, nuosavybės istorija." />
-    <meta property="twitter:image" content="https://vinscanner.eu/og-image.png" />
-    
-    <!-- Google Analytics 4 - inicializuojama per React komponentą -->
-    
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://vinscanner.eu/" />
+    <meta name="twitter:title" content="VinScanner - Automobilių istorijos patikra" />
+    <meta name="twitter:description" content="Patikrinkite VIN kodą ir sužinokite automobilio istoriją: rida, avarijos, remontai, nuosavybės istorija." />
+    <meta name="twitter:image" content="https://vinscanner.eu/og-image.png" />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "name": "VinScanner",
+          "url": "https://vinscanner.eu",
+          "description": "VIN kodas ir automobilio istorijos patikra: rida, avarijos, remontai, nuosavybės istorija.",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": { "@type": "EntryPoint", "urlTemplate": "https://vinscanner.eu/?vin={search_term_string}" },
+            "query-input": "required name=search_term_string"
+          }
+        },
+        {
+          "@type": "Service",
+          "name": "VinScanner – automobilių VIN patikra",
+          "description": "Profesionali automobilio istorijos patikra pagal VIN kodą: ridos istorija, serviso įrašai, žalos, vagystės patikra, rinkos vertė.",
+          "provider": { "@type": "Organization", "name": "VinScanner", "url": "https://vinscanner.eu" },
+          "serviceType": "Vehicle History Report",
+          "url": "https://vinscanner.eu"
+        }
+      ]
+    }
+    </script>
+
+    <!-- Preconnect / Performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" as="style" />
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <style>
       body {
         font-family: 'Plus Jakarta Sans', sans-serif;

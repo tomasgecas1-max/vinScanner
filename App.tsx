@@ -747,7 +747,9 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 selection:bg-indigo-100 selection:text-indigo-900">
-      <Navbar lang={lang} setLang={setLang} t={t} onMyReportsClick={() => setShowMyReports(true)} onSampleReportClick={handleSampleReportDemo} onAuthClick={() => setShowAuthModal(true)} />
+      <header>
+        <Navbar lang={lang} setLang={setLang} t={t} onMyReportsClick={() => setShowMyReports(true)} onSampleReportClick={handleSampleReportDemo} onAuthClick={() => setShowAuthModal(true)} />
+      </header>
       
       <main className="overflow-x-hidden">
         {purchaseToken && purchaseInfo && (

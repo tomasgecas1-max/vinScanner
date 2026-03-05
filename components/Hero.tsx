@@ -57,7 +57,7 @@ const Hero: React.FC<HeroProps> = ({ onVinSubmit, onSampleReportClick, loading, 
             </p>
 
             <div className="max-w-xl mx-auto lg:mx-0 relative z-40">
-              <form onSubmit={handleSubmit} className="relative group">
+              <form onSubmit={handleSubmit} className="relative group" aria-label={t.hero.placeholder}>
                 <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-3xl blur opacity-20 group-hover:opacity-30 transition duration-1000 group-hover:duration-200"></div>
                 <div className="relative flex flex-col gap-3 sm:block">
                   <input
