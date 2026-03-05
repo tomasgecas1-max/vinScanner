@@ -13,7 +13,7 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect }) => {
   const plans = [
     { name: t.pricing.planSingle, count: t.pricing.report1, price: 12, oldPrice: 24, bestValue: false },
     { name: t.pricing.planPopular, count: t.pricing.reports2, price: 20, oldPrice: 40, bestValue: false },
-    { name: t.pricing.planBestValue, count: t.pricing.reports3, price: 27, oldPrice: undefined, bestValue: true },
+    { name: t.pricing.planBestValue, count: t.pricing.reports3, price: 27, oldPrice: 54, bestValue: true },
   ];
 
   const scrollToVinInput = () => {
