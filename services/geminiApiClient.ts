@@ -31,12 +31,12 @@ async function apiPost<T>(url: string, body: unknown): Promise<T> {
 }
 
 export async function generateMockReport(vin: string): Promise<any> {
-  const data = await apiPost<Record<string, unknown>>('/api/gemini-mock-report', { vin });
+  const data = await apiPost<Record<string, unknown>>('/api/gemini', { action: 'mockReport', vin });
   return data;
 }
 
 export async function getReportAnalysis(report: CarReport, lang: string = 'lt'): Promise<ReportAnalysisResult> {
-  const res = await apiPost<ReportAnalysisResult>('/api/gemini-report-analysis', { report, lang });
+  const res = await apiPost<ReportAnalysisResult>('/api/gemini', { action: 'reportAnalysis', report, lang });
   return res;
 }
 
@@ -44,7 +44,8 @@ export async function translateServiceEventTexts(
   events: ServiceEventRecord[],
   targetLang: string
 ): Promise<TranslateServiceEventsResult> {
-  const res = await apiPost<TranslateServiceEventsResult>('/api/gemini-translate-service-events', {
+  const res = await apiPost<TranslateServiceEventsResult>('/api/gemini', {
+    action: 'translateServiceEvents',
     events,
     targetLang,
   });
@@ -55,7 +56,8 @@ export async function translateTitleBrands(
   items: Record<string, TitleBrandItem>,
   targetLang: string
 ): Promise<TranslateTitleBrandsResult> {
-  const res = await apiPost<TranslateTitleBrandsResult>('/api/gemini-translate-title-brands', {
+  const res = await apiPost<TranslateTitleBrandsResult>('/api/gemini', {
+    action: 'translateTitleBrands',
     items,
     targetLang,
   });
@@ -67,7 +69,8 @@ export async function translateStrings(
   targetLang: string,
   context?: string
 ): Promise<TranslateStringsResult> {
-  const res = await apiPost<TranslateStringsResult>('/api/gemini-translate-strings', {
+  const res = await apiPost<TranslateStringsResult>('/api/gemini', {
+    action: 'translateStrings',
     texts,
     targetLang,
     context,

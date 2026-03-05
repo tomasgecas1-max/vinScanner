@@ -53,7 +53,7 @@ export default defineConfig(({ mode }) => {
     const gaMeasurementId = env.GA_MEASUREMENT_ID ?? env.VITE_GA_MEASUREMENT_ID;
     const sentryDsn = env.SENTRY_DSN ?? env.VITE_SENTRY_DSN;
     console.log('[vite] Firebase env:', hasFirebase ? 'present (Prisijungti bus rodomas)' : 'MISSING – pridėk FIREBASE_* arba VITE_FIREBASE_* Vercel');
-    console.log('[vite] AI chat: naudoja /api/ai-chat (AI_API_KEY tik Vercel serveryje)');
+    console.log('[vite] AI chat: naudoja /api/gemini (AI_API_KEY tik Vercel serveryje)');
     console.log('[vite] CARSXE_API_KEY:', carsxeApiKey ? 'present (proxy įjungtas)' : 'MISSING – Automobilio specifikacijos neveiks');
     return {
       server: {
@@ -65,7 +65,7 @@ export default defineConfig(({ mode }) => {
         chunkSizeWarningLimit: 3500, // ~3.2 MB bundle; didesnis limitas, kad neberodytų įspėjimo
       },
       define: {
-        // AI_API_KEY – tik Vercel api/ai-chat.js, į klientą NIEKADA neįeina
+        // AI_API_KEY – tik Vercel api/gemini.js, į klientą NIEKADA neįeina
         'process.env.VIN_API_KEY': JSON.stringify(env.VIN_API_KEY),
         'process.env.VIN_VEHICLE_IDENTITY_ONLY': JSON.stringify(env.VIN_VEHICLE_IDENTITY_ONLY),
         'process.env.VIN_SKIP_SERVICE_HISTORY': JSON.stringify(env.VIN_SKIP_SERVICE_HISTORY),

@@ -3,10 +3,10 @@ import { ChatMessage } from '../types';
 import type { Translations } from '../constants/translations';
 
 async function getCarExpertResponse(message: string): Promise<string> {
-  const res = await fetch('/api/ai-chat', {
+  const res = await fetch('/api/gemini', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message }),
+    body: JSON.stringify({ action: 'chat', message }),
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) return data?.error ?? 'Ryšio klaida. Patikrink internetą.';
