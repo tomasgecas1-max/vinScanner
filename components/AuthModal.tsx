@@ -10,6 +10,8 @@ interface AuthModalProps {
   t: Translations;
 }
 
+const SHOW_FACEBOOK_LOGIN = false;
+
 const AuthModal: React.FC<AuthModalProps> = ({ open, onClose, t }) => {
   const { signInWithGoogle, signInWithFacebook, signInWithEmail, signUpWithEmail, resetPassword } = useAuth();
   const [view, setView] = useState<AuthView>('options');
@@ -152,6 +154,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ open, onClose, t }) => {
                   {t.auth?.googleButton || 'Continue with Google'}
                 </button>
 
+                {SHOW_FACEBOOK_LOGIN && (
                 <button
                   onClick={handleFacebookLogin}
                   disabled={loading}
@@ -162,6 +165,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ open, onClose, t }) => {
                   </svg>
                   {t.auth?.facebookButton || 'Continue with Facebook'}
                 </button>
+                )}
 
                 <button
                   onClick={() => { setView('login'); setError(null); }}
