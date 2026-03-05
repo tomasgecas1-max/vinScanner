@@ -17,7 +17,7 @@ import Pricing from './components/Pricing';
 import AIChat from './components/AIChat';
 import Logo from './components/Logo';
 import { useAuth } from './context/AuthContext';
-import { generateMockReport } from './services/geminiService';
+import { generateMockReport } from './services/geminiApiClient';
 import { fetchCarReportFromOneAuto } from './services/oneAutoApiService';
 import { fetchVehicleSpecs, mapVehicleSpecsToReportFields, fetchVehicleHistory, mapCarsXeHistoryToReportFields, fetchTheftCheck, mapTheftCheckToReportFields } from './services/carsxeApiService';
 import { saveReport } from './services/reportsFirestore';

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { CarReport, type ReportAnalysis, type ServiceEventRecord } from '../types';
-import { getReportAnalysis, translateServiceEventTexts, translateTitleBrands, translateStrings } from '../services/geminiService';
+import { getReportAnalysis, translateServiceEventTexts, translateTitleBrands, translateStrings } from '../services/geminiApiClient';
 import { enrichReportFromRawCarsXe } from '../services/carsxeApiService';
 import { enrichReportFromRawOneAuto } from '../services/oneAutoApiService';
 import { getTitleBrandItems } from '../constants/titleBrandTranslations';

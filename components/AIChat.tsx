@@ -1,7 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { getCarExpertResponse } from '../services/geminiService';
 import { ChatMessage } from '../types';
 import type { Translations } from '../constants/translations';
+
+async function getCarExpertResponse(message: string): Promise<string> {
+  const res = await fetch('/api/ai-chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) return data?.error ?? 'Ryšio klaida. Patikrink internetą.';
+  return data?.text ?? 'Nepavyko gauti atsakymo.';
+}
 
 interface AIChatProps {
   t: Translations;
