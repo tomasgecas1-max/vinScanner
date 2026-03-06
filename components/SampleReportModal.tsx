@@ -685,7 +685,7 @@ const MILEAGE_LABEL: TranslationMap = {
 
 const SampleReportModal: React.FC<SampleReportModalProps> = ({ open, onClose, t, lang }) => {
   const [showOriginalServiceTexts, setShowOriginalServiceTexts] = useState(false);
-  const [sampleIndex, setSampleIndex] = useState(0);
+  const [sampleIndex, setSampleIndex] = useState(1);
 
   if (!open) return null;
 

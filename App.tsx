@@ -29,6 +29,9 @@ import { useMetaTags } from './hooks/useMetaTags';
 import { captureError } from './services/sentry';
 import { getLangFromIp } from './services/geoLangService';
 
+/** Laikinai įjungti geltoną raw API atvaizdavimą žemiau ataskaitos – nustatyti false, kai nebereikia */
+const SHOW_RAW_API_DEBUG = true;
+
 const App: React.FC = () => {
   const { user } = useAuth();
   useGoogleAnalytics();
@@ -838,16 +841,28 @@ const App: React.FC = () => {
 
         <div id="car-report">
           {report && !loading && (
-            <ReportView
-              report={report}
-              t={t}
-              lang={lang}
-              onSupplementReport={handleSupplementReport}
-              supplementLoading={supplementLoading}
-              pendingEmailReport={pendingEmailReport}
-              onEmailWithPdfSent={() => setPendingEmailReport(null)}
-              orderId={currentReportOrderId ?? purchaseInfo?.orderId ?? pendingEmailReport?.orderId ?? null}
-            />
+            <>
+              <ReportView
+                report={report}
+                t={t}
+                lang={lang}
+                onSupplementReport={handleSupplementReport}
+                supplementLoading={supplementLoading}
+                pendingEmailReport={pendingEmailReport}
+                onEmailWithPdfSent={() => setPendingEmailReport(null)}
+                orderId={currentReportOrderId ?? purchaseInfo?.orderId ?? pendingEmailReport?.orderId ?? null}
+              />
+              {SHOW_RAW_API_DEBUG && report.rawApiResponses && (
+                <div className="max-w-7xl mx-auto px-4 py-6">
+                  <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 overflow-hidden">
+                    <p className="text-xs font-bold text-amber-800 uppercase tracking-wider mb-2">Raw API responses (laikina debug)</p>
+                    <pre className="text-xs text-amber-900 overflow-x-auto max-h-64 overflow-y-auto font-mono whitespace-pre-wrap break-words">
+                      {JSON.stringify(report.rawApiResponses, null, 2)}
+                    </pre>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
 
