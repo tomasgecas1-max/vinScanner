@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
-import { hasAnalyticsConsent } from '../components/CookieConsent';
+import { hasAnalyticsConsent, getConsentPreferences } from '../components/CookieConsent';
+import { updateGtagConsent } from '../lib/gtagConsent';
 
 declare global {
   interface Window {
@@ -22,15 +23,10 @@ function initGA() {
   document.head.appendChild(script);
 
   window.dataLayer = window.dataLayer || [];
-  window.gtag = function gtag(...args: unknown[]) {
-    window.dataLayer.push(args);
+  window.gtag = window.gtag || function gtag(...args: unknown[]) {
+    window.dataLayer!.push(args);
   };
   window.gtag('js', new Date());
-  // Consent Mode v2 – leidžia GA geriau veikti su sutikimu (ypač mobilėje)
-  window.gtag('consent', 'update', {
-    analytics_storage: 'granted',
-    ad_storage: 'denied',
-  });
   window.gtag('config', GA_MEASUREMENT_ID, {
     anonymize_ip: true,
   });
@@ -40,12 +36,18 @@ function initGA() {
 
 export function useGoogleAnalytics() {
   useEffect(() => {
-    // Try to init if consent already given
+    const stored = getConsentPreferences();
+    if (stored) {
+      updateGtagConsent(stored);
+    }
+
     initGA();
 
-    // Listen for consent changes
     const handleConsentChange = (e: Event) => {
       const detail = (e as CustomEvent).detail;
+      if (detail && typeof detail.analytics === 'boolean' && typeof detail.marketing === 'boolean') {
+        updateGtagConsent(detail);
+      }
       if (detail?.analytics) {
         initGA();
       }

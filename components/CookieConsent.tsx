@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { updateGtagConsent } from '../lib/gtagConsent';
 
 interface CookieConsentProps {
   lang: string;
@@ -114,10 +115,9 @@ const CookieConsent: React.FC<CookieConsentProps> = ({ lang }) => {
     setVisible(false);
     setShowCustomize(false);
 
-    // Dispatch event for GA to listen
+    updateGtagConsent(prefs);
     window.dispatchEvent(new CustomEvent('cookieConsentChanged', { detail: prefs }));
 
-    // If analytics rejected, try to disable GA
     if (!prefs.analytics && typeof window !== 'undefined') {
       (window as unknown as Record<string, boolean>)['ga-disable-' + (import.meta.env.VITE_GA_MEASUREMENT_ID || '')] = true;
     }
