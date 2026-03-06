@@ -276,9 +276,9 @@ Inserisci il codice VIN a 17 caratteri nel campo principale e clicca „Verifica
 
 Il report include:
 - **Storico chilometrico** – grafico e registrazioni
-- **Registri di servizio** – voci ufficiali (se disponibili)
+- **Storico manutenzione** – registri ufficiali (se disponibili)
 - **Specifiche** – produttore, modello, motore, carburante, ecc.
-- **Analisi AI** – analisi automatica del report (problemi, punti di forza)
+- **Analisi tramite IA** – analisi automatica del report (problemi, punti di forza)
 
 **3. COME USARE I REPORT RIMANENTI**
 
