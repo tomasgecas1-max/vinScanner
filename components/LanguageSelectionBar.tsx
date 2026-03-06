@@ -68,14 +68,13 @@ const LanguageSelectionBar: React.FC<LanguageSelectionBarProps> = ({ onSelect, o
     <div className="fixed top-20 left-0 right-0 z-[90] bg-gradient-to-r from-indigo-600 to-blue-600 shadow-lg animate-in slide-in-from-top duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-          {/* Left: Title */}
-          <div className="flex items-center gap-3 text-white">
+          {/* Left: Globe icon */}
+          <div className="flex items-center text-white">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0">
               <circle cx="12" cy="12" r="10"/>
               <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
               <path d="M2 12h20"/>
             </svg>
-            <span className="text-sm font-semibold">Select your language</span>
           </div>
 
           {/* Center: Language buttons */}
