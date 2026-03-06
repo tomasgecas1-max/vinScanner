@@ -48,10 +48,55 @@ const Hero: React.FC<HeroProps> = ({ onVinSubmit, onSampleReportClick, loading, 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row items-center gap-10 sm:gap-16 lg:gap-24">
           <div className="flex-1 text-center lg:text-left z-30 w-full max-w-2xl mx-auto lg:mx-0">
-            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-slate-900 mb-8 tracking-tight leading-[1.05]">
+            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-slate-900 mb-6 tracking-tight leading-[1.05]">
               {t.hero.title} <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-500">{t.hero.titleAccent}</span>
             </h1>
+            {/* Ridos vizualas – tik mobile/tablet */}
+            <div className="lg:hidden w-full max-w-sm mx-auto mb-6">
+              <div className="bg-white/95 backdrop-blur-xl p-5 rounded-[2rem] shadow-[0_24px_48px_-12px_rgba(0,0,0,0.12)] border border-white overflow-hidden">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 border border-indigo-100">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>
+                    </div>
+                    <div className="w-16 h-2.5 bg-slate-100 rounded-full overflow-hidden relative">
+                      <div className="absolute inset-0 bg-rose-500 w-1/3 animate-pulse"></div>
+                    </div>
+                  </div>
+                  <div className="w-4 h-4 rounded-full border-2 border-rose-500 flex items-center justify-center text-rose-500 font-black text-[9px]">!</div>
+                </div>
+                <div className="h-32 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={mileageData} margin={{ top: 16, right: 8, left: 0, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="colorKmMobile" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <XAxis dataKey="year" hide={false} axisLine={false} tickLine={false} tick={{fontSize: 9, fontWeight: 800, fill: '#cbd5e1'}} dy={6} />
+                      <YAxis hide={true} domain={['dataMin - 30000', 'dataMax + 30000']} />
+                      <Area type="monotone" dataKey="km" stroke="#ef4444" strokeWidth={2.5} fillOpacity={1} fill="url(#colorKmMobile)" connectNulls={true}>
+                        <LabelList
+                          dataKey="km"
+                          position="top"
+                          offset={8}
+                          content={({ x, y, value, index }) => {
+                            const isSuspicious = mileageData[index].suspicious;
+                            return (
+                              <text x={x} y={y} dy={-4} fill={isSuspicious ? '#ef4444' : '#94a3b8'} fontSize={9} fontWeight={900} textAnchor="middle">
+                                {(Number(value) / 1000).toFixed(0)}k
+                              </text>
+                            );
+                          }}
+                        />
+                      </Area>
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
             <p className="text-lg sm:text-xl text-slate-600 mb-6 sm:mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
               {t.hero.desc}
             </p>
