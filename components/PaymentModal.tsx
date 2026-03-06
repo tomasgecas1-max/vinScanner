@@ -52,6 +52,12 @@ interface PaymentModalProps {
       paymentOr: string;
       paymentExpressCheckout: string;
       close: string;
+      planSingle: string;
+      planPopular: string;
+      planBestValue: string;
+      report1: string;
+      reports2: string;
+      reports3: string;
     };
     nav: { services: string };
   };
@@ -121,10 +127,11 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 
   if (!open) return null;
 
-  const isLt = t.nav.services === 'Paslaugos';
-  const planNames = isLt
-    ? ['Vienkartinė (1 ataskaita)', 'Populiariausias (2 ataskaitos)', 'Geriausia vertė (3 ataskaitos)']
-    : ['Single (1 report)', 'Most Popular (2 reports)', 'Best Value (3 reports)'];
+  const planNames = [
+    `${t.pricing.planSingle} (${t.pricing.report1})`,
+    `${t.pricing.planPopular} (${t.pricing.reports2})`,
+    `${t.pricing.planBestValue} (${t.pricing.reports3})`,
+  ];
 
   const basePrice = PLAN_PRICES[Math.min(planIndex, 2)] ?? 20;
   const planName = planNames[Math.min(planIndex, 2)] ?? planNames[1];
@@ -333,7 +340,14 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                 <p className="text-sm font-medium text-rose-600 bg-rose-50 border border-rose-200 rounded-xl px-4 py-3">{stripeError}</p>
               )}
               <div className="relative z-[2] min-h-[280px]">
-                <Elements stripe={stripePromise} options={{ clientSecret: stripeClientSecret }} key={stripeClientSecret}>
+                <Elements
+                  stripe={stripePromise}
+                  options={{
+                    clientSecret: stripeClientSecret,
+                    locale: (lang && ['it','en','de','fr','es','lt','nl','pl','cs','uk','ro','sv','el','pt','hu','bg','sr'].includes(lang)) ? lang as 'it' | 'en' | 'de' | 'fr' | 'es' | 'lt' | 'nl' | 'pl' | 'cs' | 'uk' | 'ro' | 'sv' | 'el' | 'pt' | 'hu' | 'bg' | 'sr' : 'auto',
+                  }}
+                  key={stripeClientSecret}
+                >
                   <StripePaymentForm
                     onSuccess={handleStripeSuccess}
                     onBack={handleStripeBack}
