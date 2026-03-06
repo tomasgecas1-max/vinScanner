@@ -9,9 +9,9 @@ interface LogoProps {
 
 const Logo: React.FC<LogoProps> = ({ className = "", size = 'md', onClick }) => {
   const fontSizes = {
-    sm: 'text-xl sm:text-2xl',
-    md: 'text-2xl sm:text-3xl lg:text-4xl',
-    lg: 'text-4xl sm:text-6xl lg:text-7xl'
+    sm: 'text-2xl sm:text-3xl',
+    md: 'text-3xl sm:text-4xl lg:text-5xl',
+    lg: 'text-5xl sm:text-6xl lg:text-8xl'
   };
 
   return (
