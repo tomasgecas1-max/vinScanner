@@ -39,14 +39,14 @@ const Hero: React.FC<HeroProps> = ({ onVinSubmit, onSampleReportClick, loading, 
   };
 
   return (
-    <div className="relative pt-16 pb-10 sm:pt-20 sm:pb-12 lg:pt-36 lg:pb-32 overflow-hidden">
+    <div className="relative pt-12 pb-8 sm:pt-20 sm:pb-12 lg:pt-36 lg:pb-32 overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10 pointer-events-none">
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-100 rounded-full blur-[140px] opacity-40"></div>
         <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-100 rounded-full blur-[140px] opacity-40"></div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row items-center gap-10 sm:gap-16 lg:gap-24">
+        <div className="flex flex-col lg:flex-row items-center gap-6 sm:gap-16 lg:gap-24">
           <div className="flex-1 text-center lg:text-left z-30 w-full max-w-2xl mx-auto lg:mx-0">
             <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-slate-900 mb-8 tracking-tight leading-[1.05]">
               {t.hero.title} <br />

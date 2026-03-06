@@ -653,7 +653,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
   const displayProgress = Math.round(animatedProgress);
 
   return (
-    <div className="max-w-5xl mx-auto px-4 pb-20 animate-in fade-in slide-in-from-bottom-8 duration-700 relative">
+    <div className="max-w-5xl mx-auto px-4 pb-12 sm:pb-20 animate-in fade-in slide-in-from-bottom-8 duration-700 relative">
       {showTranslationOverlay && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 pointer-events-none">
           <div className="pointer-events-auto flex flex-col items-stretch gap-3 rounded-2xl border border-slate-200 bg-white shadow-xl p-6 min-w-[260px] sm:min-w-[300px] animate-in fade-in zoom-in-95 duration-200">
@@ -681,7 +681,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
       <div ref={reportPdfRef} className="bg-white rounded-3xl border border-slate-200 shadow-2xl overflow-hidden">
         <style>{`.pdf-avoid-break { break-inside: avoid; page-break-inside: avoid; }`}</style>
         {/* Ataskaitos antraštė */}
-        <div className="bg-slate-900 p-6 sm:p-8 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div className="bg-slate-900 p-4 sm:p-8 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sm:gap-6">
           <div className="w-full md:w-auto">
             <div className="text-indigo-400 text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-1">{t.report.fullReport}</div>
             <h2 className="text-2xl sm:text-3xl font-bold leading-tight">{displayReport.year} {displayReport.make} {displayReport.model}</h2>
@@ -762,7 +762,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
         </div>
 
         {/* Techniniai duomenys – viršuje, viso ekrano plotis, 2 stulpeliai */}
-        <div className="pdf-avoid-break w-full px-6 sm:px-8 py-6 sm:py-8 border-t border-slate-100">
+        <div className="pdf-avoid-break w-full px-4 sm:px-8 py-4 sm:py-8 border-t border-slate-100">
           <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
             <h4 className="text-slate-900 font-bold text-sm sm:text-base">{t.report.technicalSpecs}</h4>
             {useGeminiTranslation && technicalSpecsTranslationLoading && (
@@ -802,7 +802,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 lg:gap-8 p-0 lg:p-8 border-t border-slate-100 lg:border-t-0">
           {/* Ridos ir serviso istorija */}
-          <div className="lg:col-span-2 space-y-10 p-6 sm:p-8 lg:p-0">
+          <div className="lg:col-span-2 space-y-6 sm:space-y-10 p-4 sm:p-8 lg:p-0">
             {/* Ridos sekcija */}
             <div className="pdf-avoid-break">
               {rawApi?.serviceHistory?.success === false && (
@@ -1129,7 +1129,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, t, lang = 'lt', onSuppl
             </div>
 
           {/* Šoninis skydelis */}
-          <div className="bg-slate-50 lg:bg-transparent p-6 sm:p-8 lg:p-0 space-y-8 border-t lg:border-t-0 border-slate-100">
+          <div className="bg-slate-50 lg:bg-transparent p-4 sm:p-8 lg:p-0 space-y-6 sm:space-y-8 border-t lg:border-t-0 border-slate-100">
             {/* AI: problemos ir stiprybės */}
             <div className="pdf-avoid-break bg-slate-900 rounded-2xl p-6 text-white relative overflow-hidden">
               <div className="absolute top-0 right-0 p-4 opacity-10">

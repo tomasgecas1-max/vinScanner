@@ -910,11 +910,11 @@ const App: React.FC = () => {
         )}
         <Pricing t={t} pendingVin={pendingVin} onPlanSelect={handlePlanSelect} />
 
-        <section className="max-w-3xl mx-auto px-4 py-16 md:py-24">
-          <h2 className="text-2xl md:text-3xl font-black text-slate-900 mb-6 tracking-tight">
+        <section className="max-w-3xl mx-auto px-4 py-10 md:py-24">
+          <h2 className="text-2xl md:text-3xl font-black text-slate-900 mb-4 sm:mb-6 tracking-tight">
             {t.about.title || 'About Us'}
           </h2>
-          <p className="text-slate-600 font-medium leading-relaxed mb-6">
+          <p className="text-slate-600 font-medium leading-relaxed mb-4 sm:mb-6">
             {t.about.body}
           </p>
           <p className="text-sm font-bold text-slate-500 uppercase tracking-wide mb-1">
@@ -926,8 +926,8 @@ const App: React.FC = () => {
         </section>
 
         {!report && !loading && (
-          <section className="max-w-7xl mx-auto px-4 py-14 sm:py-16 lg:py-20">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+          <section className="max-w-7xl mx-auto px-4 py-10 sm:py-16 lg:py-20">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-10">
               {[
                 { title: t.features.mileageHistory, desc: t.features.mileageHistoryDesc },
                 { title: t.features.damageRecords, desc: t.features.damageRecordsDesc },
@@ -943,15 +943,15 @@ const App: React.FC = () => {
         )}
       </main>
 
-      <footer className="bg-white border-t border-slate-100 pt-16 sm:pt-20 lg:pt-24 pb-10 sm:pb-12">
+      <footer className="bg-white border-t border-slate-100 pt-10 sm:pt-20 lg:pt-24 pb-8 sm:pb-12">
         <div className="max-w-7xl mx-auto px-4 text-center">
-          <div className="flex justify-center mb-10">
+          <div className="flex justify-center mb-6 sm:mb-10">
             <Logo size="lg" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} />
           </div>
-          <p className="text-slate-500 max-w-lg mx-auto mb-8 sm:mb-12 text-base font-medium px-4">
+          <p className="text-slate-500 max-w-lg mx-auto mb-6 sm:mb-12 text-base font-medium px-4">
             {t.footer.desc}
           </p>
-          <div className="flex flex-wrap justify-center gap-4 mb-8 text-sm font-bold">
+          <div className="flex flex-wrap justify-center gap-4 mb-6 sm:mb-8 text-sm font-bold">
             <button
               type="button"
               onClick={() => setShowUsageInstructionsModal(true)}
@@ -967,7 +967,7 @@ const App: React.FC = () => {
               {t.footer.privacyLink}
             </button>
           </div>
-          <div className="text-[11px] text-slate-400 font-black tracking-[0.3em] uppercase border-t border-slate-50 pt-12">
+          <div className="text-[11px] text-slate-400 font-black tracking-[0.3em] uppercase border-t border-slate-50 pt-8 sm:pt-12">
             &copy; {new Date().getFullYear()} vinscanner.eu. All rights reserved.
           </div>
         </div>

@@ -22,7 +22,7 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect }) => {
   };
 
   return (
-    <section id="pricing" className={`py-16 sm:py-20 lg:py-24 overflow-hidden transition-all duration-300 ${pendingVin ? 'bg-indigo-50/50' : 'bg-slate-50'}`}>
+    <section id="pricing" className={`py-10 sm:py-20 lg:py-24 overflow-hidden transition-all duration-300 ${pendingVin ? 'bg-indigo-50/50' : 'bg-slate-50'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         {pendingVin && (
           <div className="mb-8 p-5 rounded-2xl bg-indigo-100 border border-indigo-200">
@@ -31,7 +31,7 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect }) => {
             </p>
           </div>
         )}
-        <div className="mb-10 sm:mb-16">
+        <div className="mb-6 sm:mb-16">
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">
             {t.pricing.title}
           </h2>
@@ -48,7 +48,7 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect }) => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-8 items-stretch">
           {plans.map((plan, idx) => {
             const isSelected = selectedPlanIdx === idx;
             return (
@@ -72,7 +72,7 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect }) => {
                   </div>
                 )}
 
-                <div className="mb-10">
+                <div className="mb-6 sm:mb-10">
                   <h3 className={`text-xs font-black uppercase tracking-[0.2em] mb-3 ${isSelected ? 'text-indigo-400' : 'text-indigo-600'}`}>
                     {plan.name}
                   </h3>
@@ -136,7 +136,7 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect }) => {
           </div>
         )}
 
-        <div className="mt-12 flex items-center justify-center gap-6 opacity-40 grayscale hover:grayscale-0 transition-all duration-500">
+        <div className="mt-6 sm:mt-12 flex items-center justify-center gap-6 opacity-40 grayscale hover:grayscale-0 transition-all duration-500">
            {/* Placeholder for payment methods */}
            <div className="text-[10px] font-black tracking-widest uppercase">Visa</div>
            <div className="text-[10px] font-black tracking-widest uppercase">Mastercard</div>
