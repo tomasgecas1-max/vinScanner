@@ -68,17 +68,8 @@ const LanguageSelectionBar: React.FC<LanguageSelectionBarProps> = ({ onSelect, o
     <div className="fixed top-20 left-0 right-0 z-[90] bg-gradient-to-r from-indigo-600 to-blue-600 shadow-lg animate-in slide-in-from-top duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-          {/* Left: Globe icon */}
-          <div className="flex items-center text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0">
-              <circle cx="12" cy="12" r="10"/>
-              <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
-              <path d="M2 12h20"/>
-            </svg>
-          </div>
-
-          {/* Center: Language buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-2">
+          {/* Language buttons */}
+          <div className="flex flex-wrap items-center justify-center gap-2 flex-1">
             {loading ? (
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             ) : (
@@ -103,15 +94,18 @@ const LanguageSelectionBar: React.FC<LanguageSelectionBarProps> = ({ onSelect, o
                   <span>{englishInfo.native}</span>
                 </button>
 
-                {/* Other languages dropdown */}
+                {/* Other languages – globe icon dropdown */}
                 <div className="relative">
                   <button
                     onClick={() => setShowAllLanguages(!showAllLanguages)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-white/90 text-sm font-medium transition-colors"
+                    className="flex items-center justify-center w-9 h-9 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
+                    title="Other languages"
+                    aria-label="Other languages"
                   >
-                    <span>Other</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`transition-transform ${showAllLanguages ? 'rotate-180' : ''}`}>
-                      <path d="m6 9 6 6 6-6"/>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0">
+                      <circle cx="12" cy="12" r="10"/>
+                      <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
+                      <path d="M2 12h20"/>
                     </svg>
                   </button>
 
