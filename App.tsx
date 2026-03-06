@@ -754,7 +754,7 @@ const App: React.FC = () => {
         <Navbar lang={lang} setLang={setLang} t={t} onMyReportsClick={() => setShowMyReports(true)} onSampleReportClick={handleSampleReportDemo} onAuthClick={() => setShowAuthModal(true)} />
       </header>
       
-      <main className="overflow-x-hidden">
+      <main className="overflow-x-hidden pt-16 sm:pt-20">
         {showLanguageBar && (
           <LanguageSelectionBar onSelect={handleLanguageSelect} onDismiss={handleLanguageBarDismiss} />
         )}
