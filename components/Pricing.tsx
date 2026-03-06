@@ -64,14 +64,6 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect }) => {
                     : 'bg-white text-slate-900 border-slate-200 shadow-xl shadow-slate-200/50 hover:-translate-y-2'
                 }`}
               >
-                {plan.bestValue && (
-                  <div className={`absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg ${
-                    isSelected ? 'bg-indigo-600 text-white' : 'bg-indigo-100 text-indigo-600'
-                  }`}>
-                    {t.pricing.bestValue}
-                  </div>
-                )}
-
                 <div className="mb-6 sm:mb-10">
                   <h3 className={`text-xs font-black uppercase tracking-[0.2em] mb-3 ${isSelected ? 'text-indigo-400' : 'text-indigo-600'}`}>
                     {plan.name}
