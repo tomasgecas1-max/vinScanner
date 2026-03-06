@@ -66,10 +66,10 @@ const LanguageSelectionBar: React.FC<LanguageSelectionBarProps> = ({ onSelect, o
 
   return (
     <div className="relative left-0 right-0 z-[90] mt-16 bg-gradient-to-r from-indigo-600 to-blue-600 shadow-lg animate-in slide-in-from-top duration-300 md:fixed md:top-20 md:mt-0">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3">
+        <div className="flex flex-row flex-nowrap items-center justify-between gap-2 sm:gap-3">
           {/* Language buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-2 flex-1">
+          <div className="flex flex-nowrap items-center justify-center gap-1.5 sm:gap-2 flex-1 min-w-0 overflow-hidden">
             {loading ? (
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             ) : (
@@ -78,9 +78,9 @@ const LanguageSelectionBar: React.FC<LanguageSelectionBarProps> = ({ onSelect, o
                 {detectedInfo && detectedLang !== 'en' && (
                   <button
                     onClick={() => handleSelect(detectedLang)}
-                    className="flex items-center gap-2 px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded-lg text-white text-sm font-medium transition-colors"
+                    className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded-lg text-white text-xs sm:text-sm font-medium transition-colors shrink-0"
                   >
-                    <span className="text-lg">{detectedInfo.flag}</span>
+                    <span className="text-base sm:text-lg">{detectedInfo.flag}</span>
                     <span>{detectedInfo.native}</span>
                   </button>
                 )}
@@ -88,9 +88,9 @@ const LanguageSelectionBar: React.FC<LanguageSelectionBarProps> = ({ onSelect, o
                 {/* English */}
                 <button
                   onClick={() => handleSelect('en')}
-                  className="flex items-center gap-2 px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded-lg text-white text-sm font-medium transition-colors"
+                  className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded-lg text-white text-xs sm:text-sm font-medium transition-colors shrink-0"
                 >
-                  <span className="text-lg">{englishInfo.flag}</span>
+                  <span className="text-base sm:text-lg">{englishInfo.flag}</span>
                   <span>{englishInfo.native}</span>
                 </button>
 
@@ -98,7 +98,7 @@ const LanguageSelectionBar: React.FC<LanguageSelectionBarProps> = ({ onSelect, o
                 <div className="relative">
                   <button
                     onClick={() => setShowAllLanguages(!showAllLanguages)}
-                    className="flex items-center justify-center w-9 h-9 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
+                    className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors shrink-0"
                     title="Other languages"
                     aria-label="Other languages"
                   >
@@ -131,7 +131,7 @@ const LanguageSelectionBar: React.FC<LanguageSelectionBarProps> = ({ onSelect, o
           {/* Right: Close button */}
           <button
             onClick={onDismiss}
-            className="p-1.5 hover:bg-white/20 rounded-lg text-white/80 hover:text-white transition-colors"
+            className="shrink-0 p-1.5 hover:bg-white/20 rounded-lg text-white/80 hover:text-white transition-colors"
             title="Dismiss"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
