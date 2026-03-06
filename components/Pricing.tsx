@@ -22,7 +22,7 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect }) => {
   };
 
   return (
-    <section id="pricing" className={`py-24 overflow-hidden transition-all duration-300 ${pendingVin ? 'bg-indigo-50/50' : 'bg-slate-50'}`}>
+    <section id="pricing" className={`py-16 sm:py-20 lg:py-24 overflow-hidden transition-all duration-300 ${pendingVin ? 'bg-indigo-50/50' : 'bg-slate-50'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         {pendingVin && (
           <div className="mb-8 p-5 rounded-2xl bg-indigo-100 border border-indigo-200">
@@ -31,7 +31,7 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect }) => {
             </p>
           </div>
         )}
-        <div className="mb-16">
+        <div className="mb-10 sm:mb-16">
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">
             {t.pricing.title}
           </h2>

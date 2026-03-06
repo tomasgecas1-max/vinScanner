@@ -908,14 +908,14 @@ const App: React.FC = () => {
         </section>
 
         {!report && !loading && (
-          <section className="max-w-7xl mx-auto px-4 py-20">
+          <section className="max-w-7xl mx-auto px-4 py-14 sm:py-16 lg:py-20">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
               {[
                 { title: t.features.mileageHistory, desc: t.features.mileageHistoryDesc },
                 { title: t.features.damageRecords, desc: t.features.damageRecordsDesc },
                 { title: t.features.theftCheck, desc: t.features.theftCheckDesc },
               ].map((feat, idx) => (
-                <div key={idx} className="p-10 bg-white rounded-[2.5rem] border border-slate-100 hover:shadow-2xl transition-all duration-300">
+                <div key={idx} className="p-7 sm:p-10 bg-white rounded-[2.5rem] border border-slate-100 hover:shadow-2xl transition-all duration-300">
                   <h3 className="text-2xl font-black text-slate-900 mb-4 tracking-tight">{feat.title}</h3>
                   <p className="text-slate-500 font-medium">{feat.desc}</p>
                 </div>
@@ -925,12 +925,12 @@ const App: React.FC = () => {
         )}
       </main>
 
-      <footer className="bg-white border-t border-slate-100 pt-24 pb-12">
+      <footer className="bg-white border-t border-slate-100 pt-16 sm:pt-20 lg:pt-24 pb-10 sm:pb-12">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <div className="flex justify-center mb-10">
             <Logo size="lg" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} />
           </div>
-          <p className="text-slate-500 max-w-lg mx-auto mb-12 text-base font-medium px-4">
+          <p className="text-slate-500 max-w-lg mx-auto mb-8 sm:mb-12 text-base font-medium px-4">
             {t.footer.desc}
           </p>
           <div className="flex flex-wrap justify-center gap-4 mb-8 text-sm font-bold">
