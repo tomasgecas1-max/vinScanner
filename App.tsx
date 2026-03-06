@@ -752,6 +752,9 @@ const App: React.FC = () => {
       </header>
       
       <main className="overflow-x-hidden">
+        {showLanguageBar && (
+          <LanguageSelectionBar onSelect={handleLanguageSelect} onDismiss={handleLanguageBarDismiss} />
+        )}
         {purchaseToken && purchaseInfo && (
           <div className="sticky top-20 z-[90] bg-slate-50/95 backdrop-blur-sm border-b border-slate-100">
             <div className="max-w-2xl mx-auto px-4 py-3">
@@ -1043,9 +1046,6 @@ const App: React.FC = () => {
         </div>
       )}
       
-      {showLanguageBar && (
-        <LanguageSelectionBar onSelect={handleLanguageSelect} onDismiss={handleLanguageBarDismiss} />
-      )}
       <AIChat key={lang} t={t} />
       <CookieConsent lang={lang} />
     </div>

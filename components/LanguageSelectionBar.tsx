@@ -65,7 +65,7 @@ const LanguageSelectionBar: React.FC<LanguageSelectionBarProps> = ({ onSelect, o
   );
 
   return (
-    <div className="fixed top-20 left-0 right-0 z-[90] bg-gradient-to-r from-indigo-600 to-blue-600 shadow-lg animate-in slide-in-from-top duration-300">
+    <div className="relative left-0 right-0 z-[90] mt-16 bg-gradient-to-r from-indigo-600 to-blue-600 shadow-lg animate-in slide-in-from-top duration-300 md:fixed md:top-20 md:mt-0">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
           {/* Language buttons */}
