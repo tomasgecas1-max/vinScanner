@@ -12,6 +12,8 @@ interface SampleReportModalProps {
 const SAMPLE_VIN = 'WBA8E1100XK477XXX';
 const SAMPLE_ORDER_ID = 'VS-XXXXXX-XXXX';
 
+const SAMPLE_2_VIN = 'WBAJD11030G8XXXXX';
+
 const MILEAGE_HISTORY = [
   { date: '2016-08-15', value: 3563 },
   { date: '2016-12-08', value: 15921 },
@@ -45,6 +47,37 @@ const MILEAGE_HISTORY = [
   { date: '2024-09-23', value: 200179 },
   { date: '2024-10-24', value: 200220 },
   { date: '2024-12-06', value: 201986 },
+];
+
+const MILEAGE_HISTORY_2 = [
+  { date: '2017-07-01', value: 3 },
+  { date: '2017-10-01', value: 17533 },
+  { date: '2017-11-01', value: 17533 },
+  { date: '2018-01-01', value: 26269 },
+  { date: '2018-04-01', value: 41057 },
+  { date: '2018-06-01', value: 48293 },
+  { date: '2018-07-01', value: 57532 },
+  { date: '2018-11-01', value: 70500 },
+  { date: '2018-12-01', value: 26457 },
+  { date: '2019-01-01', value: 80036 },
+  { date: '2019-02-01', value: 82634 },
+  { date: '2019-03-01', value: 88119 },
+  { date: '2019-04-01', value: 93008 },
+  { date: '2019-07-01', value: 104147 },
+  { date: '2019-09-01', value: 115018 },
+  { date: '2019-10-01', value: 116112 },
+  { date: '2020-01-01', value: 130973 },
+  { date: '2020-04-01', value: 141681 },
+  { date: '2020-05-01', value: 142769 },
+  { date: '2020-07-01', value: 146282 },
+  { date: '2020-08-01', value: 150689 },
+  { date: '2020-10-01', value: 156790 },
+  { date: '2020-11-01', value: 159844 },
+  { date: '2021-03-01', value: 168257 },
+  { date: '2022-01-01', value: 174360 },
+  { date: '2022-07-01', value: 190943 },
+  { date: '2022-09-01', value: 196183 },
+  { date: '2025-08-01', value: 314723 },
 ];
 
 type TranslationMap = Record<string, string>;
@@ -157,6 +190,42 @@ const SERVICE_PROVIDERS: Record<string, TranslationMap> = {
     mt: 'Dealer BMW, Olanda',
     is: 'BMW söluaðili, Holland',
     tr: 'BMW Bayisi, Hollanda',
+  },
+  lt: {
+    lt: 'Ozas, Vilnius',
+    en: 'Ozas, Vilnius, Lithuania',
+    de: 'Ozas, Vilnius, Litauen',
+    pl: 'Ozas, Wilno, Litwa',
+    fr: 'Ozas, Vilnius, Lituanie',
+    es: 'Ozas, Vilna, Lituania',
+    it: 'Ozas, Vilnius, Lituania',
+    nl: 'Ozas, Vilnius, Litouwen',
+    cs: 'Ozas, Vilnius, Litva',
+    uk: 'Озас, Вільнюс, Литва',
+    ro: 'Ozas, Vilnius, Lituania',
+    sv: 'Ozas, Vilnius, Litauen',
+    el: 'Ozas, Βίλνιους, Λιθουανία',
+    pt: 'Ozas, Vilnius, Lituânia',
+    hu: 'Ozas, Vilnius, Litvánia',
+    bg: 'Озас, Вилнюс, Литва',
+    sr: 'Озас, Виљнус, Литванија',
+    da: 'Ozas, Vilnius, Litauen',
+    no: 'Ozas, Vilnius, Litauen',
+    fi: 'Ozas, Vilna, Liettua',
+    sk: 'Ozas, Vilnius, Litva',
+    hr: 'Ozas, Vilnius, Litva',
+    bs: 'Ozas, Vilnius, Bosna',
+    sq: 'Ozas, Vilnius, Lituani',
+    sl: 'Ozas, Vilnius, Litva',
+    lv: 'Ozas, Viļņa, Lietuva',
+    mk: 'Озас, Вилнус, Литванија',
+    et: 'Ozas, Vilnius, Leedu',
+    ca: 'Ozas, Vílnius, Lituània',
+    lb: 'Ozas, Vilnius, Litaue',
+    cnr: 'Озас, Виљнус, Литванија',
+    mt: 'Ozas, Vilnius, il-Litwanja',
+    is: 'Ozas, Vilníus, Litháen',
+    tr: 'Ozas, Vilnius, Litvanya',
   },
 };
 
@@ -305,6 +374,34 @@ const SERVICE_ACTIONS: Record<string, TranslationMap> = {
     is: 'Loftsíueining.',
     tr: 'Hava filtresi elemanı.',
   },
+  'Front Brake.': {
+    lt: 'Priekinių stabdžių aptarnavimas.',
+    en: 'Front Brake.',
+    de: 'Vorderbremse.',
+    pl: 'Przednie hamulce.',
+    fr: 'Freins avant.',
+    es: 'Frenos delanteros.',
+    it: 'Freni anteriori.',
+    nl: 'Voorremmen.',
+    cs: 'Přední brzdy.',
+    uk: 'Передні гальма.',
+    ro: 'Frâne față.',
+    sv: 'Framhjulsbromsar.',
+  },
+  'Rear Brake.': {
+    lt: 'Galiniai stabdžiai.',
+    en: 'Rear Brake.',
+    de: 'Hinterbremse.',
+    pl: 'Tylne hamulce.',
+    fr: 'Freins arrière.',
+    es: 'Frenos traseros.',
+    it: 'Freni posteriori.',
+    nl: 'Achterremmen.',
+    cs: 'Zadní brzdy.',
+    uk: 'Задні гальма.',
+    ro: 'Frâne spate.',
+    sv: 'Bakhjulsbromsar.',
+  },
   'Vehicle check.': {
     lt: 'Automobilio patikra.',
     en: 'Vehicle check.',
@@ -428,6 +525,24 @@ const SERVICE_EVENTS = [
   { date: '2017-05-09', mileage: 33204, providerKey: 'nl', type: 'service', actionKeys: ['Engine oil.', 'Microfilter (consider further additional job(s) if appropriate).'] },
 ];
 
+const SERVICE_EVENTS_2 = [
+  { date: '2025-08-14', mileage: 314723, providerKey: null, type: 'service', actionKeys: [] },
+  { date: '2022-09-22', mileage: 196183, providerKey: null, type: 'service', actionKeys: [] },
+  { date: '2022-07-21', mileage: 190943, providerKey: 'lt', type: 'service', actionKeys: ['Engine oil.', 'Air filter element.', 'Vehicle check.', 'Microfilter (consider further additional job(s) if appropriate).'] },
+  { date: '2022-01-21', mileage: 174360, providerKey: 'lt', type: 'service', actionKeys: ['Front Brake.'] },
+  { date: '2021-03-03', mileage: 168257, providerKey: null, type: 'service', actionKeys: ['unknown.'] },
+  { date: '2020-10-05', mileage: 156790, providerKey: null, type: 'service', actionKeys: ['Engine oil.', 'Rear Brake.', 'Air filter element.', 'Vehicle check.', 'Microfilter (consider further additional job(s) if appropriate).'] },
+  { date: '2020-07-16', mileage: 147702, providerKey: null, type: 'service', actionKeys: ['Brake fluid service.'] },
+  { date: '2020-01-03', mileage: 130973, providerKey: null, type: 'service', actionKeys: ['Engine oil.', 'Microfilter (consider further additional job(s) if appropriate).'] },
+  { date: '2019-10-04', mileage: 116112, providerKey: null, type: 'service', actionKeys: ['Front Brake.'] },
+  { date: '2019-07-08', mileage: 104147, providerKey: null, type: 'service', actionKeys: ['Engine oil.', 'Rear Brake.', 'Air filter element.', 'Vehicle check.', 'Microfilter (consider further additional job(s) if appropriate).'] },
+  { date: '2018-07-24', mileage: 57532, providerKey: null, type: 'service', actionKeys: ['Front Brake.'] },
+  { date: '2018-06-21', mileage: 52275, providerKey: null, type: 'service', actionKeys: ['Engine oil.', 'Rear Brake.', 'Air filter element.', 'Vehicle check.', 'Microfilter (consider further additional job(s) if appropriate).'] },
+  { date: '2018-01-08', mileage: 26451, providerKey: null, type: 'service', actionKeys: ['Engine oil.', 'Microfilter (consider further additional job(s) if appropriate).'] },
+  { date: '2017-10-26', mileage: 17533, providerKey: null, type: 'service', actionKeys: ['unknown.'] },
+  { date: '2017-07-07', mileage: 3, providerKey: null, type: 'service', actionKeys: ['unknown.'] },
+];
+
 const TECHNICAL_SPECS: Record<string, string> = {
   oem_vehicle_desc: 'BMW 3 (F30, F80) 330 e',
   vehicle_desc: 'BMW 3 330 e',
@@ -444,6 +559,24 @@ const TECHNICAL_SPECS: Record<string, string> = {
   oem_body_type_desc: 'Saloon',
   oem_colour_desc: 'black-sapphire metallic (475)',
   oem_interior_trim_desc: 'Leather Dakota sattelbraun/accent brown (PLCDJ)',
+};
+
+const TECHNICAL_SPECS_2: Record<string, string> = {
+  oem_vehicle_desc: 'BMW 5 (G30, F90) 530 d xDrive',
+  vehicle_desc: 'BMW 5 530 d xDrive',
+  manufacturer_desc: 'BMW',
+  oem_model_range_desc: '5 (G30, F90)',
+  oem_derivative_desc: '530 d xDrive',
+  manufactured_year: '2017',
+  power_kw: '195',
+  power_bhp: '265',
+  oem_engine_desc: 'B57 D30 A',
+  oem_fuel_type_desc: 'Diesel',
+  oem_transmission_type_desc: 'AUTOMATIC',
+  oem_drivetrain_desc: 'All-wheel Drive',
+  oem_body_type_desc: 'Saloon',
+  oem_colour_desc: 'black-sapphire metallic (475)',
+  oem_interior_trim_desc: 'Leather Dakota/black/Exclusive seam (PLCFK)',
 };
 
 const FIELD_LABELS: Record<string, TranslationMap> = {
@@ -501,6 +634,43 @@ const AI_ANALYSIS: Record<string, { problemAreas: string[]; strongPoints: string
   tr: { problemAreas: ['Yüksek kilometre (201.986 km) – ek kontroller gerekebilir', 'Son servis kayıtları yapılan işler hakkında detay içermiyor'], strongPoints: ['Resmi BMW servis merkezlerinde düzenli bakım yapılmış', 'Manipülasyon belirtisi olmayan tutarlı kilometre geçmişi', 'İlk günden itibaren tam servis geçmişi', 'Fren hidroliği düzenli olarak değiştirilmiş'] },
 };
 
+const AI_ANALYSIS_2: Record<string, { problemAreas: string[]; strongPoints: string[] }> = {
+  lt: { problemAreas: ['Labai didelė rida (314 723 km)', 'Ridos istorijoje pastebėtas nestabilumas (2018 m. lapkritis–gruodis)', 'Rekomenduojama patikrinti ridos tikslumą'], strongPoints: ['Pilna serviso istorija nuo naujo automobilio', 'Reguliariai prižiūrėtas oficialiuose servisuose', 'Paskutiniai aptarnavimai Lietuvoje (Ozas)', 'Stabdžiai ir tepalai keičiami reguliariai'] },
+  en: { problemAreas: ['Very high mileage (314,723 km)', 'Mileage history shows inconsistency (Nov–Dec 2018)', 'Recommended to verify mileage accuracy'], strongPoints: ['Complete service history from new', 'Regularly maintained at official service centers', 'Recent servicing in Lithuania (Ozas)', 'Brakes and oil changed regularly'] },
+  de: { problemAreas: ['Sehr hohe Laufleistung (314.723 km)', 'Kilometerhistorie zeigt Inkonsistenz (Nov–Dez 2018)', 'Empfohlen, die Kilometerstandgenauigkeit zu prüfen'], strongPoints: ['Vollständige Servicehistorie von neu', 'Regelmäßig bei offiziellen Werkstätten gewartet', 'Letzte Wartung in Litauen (Ozas)', 'Bremsen und Öl regelmäßig gewechselt'] },
+  pl: { problemAreas: ['Bardzo wysoki przebieg (314 723 km)', 'Historia przebiegu wskazuje na niespójność (listopad–grudzień 2018)', 'Zalecana weryfikacja dokładności przebiegu'], strongPoints: ['Pełna historia serwisowa od nowego auta', 'Regularnie serwisowany w oficjalnych serwisach', 'Ostatni serwis na Litwie (Ozas)', 'Hamulce i olej wymieniane regularnie'] },
+  fr: { problemAreas: ['Très haut kilométrage (314 723 km)', 'Historique kilométrique incohérent (nov–déc 2018)', 'Vérification de l\'exactitude du kilométrage recommandée'], strongPoints: ['Historique de service complet dès la sortie d\'usine', 'Entretien régulier en centres officiels', 'Dernier entretien en Lituanie (Ozas)', 'Freins et huile changés régulièrement'] },
+  es: { problemAreas: ['Kilometraje muy alto (314.723 km)', 'Historial de kilometraje muestra inconsistencia (nov–dic 2018)', 'Se recomienda verificar la precisión del kilometraje'], strongPoints: ['Historial de servicio completo desde nuevo', 'Mantenido regularmente en centros oficiales', 'Último servicio en Lituania (Ozas)', 'Frenos y aceite cambiados regularmente'] },
+  it: { problemAreas: ['Chilometraggio molto elevato (314.723 km)', 'Storico chilometrico incoerente (nov–dic 2018)', 'Si consiglia di verificare l\'accuratezza del chilometraggio'], strongPoints: ['Storico di servizio completo da nuovo', 'Manutenuto regolarmente in centri ufficiali', 'Ultimo servizio in Lituania (Ozas)', 'Freni e olio sostituiti regolarmente'] },
+  nl: { problemAreas: ['Zeer hoge kilometerstand (314.723 km)', 'Kilometerhistorie toont inconsistentie (nov–dec 2018)', 'Aanbevolen om nauwkeurigheid kilometerstand te controleren'], strongPoints: ['Complete servicehistorie vanaf nieuw', 'Regelmatig onderhouden bij officiële centra', 'Laatste service in Litouwen (Ozas)', 'Remmen en olie regelmatig vervangen'] },
+  cs: { problemAreas: ['Velmi vysoký nájezd (314 723 km)', 'Historie nájezdu vykazuje nesrovnalosti (listopad–prosinec 2018)', 'Doporučeno ověřit přesnost nájezdu'], strongPoints: ['Kompletní servisní historie od nového vozu', 'Pravidelně udržováno v oficiálních servisech', 'Poslední servis v Litvě (Ozas)', 'Brzdy a olej pravidelně měněny'] },
+  uk: { problemAreas: ['Дуже великий пробіг (314 723 км)', 'Історія пробігу показує невідповідність (лист–груд 2018)', 'Рекомендовано перевірити точність пробігу'], strongPoints: ['Повна сервісна історія з першого дня', 'Регулярне обслуговування в офіційних центрах', 'Останній сервіс у Литві (Ozas)', 'Гальма та масло регулярно замінювалися'] },
+  ro: { problemAreas: ['Kilometraj foarte mare (314.723 km)', 'Istoricul kilometrajului prezintă inconsistențe (nov–dec 2018)', 'Se recomandă verificarea exactității kilometrajului'], strongPoints: ['Istoric de service complet de la nou', 'Întreținut regulat în centre oficiale', 'Ultimul service în Lituania (Ozas)', 'Frâne și ulei schimbate regulat'] },
+  sv: { problemAreas: ['Mycket hög körsträcka (314 723 km)', 'Mätarhistorik visar inkonsekvens (nov–dec 2018)', 'Rekommenderas att verifiera mätarställningens noggrannhet'], strongPoints: ['Komplett servicehistorik från nytt', 'Regelbundet underhållen på officiella centra', 'Senaste service i Litauen (Ozas)', 'Bromsar och olja bytta regelbundet'] },
+  el: { problemAreas: ['Πολύ υψηλά χιλιόμετρα (314.723 km)', 'Το ιστορικό χιλιομέτρων δείχνει ασυνέπεια (Νοε–Δεκ 2018)', 'Συνιστάται επαλήθευση ακρίβειας χιλιομέτρων'], strongPoints: ['Πλήρες ιστορικό service από καινούριο', 'Τακτική συντήρηση σε επίσημα κέντρα', 'Πρόσφατο service στη Λιθουανία (Ozas)', 'Φρένα και λάδι αλλαγμένα τακτικά'] },
+  pt: { problemAreas: ['Quilometragem muito elevada (314.723 km)', 'Histórico de quilometragem mostra inconsistência (nov–dez 2018)', 'Recomendada verificação da precisão da quilometragem'], strongPoints: ['Histórico de serviço completo desde novo', 'Mantido regularmente em centros oficiais', 'Último serviço na Lituânia (Ozas)', 'Travões e óleo trocados regularmente'] },
+  hu: { problemAreas: ['Nagyon magas futásteljesítmény (314 723 km)', 'A futásteljesítmény-előzmények inkonzisztenciát mutatnak (2018 nov–dec)', 'A futásteljesítmény pontosságának ellenőrzése javasolt'], strongPoints: ['Teljes szervizhistória újonctól', 'Rendszeresen karbantartva hivatalos szervizekben', 'Utolsó szerviz Litvániában (Ozas)', 'Fékek és olaj rendszeresen cserélve'] },
+  bg: { problemAreas: ['Много голям пробег (314 723 км)', 'Историята на пробега показва несъответствия (ное–дек 2018)', 'Препоръчително е да се провери точността на пробега'], strongPoints: ['Пълна сервизна история от нов', 'Редовно обслужван в официални центрове', 'Последен сервиз в Литва (Ozas)', 'Спирачки и масло сменяни редовно'] },
+  sr: { problemAreas: ['Врло висока километража (314.723 км)', 'Историја километраже показује непотпуност (нов–дец 2018)', 'Препоручено је верификација тачности километраже'], strongPoints: ['Потпуна сервисна историја од новог возила', 'Редовно одржаван у званичним центрима', 'Последњи сервис у Литванији (Ozas)', 'Кочинице и уље редовно мењани'] },
+  da: { problemAreas: ['Meget høj kilometerstand (314.723 km)', 'Kilometerhistorik viser inkonsistens (nov–dec 2018)', 'Anbefales at verificere nøjagtigheden af kilometerstanden'], strongPoints: ['Komplet servicehistorik fra ny', 'Regelmæssigt vedligeholdt på officielle centre', 'Seneste service i Litauen (Ozas)', 'Bremser og olie skiftet regelmæssigt'] },
+  no: { problemAreas: ['Svært høy kilometerstand (314.723 km)', 'Kilometerhistorikk viser inkonsistens (nov–des 2018)', 'Anbefales å verifisere nøyaktigheten av kilometerstanden'], strongPoints: ['Komplett servicehistorikk fra ny', 'Regelmessig vedlikeholdt på offisielle sentre', 'Siste service i Litauen (Ozas)', 'Bremser og olje byttet regelmessig'] },
+  fi: { problemAreas: ['Erittäin suuri ajokilometrimäärä (314 723 km)', 'Ajokilometrihistoria osoittaa epäjohdonmukaisuuksia (marr–joulu 2018)', 'On suositeltavaa tarkistaa ajokilometrien tarkkuus'], strongPoints: ['Täydellinen huoltohistoria uudesta lähtien', 'Säännöllisesti huollettu virallisissa keskuksissa', 'Viimeisin huolto Liettuassa (Ozas)', 'Jarrut ja öljy vaihdettu säännöllisesti'] },
+  sk: { problemAreas: ['Veľmi vysoký nájazd (314 723 km)', 'História nájazdu vykazuje nekonzistentnosť (nov–dec 2018)', 'Odporúča sa overiť presnosť nájazdu'], strongPoints: ['Kompletná servisná história od nového auta', 'Pravidelne udržiavané v oficiálnych servisoch', 'Posledný servis v Litve (Ozas)', 'Brzdy a olej pravidelne menené'] },
+  hr: { problemAreas: ['Vrlo visoka kilometraža (314.723 km)', 'Povijest kilometraže pokazuje nedosljednost (stu–pro 2018)', 'Preporučuje se provjera točnosti kilometraže'], strongPoints: ['Potpuna servisna povijest od novog vozila', 'Redovito održavano u službenim centrima', 'Zadnji servis u Litvi (Ozas)', 'Kočnice i ulje redovito mijenjani'] },
+  bs: { problemAreas: ['Vrlo visoka kilometraža (314.723 km)', 'Historija kilometraže pokazuje nedosljednost (nov–dec 2018)', 'Preporučuje se provjera tačnosti kilometraže'], strongPoints: ['Potpuna servisna historija od novog vozila', 'Redovno održavano u službenim centrima', 'Zadnji servis u Litvi (Ozas)', 'Kočnice i ulje redovito mijenjani'] },
+  sq: { problemAreas: ['Kilometrazh shumë i lartë (314.723 km)', 'Historiku i kilometrazhit tregon mospërputhje (nën–dhj 2018)', 'Rekomandohet verifikimi i saktësisë së kilometrazhit'], strongPoints: ['Historik i plotë shërbimi nga i ri', 'Mirëmbajtur rregullisht në qendrat zyrtare', 'Shërbimi i fundit në Lituani (Ozas)', 'Frenat dhe vaji ndërruar rregullisht'] },
+  sl: { problemAreas: ['Zelo visoka prevožena razdalja (314.723 km)', 'Zgodovina kilometrine kaže neskladje (nov–dec 2018)', 'Priporočljivo je preveriti natančnost kilometrine'], strongPoints: ['Popolna servisna zgodovina od novega vozila', 'Redno vzdrževan v uradnih centrih', 'Zadnji servis v Litvi (Ozas)', 'Zavore in olje redno menjavani'] },
+  lv: { problemAreas: ['Ļoti liels nobraukums (314 723 km)', 'Nobraukuma vēsture rāda nekonsekvenci (nov–dec 2018)', 'Ieteicams pārbaudīt nobraukuma precizitāti'], strongPoints: ['Pilna servisa vēsture no jauna auto', 'Regulāri apkalpots oficiālajos centros', 'Pēdējais serviss Lietuvā (Ozas)', 'Bremzes un eļļa regulāri mainītas'] },
+  mk: { problemAreas: ['Многу висока километража (314.723 км)', 'Историјата на километража покажува неконзистентност (ное–дек 2018)', 'Се препорачува верификација на точноста на километражата'], strongPoints: ['Комплетна сервисна историја од ново возило', 'Редовно одржувано во официјални центри', 'Последен сервис во Литванија (Ozas)', 'Кочи и масло редовно менувани'] },
+  et: { problemAreas: ['Väga suur läbisõit (314 723 km)', 'Läbisõidu ajalugu näitab vasturääkivust (nov–dets 2018)', 'Soovitatav läbisõidu täpsuse kontrollimine'], strongPoints: ['Täielik hooldusajalugu uusest autost', 'Regulaarselt hooldatud ametlikes keskustes', 'Viimane hooldus Leedus (Ozas)', 'Pidurid ja õli regulaarselt vahetatud'] },
+  ca: { problemAreas: ['Quilometratge molt elevat (314.723 km)', 'L\'historial de quilometratge mostra inconsistències (nov–des 2018)', 'Es recomana verificar la precisió del quilometratge'], strongPoints: ['Historial de servei complet des de nou', 'Mantingut regularment en centres oficials', 'Últim servei a Lituània (Ozas)', 'Frens i oli canviat regularment'] },
+  lb: { problemAreas: ['Ganz héich Kilometerzuel (314.723 km)', 'Kilometergeschicht weist Inkonsistenz op (Nov–Dez 2018)', 'Uempfohle fir d\'Nogeeschtegkeet vun der Kilometerzuel ze verifizéieren'], strongPoints: ['Komplett Servicegeschicht vum neie Wunn', 'Regelméisseg ënnerhalen an offiziellen Zentre', 'Leschten Service a Litauen (Ozas)', 'Bremsewauen an Ueleg regelméisseg gewiesselt'] },
+  cnr: { problemAreas: ['Врло висока километража (314.723 км)', 'Историја километраже показује непотпуност (нов–дец 2018)', 'Препоручено је верификација тачности километраже'], strongPoints: ['Потпуна сервисна историја од новог возила', 'Редовно одржаван у званичним центрима', 'Последњи сервис у Литванији (Ozas)', 'Кочинице и уље редовно мјењани'] },
+  mt: { problemAreas: ['Kilometraġġ għoli ħafna (314,723 km)', 'L-istorja tal-kilometraġġ turi inkonsistenza (Nov–Diċ 2018)', 'Rakkomandat li tiġi verifikata l-eżattezza tal-kilometraġġ'], strongPoints: ['Storja tas-servizz kompluta minn ġdid', 'Miżmum regolarment f\'ċentri uffiċjali', 'L-aħħar servizz fil-Litwanja (Ozas)', 'Brejkijiet u żejt mibdula regolarment'] },
+  is: { problemAreas: ['Mjög mikill akstur (314.723 km)', 'Aksturssaga sýnir ósamræmi (nóv–des 2018)', 'Mælt með að staðfesta nákvæmni akstrar'], strongPoints: ['Fullkomin þjónustusaga frá nýju bílnum', 'Reglulega þjónustaður á opinberum miðstöðvum', 'Síðasta þjónusta á Litháen (Ozas)', 'Bremseaukar og olía skipt reglulega'] },
+  tr: { problemAreas: ['Çok yüksek kilometre (314.723 km)', 'Kilometre geçmişi tutarsızlık gösteriyor (Kas–Ara 2018)', 'Kilometre doğruluğunun doğrulanması önerilir'], strongPoints: ['Sıfır kilometreden itibaren tam servis geçmişi', 'Resmi merkezlerde düzenli bakım yapılmış', 'Son servis Litvanya\'da (Ozas)', 'Frenler ve yağ düzenli değiştirilmiş'] },
+};
+
 const ORDER_LABEL: TranslationMap = {
   lt: 'Užsakymo Nr.', en: 'Order No.', de: 'Bestell-Nr.', pl: 'Nr zamówienia', fr: 'N° de commande', es: 'N° de pedido', it: 'N. ordine', nl: 'Bestelnr.', cs: 'Č. objednávky', uk: 'Номер замовлення', ro: 'Nr. comandă', sv: 'Ordernr.', el: 'Αρ. παραγγελίας', pt: 'N.º de encomenda', hu: 'Rendelésszám', bg: 'Поръчка №', sr: 'Број наруџбе', da: 'Ordrenr.', no: 'Ordrenr.', fi: 'Tilausnro', sk: 'Č. objednávky', hr: 'Br. narudžbe', bs: 'Br. narudžbe', sq: 'Nr. i porosisë', sl: 'Št. naročila', lv: 'Pasūtījuma nr.', mk: 'Број на нарачка', et: 'Tellimuse nr', ca: 'N. comanda', lb: 'Bestellnummer', cnr: 'Br. narudžbe', mt: 'Nru. tal-ordni', is: 'Pöntunarnr.', tr: 'Sipariş No.',
 };
@@ -515,10 +685,17 @@ const MILEAGE_LABEL: TranslationMap = {
 
 const SampleReportModal: React.FC<SampleReportModalProps> = ({ open, onClose, t, lang }) => {
   const [showOriginalServiceTexts, setShowOriginalServiceTexts] = useState(false);
+  const [sampleIndex, setSampleIndex] = useState(0);
 
   if (!open) return null;
 
-  const chartData = MILEAGE_HISTORY.filter((_, i) => i % 4 === 0 || i === MILEAGE_HISTORY.length - 1);
+  const samples = [
+    { vin: SAMPLE_VIN, title: '2016 BMW 3 330 e', mileageHistory: MILEAGE_HISTORY, serviceEvents: SERVICE_EVENTS, technicalSpecs: TECHNICAL_SPECS, aiAnalysis: AI_ANALYSIS, lastMileage: 201986 },
+    { vin: SAMPLE_2_VIN, title: '2017 BMW 5 530 d xDrive', mileageHistory: MILEAGE_HISTORY_2, serviceEvents: SERVICE_EVENTS_2, technicalSpecs: TECHNICAL_SPECS_2, aiAnalysis: AI_ANALYSIS_2, lastMileage: 314723 },
+  ];
+
+  const active = samples[sampleIndex];
+  const chartData = active.mileageHistory.filter((_, i) => i % 4 === 0 || i === active.mileageHistory.length - 1);
 
   const getServiceProvider = (key: string | null) => {
     if (!key) return null;
@@ -533,19 +710,36 @@ const SampleReportModal: React.FC<SampleReportModalProps> = ({ open, onClose, t,
     return FIELD_LABELS[key]?.[lang] || FIELD_LABELS[key]?.en || key.replace(/_/g, ' ');
   };
 
-  const analysis = AI_ANALYSIS[lang] || AI_ANALYSIS.en;
+  const analysis = active.aiAnalysis[lang] || active.aiAnalysis.en;
 
   return (
     <div className="fixed inset-0 z-[300] flex items-center justify-center p-2 sm:p-4 bg-slate-900/60 backdrop-blur-sm" onClick={onClose}>
       <div className="relative w-full max-w-5xl max-h-[95vh] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div className="bg-slate-900 p-6 sm:p-8 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shrink-0">
+        <div className="bg-slate-900 p-6 sm:p-8 text-white flex flex-col gap-6 shrink-0">
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setSampleIndex(0)}
+              className={`px-4 py-2 rounded-xl text-sm font-bold transition-colors ${sampleIndex === 0 ? 'bg-indigo-500 text-white' : 'bg-white/10 text-white/70 hover:bg-white/20'}`}
+            >
+              BMW 3 330 e (2016)
+            </button>
+            <button
+              type="button"
+              onClick={() => setSampleIndex(1)}
+              className={`px-4 py-2 rounded-xl text-sm font-bold transition-colors ${sampleIndex === 1 ? 'bg-indigo-500 text-white' : 'bg-white/10 text-white/70 hover:bg-white/20'}`}
+            >
+              BMW 5 530 d (2017)
+            </button>
+          </div>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div className="w-full md:w-auto">
             <div className="text-indigo-400 text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-1">{t.report.fullReport}</div>
-            <h2 className="text-2xl sm:text-3xl font-bold leading-tight">2016 BMW 3 330 e</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold leading-tight">{active.title}</h2>
             <div className="flex items-center gap-2 mt-2 opacity-70">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              <span className="font-mono text-sm break-all">{SAMPLE_VIN}</span>
+              <span className="font-mono text-sm break-all">{active.vin}</span>
             </div>
             <div className="flex items-center gap-2 mt-1 opacity-70">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
@@ -590,6 +784,7 @@ const SampleReportModal: React.FC<SampleReportModalProps> = ({ open, onClose, t,
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="sm:w-[18px] sm:h-[18px]"><path d="M18 6 6 18M6 6l12 12"/></svg>
             </button>
           </div>
+          </div>
         </div>
 
         {/* Content */}
@@ -598,7 +793,7 @@ const SampleReportModal: React.FC<SampleReportModalProps> = ({ open, onClose, t,
           <div className="w-full px-6 sm:px-8 py-6 sm:py-8 border-b border-slate-100">
             <h4 className="text-slate-900 font-bold text-sm sm:text-base mb-4">{t.report.technicalSpecs}</h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
-              {Object.entries(TECHNICAL_SPECS).map(([key, val]) => (
+              {Object.entries(active.technicalSpecs).map(([key, val]) => (
                 <div key={key} className="flex justify-between py-3 border-b border-slate-200/50">
                   <span className="text-slate-500 text-xs sm:text-sm capitalize">{getFieldLabel(key)}</span>
                   <span className="text-slate-900 text-xs sm:text-sm font-semibold text-right">{val}</span>
@@ -616,7 +811,7 @@ const SampleReportModal: React.FC<SampleReportModalProps> = ({ open, onClose, t,
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-600"><circle cx="12" cy="12" r="10"/><path d="m16 10-4 4-2-2"/></svg>
                     {t.report.mileageHistory}
                   </h3>
-                  <span className="text-xs sm:text-sm text-slate-500 font-medium">{t.report.lastMileage} 201 986 km</span>
+                  <span className="text-xs sm:text-sm text-slate-500 font-medium">{t.report.lastMileage} {active.lastMileage.toLocaleString('en-US')} km</span>
                 </div>
                 <div className="h-48 sm:h-64 w-full bg-slate-50 rounded-2xl p-2 sm:p-4 border border-slate-100">
                   <ResponsiveContainer width="100%" height="100%">
@@ -638,7 +833,7 @@ const SampleReportModal: React.FC<SampleReportModalProps> = ({ open, onClose, t,
                   {t.report.serviceEvents}
                 </h3>
                 <div className="space-y-4">
-                  {SERVICE_EVENTS.map((event, idx) => (
+                  {active.serviceEvents.map((event, idx) => (
                     <div key={idx} className="p-5 rounded-2xl border border-slate-100 bg-slate-50/50 hover:border-slate-200 transition-colors">
                       <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                         <span className="font-mono text-sm font-bold text-slate-800">{event.date}</span>
