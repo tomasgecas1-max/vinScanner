@@ -30,7 +30,7 @@ import { captureError } from './services/sentry';
 import { getLangFromIp } from './services/geoLangService';
 
 /** Laikinai įjungti geltoną raw API atvaizdavimą žemiau ataskaitos – nustatyti false, kai nebereikia */
-const SHOW_RAW_API_DEBUG = true;
+const SHOW_RAW_API_DEBUG = false;
 
 const App: React.FC = () => {
   const { user } = useAuth();
