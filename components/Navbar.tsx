@@ -48,7 +48,9 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, t, onMyReportsClick, onS
     <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-b border-slate-100 z-[100]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 sm:h-20 items-center" ref={menuRef}>
-          <Logo className="shrink-0" onClick={() => window.location.reload()} />
+          <div className="shrink-0 self-end md:self-center [&>div>div]:!text-4xl md:[&>div>div]:!text-3xl sm:[&>div>div]:!text-4xl lg:[&>div>div]:!text-5xl pb-0.5 md:pb-0">
+            <Logo onClick={() => window.location.reload()} />
+          </div>
 
           <div className="hidden md:flex items-center gap-8 lg:gap-10">
             <button onClick={() => scrollToSection('pricing')} className="text-[11px] font-[900] text-slate-400 hover:text-indigo-600 transition-colors uppercase tracking-[0.2em]">{t.nav.pricing}</button>
