@@ -100,7 +100,7 @@ const App: React.FC = () => {
 
   const region = getRegionFromPathname();
   const regionCfg = REGION_CONFIG[region];
-  const effectiveLang: LangCode = region === 'pl' ? 'pl' : lang;
+  const effectiveLang: LangCode = region === 'pl' ? 'pl' : region === 'fr' ? 'fr' : lang;
   const t = getTranslations(effectiveLang);
 
   useEffect(() => {
