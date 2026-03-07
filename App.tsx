@@ -756,7 +756,7 @@ const App: React.FC = () => {
       </header>
       
       <main className="overflow-x-hidden pt-16 sm:pt-20">
-        {showLanguageBar && (
+        {showLanguageBar && !isMobile && (
           <LanguageSelectionBar onSelect={handleLanguageSelect} onDismiss={handleLanguageBarDismiss} />
         )}
         {purchaseToken && purchaseInfo && (
