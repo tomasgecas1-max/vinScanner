@@ -45,16 +45,14 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
         lang: pendingLang ?? undefined,
       }));
     } catch (_) {}
-    const billingEmail = pendingEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(pendingEmail) ? pendingEmail : undefined;
     const { error: confirmError } = await stripe.confirmPayment({
       elements,
       confirmParams: {
         return_url: window.location.origin + '/',
-        ...(billingEmail && { receipt_email: billingEmail }),
         payment_method_data: {
           billing_details: {
             name: 'Customer',
-            email: billingEmail ?? undefined,
+            email: (pendingEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(pendingEmail)) ? pendingEmail : undefined,
             address: { line1: '', city: '', state: '', postal_code: '', country: 'LT' },
             phone: '',
           },
