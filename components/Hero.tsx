@@ -39,7 +39,7 @@ const Hero: React.FC<HeroProps> = ({ onVinSubmit, onSampleReportClick, loading, 
   };
 
   return (
-    <div className="relative pt-12 pb-8 sm:pt-20 sm:pb-12 lg:pt-36 lg:pb-32 overflow-hidden">
+    <div className="relative pt-12 pb-8 sm:pt-8 sm:pb-12 lg:pt-10 lg:pb-32 overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10 pointer-events-none">
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-100 rounded-full blur-[140px] opacity-40"></div>
         <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-100 rounded-full blur-[140px] opacity-40"></div>
