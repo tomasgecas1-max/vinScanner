@@ -22,9 +22,9 @@ const MobilePlanSheet: React.FC<MobilePlanSheetProps> = ({ pendingVin, t, onPlan
   };
 
   return (
-    <div className="fixed inset-0 z-[250] flex items-center justify-center px-3 py-4 md:hidden">
+    <div className="fixed inset-0 z-[250] flex items-center justify-center px-5 py-4 md:hidden">
       <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-[min(calc(100vw-24px),100%)] bg-white rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in-95 fade-in duration-300">
+      <div className="relative w-full max-w-[min(calc(100vw-40px),100%)] bg-white rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in-95 fade-in duration-300">
         <div className="relative px-6 pt-6 pb-4 flex items-center justify-center">
           <h3 className="text-xl font-black text-slate-900 text-center pr-10">
             {t.pricing.selectPlanForVin}
@@ -35,12 +35,12 @@ const MobilePlanSheet: React.FC<MobilePlanSheetProps> = ({ pendingVin, t, onPlan
         </div>
         <div className="px-4 pb-6">
           <p className="text-slate-500 text-sm font-medium mb-4 font-mono truncate">{pendingVin}</p>
-          <div className="grid grid-cols-3 gap-3 items-stretch">
+          <div className="grid grid-cols-3 gap-2.5 items-stretch">
             {plans.map((plan, idx) => (
               <button
                 key={idx}
                 onClick={() => setSelectedIdx(idx)}
-                className={`flex flex-col items-center justify-center min-h-[120px] min-w-0 p-2 rounded-2xl border-2 transition-all duration-300 ease-out bg-white text-slate-900 border-slate-200 shadow-xl shadow-slate-200/50 ${
+                className={`flex flex-col items-center justify-center min-h-[90px] min-w-0 p-2 rounded-xl border-2 transition-all duration-300 ease-out bg-white text-slate-900 border-slate-200 shadow-xl shadow-slate-200/50 ${
                   selectedIdx === idx
                     ? 'scale-[1.22] z-10 border-indigo-600 shadow-[0_30px_60px_-15px_rgba(79,70,229,0.25)]'
                     : 'scale-100'
