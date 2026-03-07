@@ -46,8 +46,10 @@ const App: React.FC = () => {
   const [lang, setLangState] = useState<LangCode>(() => {
     const saved = localStorage.getItem('vinscanner_lang');
     if (saved) return saved as LangCode;
-    // Botai – anglų meta indeksavimui
     if (isBot()) return 'en';
+    const p = typeof window !== 'undefined' ? window.location.pathname || '' : '';
+    if (p.startsWith('/pl')) return 'pl';
+    if (p.startsWith('/fr')) return 'fr';
     return 'lt';
   });
   
@@ -100,7 +102,7 @@ const App: React.FC = () => {
 
   const region = getRegionFromPathname();
   const regionCfg = REGION_CONFIG[region];
-  const effectiveLang: LangCode = region === 'pl' ? 'pl' : region === 'fr' ? 'fr' : lang;
+  const effectiveLang: LangCode = lang;
   const t = getTranslations(effectiveLang);
 
   useEffect(() => {
@@ -144,9 +146,11 @@ const App: React.FC = () => {
     return () => window.removeEventListener('openPrivacyPolicy', handleOpenPrivacy);
   }, []);
 
-  // Kalba pagal IP tik vartotojams (ne botams)
+  // Kalba pagal IP tik pagrindiniam puslapiui (ne /pl, /fr), be localStorage
   useEffect(() => {
     if (localStorage.getItem('vinscanner_lang') || isBot()) return;
+    const p = window.location.pathname || '';
+    if (p.startsWith('/pl') || p.startsWith('/fr')) return;
     getLangFromIp().then((detected) => {
       if (detected) {
         setLangState(detected);
