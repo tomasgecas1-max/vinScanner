@@ -79,6 +79,7 @@ const App: React.FC = () => {
     reportsRemaining: number;
     reportsTotal: number;
     orderId: string | null;
+    email: string | null;
     loading: boolean;
     error: boolean;
   } | null>(null);
@@ -205,17 +206,19 @@ const App: React.FC = () => {
       setPurchaseInfo(null);
       return;
     }
-    setPurchaseInfo((p) => ({ reportsRemaining: p?.reportsRemaining ?? 0, reportsTotal: p?.reportsTotal ?? 1, orderId: p?.orderId ?? null, loading: true, error: false }));
+    setPurchaseInfo((p) => ({ reportsRemaining: p?.reportsRemaining ?? 0, reportsTotal: p?.reportsTotal ?? 1, orderId: p?.orderId ?? null, email: p?.email ?? null, loading: true, error: false }));
     fetch(`/api/get-purchase?token=${encodeURIComponent(purchaseToken)}`)
       .then((res) => {
         if (!res.ok) throw new Error('Failed');
         return res.json();
       })
       .then((data) => {
+        const emailStr = data?.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(data.email)) ? String(data.email).trim() : null;
         setPurchaseInfo({
           reportsRemaining: data.reportsRemaining ?? 0,
           reportsTotal: data.reportsTotal ?? 1,
           orderId: data.orderId ?? null,
+          email: emailStr,
           loading: false,
           error: false,
         });
@@ -225,6 +228,7 @@ const App: React.FC = () => {
           reportsRemaining: p?.reportsRemaining ?? 0,
           reportsTotal: p?.reportsTotal ?? 0,
           orderId: p?.orderId ?? null,
+          email: p?.email ?? null,
           loading: false,
           error: true,
         }));
@@ -385,7 +389,7 @@ const App: React.FC = () => {
     if (purchaseToken && purchaseInfo && purchaseInfo.reportsRemaining > 0 && !purchaseInfo.loading) {
       setLoading(true);
       setReport(null);
-      const userEmail = user?.email;
+      const reportEmail = user?.email ?? purchaseInfo.email ?? '';
       
       try {
         const reportResult = await handleSearchAndReturn(vinTrimmed);
@@ -423,8 +427,8 @@ const App: React.FC = () => {
           prev ? { ...prev, reportsRemaining: newRemaining } : null
         );
         
-        if (userEmail) {
-          setPendingEmailReport({ email: userEmail, vin: vinTrimmed, token: purchaseToken, reportsRemaining: newRemaining, orderId: purchaseInfo.orderId ?? undefined, lang });
+        if (reportEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(reportEmail)) {
+          setPendingEmailReport({ email: reportEmail, vin: vinTrimmed, token: purchaseToken, reportsRemaining: newRemaining, orderId: purchaseInfo.orderId ?? undefined, lang });
           if (purchaseInfo.orderId) setCurrentReportOrderId(purchaseInfo.orderId);
         }
         
@@ -519,10 +523,12 @@ const App: React.FC = () => {
           purchaseOrderId = prData.orderId ?? orderId;
           
           setPurchaseToken(purchaseTokenValue);
+          const purchaseEmail = customerEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail) ? customerEmail : null;
           setPurchaseInfo({
             reportsRemaining: reportsRemainingValue,
             reportsTotal: planIndex + 1,
             orderId: purchaseOrderId ?? null,
+            email: purchaseEmail,
             loading: false,
             error: false,
           });
