@@ -81,7 +81,14 @@ const Hero: React.FC<HeroProps> = ({ onVinSubmit, onSampleReportClick, loading, 
                   </button>
                 </div>
               </form>
-              <div className="mt-6 text-left pl-2">
+              <button
+                type="button"
+                onClick={handleSampleClick}
+                className="sm:hidden w-full h-14 px-10 py-3 rounded-2xl font-black uppercase text-xs tracking-widest border-2 border-indigo-600 text-indigo-600 bg-white hover:bg-indigo-50 transition-all active:scale-95 mt-3"
+              >
+                {t.hero.sample}
+              </button>
+              <div className="mt-6 text-left pl-2 hidden sm:block">
                 <button onClick={handleSampleClick} className="text-xs text-indigo-600/80 hover:text-indigo-800 font-bold transition-colors flex items-center gap-2">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="m9 18 6-6-6-6"/></svg>
                   {t.hero.sample}
