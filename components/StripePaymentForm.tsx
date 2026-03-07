@@ -45,10 +45,12 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
         lang: pendingLang ?? undefined,
       }));
     } catch (_) {}
+    const billingEmail = pendingEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(pendingEmail) ? pendingEmail : undefined;
     const { error: confirmError } = await stripe.confirmPayment({
       elements,
       confirmParams: {
         return_url: window.location.origin + '/',
+        ...(billingEmail && { receipt_email: billingEmail }),
       },
     });
     setLoading(false);
@@ -62,7 +64,19 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="min-h-[220px] w-full relative z-[10] isolate bg-white rounded-xl border border-slate-200 p-4" style={{ pointerEvents: 'auto' }}>
-        <PaymentElement options={{ layout: 'tabs' }} />
+        <PaymentElement
+          options={{
+            layout: 'tabs',
+            fields: {
+              billingDetails: {
+                address: 'never',
+                name: 'never',
+                email: 'never',
+                phone: 'never',
+              },
+            },
+          }}
+        />
       </div>
       {error && (
         <p className="text-sm font-medium text-rose-600">{error}</p>
