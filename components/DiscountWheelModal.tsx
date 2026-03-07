@@ -29,16 +29,16 @@ interface DiscountWheelModalProps {
 }
 
 const WHEEL_SEGMENTS = [
-  { percent: 25, code: '48291' },
-  { percent: 5, code: '59281' },
-  { percent: 22, code: '71834' },
-  { percent: 8, code: '29356' },
-  { percent: 23, code: '64192' },
-  { percent: 10, code: '82647' },
-  { percent: 20, code: '45913' },
-  { percent: 12, code: '17385' },
-  { percent: 18, code: '93724' },
-  { percent: 15, code: '56109' },
+  { percent: 25, code: 'V25A9K' },
+  { percent: 5, code: 'X05B2M' },
+  { percent: 22, code: 'N22C3P' },
+  { percent: 8, code: 'R08D5T' },
+  { percent: 23, code: 'W23E9Q' },
+  { percent: 10, code: 'Y10F4H' },
+  { percent: 20, code: 'Z20G1S' },
+  { percent: 12, code: 'K12H8J' },
+  { percent: 18, code: 'L18I2U' },
+  { percent: 15, code: 'M15J0V' },
 ];
 
 const SEGMENT_COUNT = WHEEL_SEGMENTS.length;

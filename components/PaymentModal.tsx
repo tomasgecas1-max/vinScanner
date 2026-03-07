@@ -9,19 +9,16 @@ const stripePk = import.meta.env.VITE_STRIPE_PUBLISHABLE as string | undefined;
 const stripePromise = stripePk ? loadStripe(stripePk) : null;
 
 const DISCOUNT_CODES: Record<string, { type: 'percent' | 'fixed'; value: number }> = {
-  '862659243': { type: 'percent', value: 95 },
-  '48291': { type: 'percent', value: 25 },
-  '59281': { type: 'percent', value: 5 },
-  '71834': { type: 'percent', value: 22 },
-  '29356': { type: 'percent', value: 8 },
-  '64192': { type: 'percent', value: 23 },
-  '82647': { type: 'percent', value: 10 },
-  '45913': { type: 'percent', value: 20 },
-  '17385': { type: 'percent', value: 12 },
-  '93724': { type: 'percent', value: 18 },
-  '56109': { type: 'percent', value: 15 },
-  VINS5: { type: 'fixed', value: 5 },
-  SAVE3: { type: 'fixed', value: 3 },
+  'V25A9K': { type: 'percent', value: 25 },
+  'X05B2M': { type: 'percent', value: 5 },
+  'N22C3P': { type: 'percent', value: 22 },
+  'R08D5T': { type: 'percent', value: 8 },
+  'W23E9Q': { type: 'percent', value: 23 },
+  'Y10F4H': { type: 'percent', value: 10 },
+  'Z20G1S': { type: 'percent', value: 20 },
+  'K12H8J': { type: 'percent', value: 12 },
+  'L18I2U': { type: 'percent', value: 18 },
+  'M15J0V': { type: 'percent', value: 15 },
 };
 
 interface PaymentModalProps {
@@ -153,7 +150,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
           setDiscountInput(code);
           setAppliedCode(code);
           setCodeError(false);
-          localStorage.removeItem('vinscanner_pending_discount');
+          // Nekeliame – kodas lieka iki naujo sukimų iš rulete (overwrite DiscountWheelModal)
         }
       }
     } catch {}
