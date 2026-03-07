@@ -23,8 +23,8 @@ export const REGION_CONFIG: Record<RegionCode, RegionConfig> = {
   pl: {
     currency: 'pln',
     symbol: 'zł',
-    prices: [60, 100, 140],
-    oldPrices: [120, 200, 280],
+    prices: [60, 100, 120],
+    oldPrices: [120, 200, 240],
   },
 };
 
