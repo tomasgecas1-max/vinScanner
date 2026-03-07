@@ -11,9 +11,9 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect }) => {
   const [selectedPlanIdx, setSelectedPlanIdx] = useState<number>(1); // default: 2 ataskaitos (vidurinis planas)
 
   const plans = [
-    { name: t.pricing.planSingle, count: t.pricing.report1, price: 12, oldPrice: 24, bestValue: false },
-    { name: t.pricing.planPopular, count: t.pricing.reports2, price: 20, oldPrice: 40, bestValue: false },
-    { name: t.pricing.planBestValue, count: t.pricing.reports3, price: 27, oldPrice: 54, bestValue: true },
+    { name: t.pricing.planSingle, count: t.pricing.report1, reportCount: 1, price: 12, oldPrice: 24, bestValue: false },
+    { name: t.pricing.planPopular, count: t.pricing.reports2, reportCount: 2, price: 20, oldPrice: 40, bestValue: false },
+    { name: t.pricing.planBestValue, count: t.pricing.reports3, reportCount: 3, price: 27, oldPrice: 54, bestValue: true },
   ];
 
   const scrollToVinInput = () => {
@@ -75,6 +75,9 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect }) => {
                       <span className="text-lg text-slate-400 line-through decoration-2 decoration-rose-500 font-bold">{plan.oldPrice} €</span>
                     )}
                   </div>
+                  <p className={`text-sm font-semibold mt-1 ${isSelected ? 'text-slate-400' : 'text-slate-500'}`}>
+                    {t.pricing.perReport} {(plan.price / plan.reportCount).toFixed(0)} €
+                  </p>
                 </div>
 
                 <div 
