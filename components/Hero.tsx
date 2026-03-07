@@ -52,7 +52,7 @@ const Hero: React.FC<HeroProps> = ({ onVinSubmit, onSampleReportClick, loading, 
               {t.hero.title} <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-500">{t.hero.titleAccent}</span>
             </h1>
-            <p className="text-lg sm:text-xl text-slate-600 mb-6 sm:mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
+            <p className="hidden sm:block text-lg sm:text-xl text-slate-600 mb-6 sm:mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
               {t.hero.desc}
             </p>
 

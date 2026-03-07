@@ -137,10 +137,11 @@ const App: React.FC = () => {
     });
   }, []);
 
-  // Show language selection bar on first visit
+  // Show language selection bar on first visit (desktop only – mobile: disabled)
   useEffect(() => {
     const hasSelected = localStorage.getItem('vinscanner_lang_selected');
-    if (!hasSelected) {
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+    if (!hasSelected && !isMobile) {
       setShowLanguageBar(true);
     }
   }, []);
