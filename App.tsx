@@ -84,6 +84,7 @@ const App: React.FC = () => {
   } | null>(null);
   const [showInsufficientDataModal, setShowInsufficientDataModal] = useState(false);
   const [errorModalMessage, setErrorModalMessage] = useState<string | null>(null);
+  const [confirmationEmailSent, setConfirmationEmailSent] = useState(false);
 
   const t = getTranslations(lang);
 
@@ -491,9 +492,9 @@ const App: React.FC = () => {
     let reportsRemainingValue = planIndex + 1;
     const emailLang = purchaseLang ?? lang;
     const vinNorm = vin?.trim() ?? '';
-    const isPurchaseOnly = !vinNorm && !!customerEmail && planIndex >= 1;
+    const isPurchaseOnly = !vinNorm && !!customerEmail && planIndex >= 0;
     
-    if (customerEmail && planIndex >= 1) {
+    if (customerEmail && planIndex >= 0) {
       try {
         const pr = await fetch('/api/create-purchase', {
           method: 'POST',
@@ -526,6 +527,22 @@ const App: React.FC = () => {
     if (isPurchaseOnly) {
       setLoading(false);
       setPendingVin(null);
+      if (purchaseCreated && purchaseTokenValue && customerEmail) {
+        fetch('/api/send-order-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: customerEmail,
+            vin: '',
+            token: purchaseTokenValue,
+            reportsRemaining: reportsRemainingValue,
+            orderId: purchaseOrderId ?? undefined,
+            lang: emailLang,
+          }),
+        })
+          .then((res) => { if (res.ok) setConfirmationEmailSent(true); })
+          .catch(() => {});
+      }
       return;
     }
     
@@ -763,9 +780,14 @@ const App: React.FC = () => {
                   <p className="font-bold text-sm">{t.tokenMode.noReports}</p>
                 )}
                 {!purchaseInfo.loading && !purchaseInfo.error && purchaseInfo.reportsRemaining > 0 && (
-                  <p className="font-bold text-sm">
-                    {t.tokenMode.banner.replace('{n}', String(purchaseInfo.reportsRemaining)).replace('{total}', String(purchaseInfo.reportsTotal))}
-                  </p>
+                  <>
+                    <p className="font-bold text-sm">
+                      {t.tokenMode.banner.replace('{n}', String(purchaseInfo.reportsRemaining)).replace('{total}', String(purchaseInfo.reportsTotal))}
+                    </p>
+                    {confirmationEmailSent && (
+                      <p className="text-xs font-medium text-indigo-600 mt-2">{t.tokenMode.confirmationSentToEmail}</p>
+                    )}
+                  </>
                 )}
               </div>
             </div>

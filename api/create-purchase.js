@@ -52,10 +52,6 @@ export default async function handler(req, res) {
 
   const pi = Math.max(0, Math.min(2, Number(planIndex) || 0));
   const reportsTotal = pi + 1;
-  
-  if (reportsTotal <= 1) {
-    return res.status(400).json({ error: 'Only for plans with 2+ reports' });
-  }
 
   try {
     const token = crypto.randomBytes(24).toString('base64url');
