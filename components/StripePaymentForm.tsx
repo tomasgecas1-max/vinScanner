@@ -37,11 +37,14 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
     if (!stripe || !elements) return;
     setLoading(true);
     setError(null);
-    if (pendingVin) {
-      try {
-        sessionStorage.setItem(PENDING_ORDER_KEY, JSON.stringify({ vin: pendingVin, email: pendingEmail ?? '', planIndex: pendingPlanIndex ?? 0, lang: pendingLang ?? undefined }));
-      } catch (_) {}
-    }
+    try {
+      sessionStorage.setItem(PENDING_ORDER_KEY, JSON.stringify({
+        vin: (pendingVin && pendingVin.trim()) || 'PENDING',
+        email: pendingEmail ?? '',
+        planIndex: pendingPlanIndex ?? 0,
+        lang: pendingLang ?? undefined,
+      }));
+    } catch (_) {}
     const { error: confirmError } = await stripe.confirmPayment({
       elements,
       confirmParams: {

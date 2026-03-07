@@ -95,10 +95,19 @@ const App: React.FC = () => {
         const raw = sessionStorage.getItem('vinscanner_pending_order');
         const data = raw ? JSON.parse(raw) : null;
         sessionStorage.removeItem('vinscanner_pending_order');
-        if (data?.vin && typeof data.vin === 'string' && data.vin.trim().length > 5) {
+        const hasValidData = data?.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(data.email));
+        const vinStr = data?.vin && typeof data.vin === 'string' ? data.vin.trim() : '';
+        const isPlanOnly = vinStr === '' || vinStr === 'PENDING';
+        const hasVin = vinStr.length > 5;
+        if (hasValidData && (hasVin || isPlanOnly)) {
           const purchaseLang = data.lang && typeof data.lang === 'string' ? (data.lang as LangCode) : undefined;
           if (purchaseLang) setLang(purchaseLang);
-          setRedirectOrder({ vin: data.vin.trim(), email: data.email || undefined, planIndex: typeof data.planIndex === 'number' ? data.planIndex : 1, lang: purchaseLang });
+          setRedirectOrder({
+            vin: isPlanOnly ? '' : vinStr,
+            email: data.email || undefined,
+            planIndex: typeof data.planIndex === 'number' ? data.planIndex : 1,
+            lang: purchaseLang,
+          });
         }
       } catch (_) {}
       window.history.replaceState({}, '', window.location.pathname || '/');
