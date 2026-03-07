@@ -1,8 +1,8 @@
 /**
  * Gauna pirkimo info pagal prisijungusio vartotojo el. paštą.
  * GET ?email=xxx
- * Grąžina { token, email, reportsTotal, reportsUsed, reportsRemaining, usedVins }
- * arba 404 jei nerasta pirkimo su likusiais ataskaitomis.
+ * Suagreguoja VISUS pirkimus (kelios paskyros pirkimai) – grąžina sumą reportsRemaining, reportsTotal.
+ * token – vieno pirkimo su likusia ataskaita (use-report naudoja).
  */
 import admin from 'firebase-admin';
 
@@ -39,41 +39,41 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: 'No purchase found' });
     }
 
-    let best = null;
-    let bestRemaining = -1;
+    let aggregatedRemaining = 0;
+    let aggregatedTotal = 0;
+    let tokenToUse = null;
+    let orderIdToUse = null;
+    let usedVinsAggregated = [];
 
     snap.docs.forEach((doc) => {
       const d = doc.data();
       const reportsTotal = d?.reportsTotal ?? 1;
       const reportsUsed = d?.reportsUsed ?? 0;
       const reportsRemaining = Math.max(0, reportsTotal - reportsUsed);
-      if (reportsRemaining > 0 && reportsRemaining > bestRemaining) {
-        bestRemaining = reportsRemaining;
-        best = {
-          token: doc.id,
-          orderId: d?.orderId ?? null,
-          reportsTotal,
-          reportsUsed,
-          reportsRemaining,
-          usedVins: Array.isArray(d?.usedVins) ? d.usedVins : [],
-          paymentIntentId: d?.paymentIntentId ?? null,
-        };
+      aggregatedTotal += reportsTotal;
+      aggregatedRemaining += reportsRemaining;
+      if (reportsRemaining > 0 && !tokenToUse) {
+        tokenToUse = doc.id;
+        orderIdToUse = d?.orderId ?? null;
+      }
+      if (Array.isArray(d?.usedVins)) {
+        usedVinsAggregated = usedVinsAggregated.concat(d.usedVins);
       }
     });
 
-    if (!best) {
+    if (aggregatedRemaining === 0) {
       return res.status(404).json({ error: 'No purchase with remaining reports' });
     }
 
     return res.status(200).json({
-      token: best.token,
-      orderId: best.orderId,
+      token: tokenToUse,
+      orderId: orderIdToUse,
       email,
-      reportsTotal: best.reportsTotal,
-      reportsUsed: best.reportsUsed,
-      reportsRemaining: best.reportsRemaining,
-      usedVins: best.usedVins,
-      paymentIntentId: best.paymentIntentId,
+      reportsTotal: aggregatedTotal,
+      reportsUsed: aggregatedTotal - aggregatedRemaining,
+      reportsRemaining: aggregatedRemaining,
+      usedVins: usedVinsAggregated,
+      paymentIntentId: null,
     });
   } catch (err) {
     console.error('[get-purchase-by-email] ERROR:', err.message, err.code);

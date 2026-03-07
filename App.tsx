@@ -195,7 +195,7 @@ const App: React.FC = () => {
     setShowSampleReport(true);
   };
 
-  // Kai prisijungęs vartotojas, bet nėra token iš URL – ieškome pirkimo pagal el. paštą
+  // Kai prisijungęs vartotojas, bet nėra token iš URL – ieškome pirkimo pagal el. paštą (suagreguota visi pirkimai)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const hasTokenInUrl = !!params.get('token')?.trim();
@@ -205,6 +205,14 @@ const App: React.FC = () => {
         .then((data) => {
           if (data?.token && (data.reportsRemaining ?? 0) > 0) {
             setPurchaseToken(data.token);
+            setPurchaseInfo({
+              reportsRemaining: data.reportsRemaining ?? 0,
+              reportsTotal: data.reportsTotal ?? 1,
+              orderId: data.orderId ?? null,
+              email: data.email ?? null,
+              loading: false,
+              error: false,
+            });
           }
         })
         .catch(() => {});
@@ -214,6 +222,10 @@ const App: React.FC = () => {
   useEffect(() => {
     if (!purchaseToken) {
       setPurchaseInfo(null);
+      return;
+    }
+    const hasTokenInUrl = typeof window !== 'undefined' && !!new URLSearchParams(window.location.search).get('token')?.trim();
+    if (!hasTokenInUrl && user?.email) {
       return;
     }
     setPurchaseInfo((p) => ({ reportsRemaining: p?.reportsRemaining ?? 0, reportsTotal: p?.reportsTotal ?? 1, orderId: p?.orderId ?? null, email: p?.email ?? null, loading: true, error: false }));
@@ -243,7 +255,7 @@ const App: React.FC = () => {
           error: true,
         }));
       });
-  }, [purchaseToken]);
+  }, [purchaseToken, user?.email]);
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 767px)');
@@ -432,11 +444,20 @@ const App: React.FC = () => {
           throw new Error(useReportData.error || 'Failed');
         }
         
-        const newRemaining = useReportData.reportsRemaining ?? purchaseInfo.reportsRemaining - 1;
+        const newRemaining = purchaseInfo.reportsRemaining - 1;
         setPurchaseInfo((prev) =>
           prev ? { ...prev, reportsRemaining: newRemaining } : null
         );
-        
+        if (newRemaining > 0 && user?.email) {
+          fetch(`/api/get-purchase-by-email?email=${encodeURIComponent(user.email)}`)
+            .then((r) => (r.ok ? r.json() : null))
+            .then((data) => {
+              if (data?.token && data.token !== purchaseToken) {
+                setPurchaseToken(data.token);
+              }
+            })
+            .catch(() => {});
+        }
         if (reportEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(reportEmail)) {
           setPendingEmailReport({ email: reportEmail, vin: vinTrimmed, token: purchaseToken, reportsRemaining: newRemaining, orderId: purchaseInfo.orderId ?? undefined, lang });
           if (purchaseInfo.orderId) setCurrentReportOrderId(purchaseInfo.orderId);
