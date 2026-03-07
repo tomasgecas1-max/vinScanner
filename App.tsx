@@ -930,13 +930,47 @@ const App: React.FC = () => {
           <section className="max-w-7xl mx-auto px-4 py-10 sm:py-16 lg:py-20">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-10">
               {[
-                { title: t.features.mileageHistory, desc: t.features.mileageHistoryDesc },
-                { title: t.features.damageRecords, desc: t.features.damageRecordsDesc },
-                { title: t.features.theftCheck, desc: t.features.theftCheckDesc },
+                {
+                  title: t.features.mileageHistory,
+                  desc: t.features.mileageHistoryDesc,
+                  icon: (
+                    <div className="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M3 3v18h18" />
+                        <path d="m19 9-5 5-4-4-3 3" />
+                      </svg>
+                    </div>
+                  ),
+                },
+                {
+                  title: t.features.damageRecords,
+                  desc: t.features.damageRecordsDesc,
+                  icon: (
+                    <div className="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                      </svg>
+                    </div>
+                  ),
+                },
+                {
+                  title: t.features.theftCheck,
+                  desc: t.features.theftCheckDesc,
+                  icon: (
+                    <div className="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                      </svg>
+                    </div>
+                  ),
+                },
               ].map((feat, idx) => (
-                <div key={idx} className="p-7 sm:p-10 bg-white rounded-[2.5rem] border border-slate-100 hover:shadow-2xl transition-all duration-300">
-                  <h3 className="text-2xl font-black text-slate-900 mb-4 tracking-tight">{feat.title}</h3>
-                  <p className="text-slate-500 font-medium">{feat.desc}</p>
+                <div key={idx} className="p-7 sm:p-10 bg-white rounded-[2.5rem] border border-slate-100 hover:shadow-2xl transition-all duration-300 flex gap-4 sm:gap-5">
+                  {feat.icon}
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-2xl font-black text-slate-900 mb-4 tracking-tight">{feat.title}</h3>
+                    <p className="text-slate-500 font-medium">{feat.desc}</p>
+                  </div>
                 </div>
               ))}
             </div>
