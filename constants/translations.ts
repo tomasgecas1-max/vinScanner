@@ -356,7 +356,7 @@ const translationsMap: Record<SupportedLang, Translations> = {
       codeLabel: 'Jūsų nuolaidos kodas',
       applyDiscount: 'Pritaikyti nuolaidą',
       close: 'Uždaryti',
-      nextSpinTomorrow: 'Kitas sukimas galimas kito dieną.',
+      nextSpinTomorrow: 'Kitas sukimas galimas kitą dieną.',
     },
     pricing: {
       title: 'Išsirinkite sau tinkamą planą',

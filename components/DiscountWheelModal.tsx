@@ -179,7 +179,7 @@ const DiscountWheelModal: React.FC<DiscountWheelModalProps> = ({ open, onClose, 
   const bestResult = results.length > 0 ? results.reduce((a, b) => (a.percent >= b.percent ? a : b)) : null;
   const spinButton = t.discountWheel?.spinButton ?? t.discountWheel?.spin ?? 'Spin';
   const spinsOfThree = t.discountWheel?.spinsOfThree ?? 'of 3 spins';
-  const nextSpinMsg = t.discountWheel?.nextSpinTomorrow ?? 'Kitas sukimas galimas kito dieną.';
+  const nextSpinMsg = t.discountWheel?.nextSpinTomorrow ?? 'Kitas sukimas galimas kitą dieną.';
 
   if (!open) return null;
 
