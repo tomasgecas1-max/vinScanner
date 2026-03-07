@@ -19,11 +19,10 @@ const Logo: React.FC<LogoProps> = ({ className = "", size = 'md', onClick }) => 
       className={`flex items-center group cursor-pointer select-none transition-transform active:scale-95 ${className}`}
       onClick={onClick}
     >
-      {/* VinScanner.eu */}
+      {/* VinScanner */}
       <div className={`${fontSizes[size]} font-bold tracking-tight text-slate-950 leading-[1.1] whitespace-nowrap`}>
         <span>Vin</span>
         <span className="text-indigo-600">Scanner</span>
-        <span className="text-slate-400 text-[0.38em] ml-1 lowercase font-medium">.eu</span>
       </div>
     </div>
   );

@@ -8,18 +8,13 @@ interface PricingProps {
 
 const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect }) => {
   const [refundModalOpen, setRefundModalOpen] = useState(false);
-  const [selectedPlanIdx, setSelectedPlanIdx] = useState<number>(1); // default: 2 ataskaitos (vidurinis planas)
+  const [selectedPlanIdx, setSelectedPlanIdx] = useState<number>(1);
 
   const plans = [
-    { name: t.pricing.planSingle, count: t.pricing.report1, reportCount: 1, price: 12, oldPrice: 24, bestValue: false },
-    { name: t.pricing.planPopular, count: t.pricing.reports2, reportCount: 2, price: 20, oldPrice: 40, bestValue: false },
-    { name: t.pricing.planBestValue, count: t.pricing.reports3, reportCount: 3, price: 27, oldPrice: 54, bestValue: true },
+    { name: t.pricing.planSingle, count: t.pricing.report1, reportCount: 1, price: 14, oldPrice: 28, bestValue: false },
+    { name: t.pricing.planPopular, count: t.pricing.reports2, reportCount: 2, price: 24, oldPrice: 48, bestValue: false },
+    { name: t.pricing.planBestValue, count: t.pricing.reports3, reportCount: 3, price: 33, oldPrice: 66, bestValue: true },
   ];
-
-  const scrollToVinInput = () => {
-    const hero = document.querySelector('form');
-    if (hero) hero.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  };
 
   return (
     <section id="pricing" className={`py-10 sm:py-20 lg:py-24 overflow-hidden transition-all duration-300 ${pendingVin ? 'bg-indigo-50/50' : 'bg-slate-50'}`}>
@@ -88,7 +83,7 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect }) => {
                     type="button"
                     onClick={() => { 
                       if (isSelected) {
-                        pendingVin ? onPlanSelect(pendingVin, idx) : scrollToVinInput(); 
+                        onPlanSelect(pendingVin ?? '', idx);
                       } else {
                         setSelectedPlanIdx(idx);
                       }

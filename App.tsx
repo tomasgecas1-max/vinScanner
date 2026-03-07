@@ -9,8 +9,9 @@ import UsageInstructionsModal from './components/UsageInstructionsModal';
 import AuthModal from './components/AuthModal';
 import SampleReportModal from './components/SampleReportModal';
 import PaymentModal from './components/PaymentModal';
-import LanguageSelectionBar from './components/LanguageSelectionBar';
 import Hero from './components/Hero';
+import DiscountWheelModal from './components/DiscountWheelModal';
+import DiscountBanner from './components/DiscountBanner';
 import ReportView from './components/ReportView';
 import MyReports from './components/MyReports';
 import Pricing from './components/Pricing';
@@ -35,7 +36,6 @@ const SHOW_RAW_API_DEBUG = false;
 const App: React.FC = () => {
   const { user } = useAuth();
   useGoogleAnalytics();
-  const [showLanguageBar, setShowLanguageBar] = useState(false);
   const [lang, setLangState] = useState<LangCode>(() => {
     const saved = localStorage.getItem('vinscanner_lang');
     return (saved as LangCode) || 'en';
@@ -73,6 +73,7 @@ const App: React.FC = () => {
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [showUsageInstructionsModal, setShowUsageInstructionsModal] = useState(false);
   const [showSampleReport, setShowSampleReport] = useState(false);
+  const [showDiscountWheel, setShowDiscountWheel] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [purchaseInfo, setPurchaseInfo] = useState<{
     reportsRemaining: number;
@@ -136,25 +137,6 @@ const App: React.FC = () => {
       if (detected) setLang(detected);
     });
   }, []);
-
-  // Show language selection bar on first visit (desktop only – mobile: disabled)
-  useEffect(() => {
-    const hasSelected = localStorage.getItem('vinscanner_lang_selected');
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
-    if (!hasSelected && !isMobile) {
-      setShowLanguageBar(true);
-    }
-  }, []);
-
-  const handleLanguageSelect = (selectedLang: LangCode) => {
-    setLang(selectedLang);
-    setShowLanguageBar(false);
-  };
-
-  const handleLanguageBarDismiss = () => {
-    localStorage.setItem('vinscanner_lang_selected', 'true');
-    setShowLanguageBar(false);
-  };
 
   const handleSampleReportDemo = async () => {
     setLoading(true);
@@ -508,13 +490,15 @@ const App: React.FC = () => {
     let purchaseOrderId: string | undefined = orderId;
     let reportsRemainingValue = planIndex + 1;
     const emailLang = purchaseLang ?? lang;
+    const vinNorm = vin?.trim() ?? '';
+    const isPurchaseOnly = !vinNorm && !!customerEmail && planIndex >= 1;
     
     if (customerEmail && planIndex >= 1) {
       try {
         const pr = await fetch('/api/create-purchase', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: customerEmail, planIndex, vin, paymentIntentId }),
+          body: JSON.stringify({ email: customerEmail, planIndex, vin: vinNorm || 'PENDING', paymentIntentId }),
         });
         const prData = await pr.json();
         if (pr.ok && prData?.token) {
@@ -539,10 +523,16 @@ const App: React.FC = () => {
       }
     }
     
+    if (isPurchaseOnly) {
+      setLoading(false);
+      setPendingVin(null);
+      return;
+    }
+    
     try {
-      const vinNorm = vin.trim().toUpperCase();
-      trackVinSearch(vinNorm);
-      const cacheRes = await fetch(`/api/report-cache?vin=${encodeURIComponent(vinNorm)}`);
+      const vinUpper = vinNorm.toUpperCase();
+      trackVinSearch(vinUpper);
+      const cacheRes = await fetch(`/api/report-cache?vin=${encodeURIComponent(vinUpper)}`);
       if (cacheRes.ok) {
         const cacheData = await cacheRes.json();
         if (cacheData?.report) {
@@ -598,7 +588,7 @@ const App: React.FC = () => {
         }
       }
       // Trijų išskirtinių šaltinių logika: Cache → One Auto → CarsXE (naudojame handleSearchAndReturn)
-      let data: CarReport | null = await handleSearchAndReturn(vin);
+      let data: CarReport | null = await handleSearchAndReturn(vinUpper);
 
       const hasVinKey = !!(process.env.VIN_API_KEY);
       const mockDisabled = hasVinKey || (process.env.DISABLE_MOCK_REPORT === "true" || process.env.DISABLE_MOCK_REPORT === "1");
@@ -750,13 +740,11 @@ const App: React.FC = () => {
       <header>
         <Navbar lang={lang} setLang={setLang} t={t} onMyReportsClick={() => setShowMyReports(true)} onSampleReportClick={handleSampleReportDemo} onAuthClick={() => setShowAuthModal(true)} />
       </header>
-      
-      <main className="overflow-x-hidden pt-16 sm:pt-20">
-        {showLanguageBar && !isMobile && (
-          <LanguageSelectionBar onSelect={handleLanguageSelect} onDismiss={handleLanguageBarDismiss} />
-        )}
+
+      <div className="sticky top-16 sm:top-20 z-[90]">
+        <DiscountBanner t={t} onGetDiscountClick={() => setShowDiscountWheel(true)} />
         {purchaseToken && purchaseInfo && (
-          <div className="sticky top-20 z-[90] bg-slate-50/95 backdrop-blur-sm border-b border-slate-100">
+          <div className="bg-slate-50/95 backdrop-blur-sm border-b border-slate-100">
             <div className="max-w-2xl mx-auto px-4 py-3">
               <div
                 className={`rounded-xl px-5 py-3 text-center ${
@@ -783,9 +771,13 @@ const App: React.FC = () => {
             </div>
           </div>
         )}
+      </div>
+      
+      <main className="overflow-x-hidden pt-16 sm:pt-20">
         <Hero
           onVinSubmit={handleVinSubmit}
           onSampleReportClick={handleSampleReportDemo}
+          onDiscountWheelClick={() => setShowDiscountWheel(true)}
           loading={loading}
           t={t}
         />
@@ -882,23 +874,23 @@ const App: React.FC = () => {
             onClose={() => setShowMobilePlanSheet(false)}
           />
         )}
-        {showOrderEmailModal && vinForOrder && (
+        {showOrderEmailModal && vinForOrder !== null && (
           <OrderEmailStepModal
             open={showOrderEmailModal}
             onClose={() => { setShowOrderEmailModal(false); setVinForOrder(null); }}
             onConfirm={handleOrderEmailConfirm}
-            pendingVin={vinForOrder}
+            pendingVin={vinForOrder ?? ''}
             defaultEmail={user?.email ?? undefined}
             lang={lang}
             t={t}
           />
         )}
-        {showPaymentModal && vinForOrder && (
+        {showPaymentModal && vinForOrder !== null && (
           <PaymentModal
             open={showPaymentModal}
             onClose={() => { setShowPaymentModal(false); setVinForOrder(null); setOrderEmail(null); }}
             onPay={handlePaymentPay}
-            vin={vinForOrder}
+            vin={vinForOrder ?? ''}
             planIndex={planIndexForOrder}
             email={orderEmail ?? undefined}
             lang={lang}
@@ -1026,6 +1018,20 @@ const App: React.FC = () => {
           onClose={() => setShowSampleReport(false)}
           t={t}
           lang={lang}
+        />
+      )}
+      {showDiscountWheel && (
+        <DiscountWheelModal
+          open={showDiscountWheel}
+          onClose={() => setShowDiscountWheel(false)}
+          onApplyDiscount={() => {
+            setShowDiscountWheel(false);
+            setTimeout(() => {
+              const el = document.getElementById('pricing-plans') || document.getElementById('pricing');
+              if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+          }}
+          t={t}
         />
       )}
       <AuthModal open={showAuthModal} onClose={() => setShowAuthModal(false)} t={t} />

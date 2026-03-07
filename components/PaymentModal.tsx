@@ -7,11 +7,20 @@ const stripePk = import.meta.env.VITE_STRIPE_PUBLISHABLE as string | undefined;
 const stripePromise = stripePk ? loadStripe(stripePk) : null;
 
 // Laikinai: 3 ataskaitos – 0,5 €
-const PLAN_PRICES = [12, 20, 0.5] as const;
+const PLAN_PRICES = [14, 24, 33] as const;
 
 const DISCOUNT_CODES: Record<string, { type: 'percent' | 'fixed'; value: number }> = {
-  VINS10: { type: 'percent', value: 10 },
-  VINS15: { type: 'percent', value: 15 },
+  '862659243': { type: 'percent', value: 95 },
+  '48291': { type: 'percent', value: 25 },
+  '59281': { type: 'percent', value: 5 },
+  '71834': { type: 'percent', value: 22 },
+  '29356': { type: 'percent', value: 8 },
+  '64192': { type: 'percent', value: 23 },
+  '82647': { type: 'percent', value: 10 },
+  '45913': { type: 'percent', value: 20 },
+  '17385': { type: 'percent', value: 12 },
+  '93724': { type: 'percent', value: 18 },
+  '56109': { type: 'percent', value: 15 },
   VINS5: { type: 'fixed', value: 5 },
   SAVE3: { type: 'fixed', value: 3 },
 };
@@ -85,7 +94,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 
   // Kai Stripe įjungtas – iš karto kuriame PaymentIntent ir rodom Stripe formą kaip pirmą langą
   useEffect(() => {
-    if (!open || !stripePromise || !stripePk || !vin) return;
+    if (!open || !stripePromise || !stripePk) return;
     setStripeError(null);
     setStripeLoading(true);
     const basePrice = PLAN_PRICES[Math.min(planIndex, 2)] ?? 20;
@@ -99,7 +108,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     fetch('/api/create-payment-intent', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amountEur, vin, planIndex, email: email ?? '' }),
+      body: JSON.stringify({ amountEur, vin: vin?.trim() || 'PENDING', planIndex, email: email ?? '' }),
     })
       .then((res) => res.json())
       .then((data) => {
@@ -123,6 +132,24 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       setCurrentOrderId(null);
       setCurrentPaymentIntentId(null);
     }
+  }, [open]);
+
+  // Auto-apply pending discount from wheel
+  useEffect(() => {
+    if (!open) return;
+    try {
+      const raw = localStorage.getItem('vinscanner_pending_discount');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        const code = parsed?.code?.toUpperCase?.();
+        if (code && DISCOUNT_CODES[code]) {
+          setDiscountInput(code);
+          setAppliedCode(code);
+          setCodeError(false);
+          localStorage.removeItem('vinscanner_pending_discount');
+        }
+      }
+    } catch {}
   }, [open]);
 
   if (!open) return null;
@@ -222,10 +249,12 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
           <span className="text-slate-600">{t.pricing.paymentPlan}</span>
           <span className="font-semibold text-slate-900">{planName}</span>
         </div>
-        <div className="flex justify-between">
-          <span className="text-slate-600">{t.pricing.paymentVin}</span>
-          <span className="font-mono font-semibold text-slate-900">{vin}</span>
-        </div>
+        {vin?.trim() && (
+          <div className="flex justify-between">
+            <span className="text-slate-600">{t.pricing.paymentVin}</span>
+            <span className="font-mono font-semibold text-slate-900">{vin}</span>
+          </div>
+        )}
         <div className="border-t border-slate-200 pt-3 mt-3 flex justify-between">
           <span className="text-slate-600">{t.pricing.paymentSubtotal}</span>
           <span className="font-semibold text-slate-900">{basePrice.toFixed(2)} €</span>

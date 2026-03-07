@@ -5,6 +5,7 @@ import { ResponsiveContainer, AreaChart, Area, BarChart, Bar, Cell, XAxis, YAxis
 interface HeroProps {
   onVinSubmit: (vin: string) => void;
   onSampleReportClick?: () => void;
+  onDiscountWheelClick?: () => void;
   loading: boolean;
   t: any;
 }
@@ -24,7 +25,7 @@ const valueData = [
   { year: '2026', val: 16000, status: 'high' },    // Atsigavusi kaina po remonto
 ];
 
-const Hero: React.FC<HeroProps> = ({ onVinSubmit, onSampleReportClick, loading, t }) => {
+const Hero: React.FC<HeroProps> = ({ onVinSubmit, onSampleReportClick, onDiscountWheelClick, loading, t }) => {
   const [vin, setVin] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -39,7 +40,7 @@ const Hero: React.FC<HeroProps> = ({ onVinSubmit, onSampleReportClick, loading, 
   };
 
   return (
-    <div className="relative pt-12 pb-8 sm:pt-8 sm:pb-12 lg:pt-10 lg:pb-32 overflow-hidden">
+    <div className="relative pt-6 pb-8 sm:pt-6 sm:pb-12 lg:pt-4 lg:pb-32 overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10 pointer-events-none">
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-100 rounded-full blur-[140px] opacity-40"></div>
         <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-100 rounded-full blur-[140px] opacity-40"></div>
@@ -88,7 +89,7 @@ const Hero: React.FC<HeroProps> = ({ onVinSubmit, onSampleReportClick, loading, 
               >
                 {t.hero.sample}
               </button>
-              <div className="mt-6 text-left pl-2 hidden sm:block">
+              <div className="mt-6 text-left pl-2 hidden sm:block space-y-2">
                 <button onClick={handleSampleClick} className="text-xs text-indigo-600/80 hover:text-indigo-800 font-bold transition-colors flex items-center gap-2">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="m9 18 6-6-6-6"/></svg>
                   {t.hero.sample}
