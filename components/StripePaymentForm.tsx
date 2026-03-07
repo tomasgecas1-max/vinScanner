@@ -14,6 +14,8 @@ interface StripePaymentFormProps {
   pendingPlanIndex?: number;
   /** Kalba, kurią vartotojas pasirinko – išsaugoma ir naudojama el. laiškui grįžus iš mokėjimo */
   pendingLang?: string;
+  /** Grįžimo kelias po mokėjimo – /pl arba / */
+  returnPath?: string;
 }
 
 export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
@@ -26,6 +28,7 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
   pendingEmail,
   pendingPlanIndex,
   pendingLang,
+  returnPath = '/',
 }) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -48,7 +51,7 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
     const { error: confirmError } = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        return_url: window.location.origin + '/',
+        return_url: window.location.origin + returnPath,
         payment_method_data: {
           billing_details: {
             name: 'Customer',

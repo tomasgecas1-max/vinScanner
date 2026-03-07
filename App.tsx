@@ -26,6 +26,7 @@ import { saveReport } from './services/reportsFirestore';
 import { CarReport } from './types';
 import { getTranslations } from './constants/translations';
 import type { LangCode } from './constants/translations';
+import { getRegionFromPathname, REGION_CONFIG, type RegionCode } from './constants/regionConfig';
 import { useGoogleAnalytics, trackPurchase, trackVinSearch } from './hooks/useGoogleAnalytics';
 import { useMetaTags } from './hooks/useMetaTags';
 import { captureError } from './services/sentry';
@@ -34,12 +35,20 @@ import { getLangFromIp } from './services/geoLangService';
 /** Laikinai įjungti geltoną raw API atvaizdavimą žemiau ataskaitos – nustatyti false, kai nebereikia */
 const SHOW_RAW_API_DEBUG = false;
 
+function isBot(): boolean {
+  if (typeof navigator === 'undefined') return false;
+  return /bot|crawler|spider|googlebot|bingbot|yandex|slurp|duckduckbot|baiduspider/i.test(navigator.userAgent);
+}
+
 const App: React.FC = () => {
   const { user } = useAuth();
   useGoogleAnalytics();
   const [lang, setLangState] = useState<LangCode>(() => {
     const saved = localStorage.getItem('vinscanner_lang');
-    return (saved as LangCode) || 'en';
+    if (saved) return saved as LangCode;
+    // Botai – anglų meta indeksavimui
+    if (isBot()) return 'en';
+    return 'lt';
   });
   
   const setLang = (newLang: LangCode) => {
@@ -89,7 +98,10 @@ const App: React.FC = () => {
   const [errorModalMessage, setErrorModalMessage] = useState<string | null>(null);
   const [confirmationEmailSent, setConfirmationEmailSent] = useState(false);
 
-  const t = getTranslations(lang);
+  const region = getRegionFromPathname();
+  const regionCfg = REGION_CONFIG[region];
+  const effectiveLang: LangCode = region === 'pl' ? 'pl' : lang;
+  const t = getTranslations(effectiveLang);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -132,22 +144,14 @@ const App: React.FC = () => {
     return () => window.removeEventListener('openPrivacyPolicy', handleOpenPrivacy);
   }, []);
 
-  // Pradinė kalba pagal IP, jei nėra išsaugotos
+  // Kalba pagal IP tik vartotojams (ne botams)
   useEffect(() => {
-    if (localStorage.getItem('vinscanner_lang')) return;
+    if (localStorage.getItem('vinscanner_lang') || isBot()) return;
     getLangFromIp().then((detected) => {
       if (detected) {
         setLangState(detected);
         localStorage.setItem('vinscanner_lang', detected);
       }
-    });
-  }, []);
-
-  // Kalba pagal IP, jei nėra išsaugotos
-  useEffect(() => {
-    if (localStorage.getItem('vinscanner_lang')) return;
-    getLangFromIp().then((detected) => {
-      if (detected) setLang(detected);
     });
   }, []);
 
@@ -256,7 +260,7 @@ const App: React.FC = () => {
     }
   }, [report, loading]);
 
-  useMetaTags(t, lang);
+  useMetaTags(t, effectiveLang);
   const steps = t.loading.steps;
 
   const LOAD_DURATION_MS = 20000;
@@ -821,6 +825,7 @@ const App: React.FC = () => {
           onDiscountWheelClick={() => setShowDiscountWheel(true)}
           loading={loading}
           t={t}
+          currencySymbol={regionCfg.symbol}
         />
 
         {loading && (
@@ -913,6 +918,7 @@ const App: React.FC = () => {
             t={t}
             onPlanSelect={handlePlanSelect}
             onClose={() => setShowMobilePlanSheet(false)}
+            regionCfg={regionCfg}
           />
         )}
         {showOrderEmailModal && vinForOrder !== null && (
@@ -934,11 +940,13 @@ const App: React.FC = () => {
             vin={vinForOrder ?? ''}
             planIndex={planIndexForOrder}
             email={orderEmail ?? undefined}
-            lang={lang}
+            lang={effectiveLang}
             t={t}
+            region={region}
+            regionCfg={regionCfg}
           />
         )}
-        <Pricing t={t} pendingVin={pendingVin} onPlanSelect={handlePlanSelect} />
+        <Pricing t={t} pendingVin={pendingVin} onPlanSelect={handlePlanSelect} region={region} regionCfg={regionCfg} />
 
         {!report && !loading && (
           <section className="max-w-7xl mx-auto px-4 py-10 sm:py-16 lg:py-20">

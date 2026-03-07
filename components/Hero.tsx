@@ -8,6 +8,8 @@ interface HeroProps {
   onDiscountWheelClick?: () => void;
   loading: boolean;
   t: any;
+  /** Valiutos simbolis – € arba zł */
+  currencySymbol?: string;
 }
 
 const mileageData = [
@@ -19,13 +21,19 @@ const mileageData = [
 ];
 
 // Vertės duomenys: 2023 m. (25k), 2024 m. (avarija - 11k), 2026 m. (atsigavimas - 16k)
-const valueData = [
-  { year: '2023', val: 25000, status: 'normal' },
-  { year: '2024', val: 11000, status: 'crash' }, // Ryškus kritimas po avarijos
-  { year: '2026', val: 16000, status: 'high' },    // Atsigavusi kaina po remonto
+const valueDataEur = [
+  { year: '2023', val: 25000, status: 'normal' as const },
+  { year: '2024', val: 11000, status: 'crash' as const },
+  { year: '2026', val: 16000, status: 'high' as const },
+];
+const valueDataPln = [
+  { year: '2023', val: 108000, status: 'normal' as const },
+  { year: '2024', val: 47000, status: 'crash' as const },
+  { year: '2026', val: 69000, status: 'high' as const },
 ];
 
-const Hero: React.FC<HeroProps> = ({ onVinSubmit, onSampleReportClick, onDiscountWheelClick, loading, t }) => {
+const Hero: React.FC<HeroProps> = ({ onVinSubmit, onSampleReportClick, onDiscountWheelClick, loading, t, currencySymbol = '€' }) => {
+  const valueData = currencySymbol === 'zł' ? valueDataPln : valueDataEur;
   const [vin, setVin] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -197,7 +205,7 @@ const Hero: React.FC<HeroProps> = ({ onVinSubmit, onSampleReportClick, onDiscoun
                       </div>
                    </div>
                    <div className="flex justify-center items-center border-t border-slate-200/50 pt-3">
-                      <div className="text-[16px] font-black text-rose-600 tracking-tighter drop-shadow-sm">3,000 €</div>
+                      <div className="text-[16px] font-black text-rose-600 tracking-tighter drop-shadow-sm">{currencySymbol === 'zł' ? '13,000' : '3,000'} {currencySymbol}</div>
                    </div>
                 </div>
               </div>
@@ -210,7 +218,7 @@ const Hero: React.FC<HeroProps> = ({ onVinSubmit, onSampleReportClick, onDiscoun
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                 </div>
                 <div className="flex flex-col items-end">
-                  <div className="text-xl font-black text-slate-900 tracking-tighter">16,000 €</div>
+                  <div className="text-xl font-black text-slate-900 tracking-tighter">{currencySymbol === 'zł' ? '69,000' : '16,000'} {currencySymbol}</div>
                   <div className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">+45% RECOVERY</div>
                 </div>
               </div>
@@ -244,7 +252,7 @@ const Hero: React.FC<HeroProps> = ({ onVinSubmit, onSampleReportClick, onDiscoun
                             fontWeight={900} 
                             textAnchor="middle"
                           >
-                            {(value as number / 1000).toFixed(0)}k
+                            {((value as number) / 1000).toFixed(0)}k
                           </text>
                         )}
                       />

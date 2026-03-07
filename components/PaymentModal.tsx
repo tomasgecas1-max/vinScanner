@@ -2,12 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import { StripePaymentForm } from './StripePaymentForm';
+import type { RegionCode } from '../constants/regionConfig';
+import type { RegionConfig } from '../constants/regionConfig';
 
 const stripePk = import.meta.env.VITE_STRIPE_PUBLISHABLE as string | undefined;
 const stripePromise = stripePk ? loadStripe(stripePk) : null;
-
-// Laikinai: 3 ataskaitos – 0,5 €
-const PLAN_PRICES = [14, 24, 33] as const;
 
 const DISCOUNT_CODES: Record<string, { type: 'percent' | 'fixed'; value: number }> = {
   '862659243': { type: 'percent', value: 95 },
@@ -34,6 +33,8 @@ interface PaymentModalProps {
   email?: string;
   /** Kalba – išsaugoma prieš mokėjimą ir naudojama el. laiškui */
   lang?: string;
+  region?: RegionCode;
+  regionCfg?: RegionConfig;
   t: {
     pricing: {
       paymentTitle: string;
@@ -81,7 +82,10 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   email,
   lang,
   t,
+  region = 'default',
+  regionCfg = { currency: 'eur', symbol: '€', prices: [14, 24, 33], oldPrices: [28, 48, 66] },
 }) => {
+  const planPrices = regionCfg.prices;
   const [discountInput, setDiscountInput] = useState('');
   const [appliedCode, setAppliedCode] = useState<string | null>(null);
   const [codeError, setCodeError] = useState(false);
@@ -97,18 +101,21 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     if (!open || !stripePromise || !stripePk) return;
     setStripeError(null);
     setStripeLoading(true);
-    const basePrice = PLAN_PRICES[Math.min(planIndex, 2)] ?? 20;
+    const basePrice = planPrices[Math.min(planIndex, 2)] ?? planPrices[1];
     const discountConfig = appliedCode ? DISCOUNT_CODES[appliedCode.toUpperCase()] : null;
     const discountAmount = discountConfig
       ? discountConfig.type === 'percent'
         ? Math.round((basePrice * discountConfig.value) / 100 * 100) / 100
         : Math.min(discountConfig.value, basePrice - 0.01)
       : 0;
-    const amountEur = Math.max(0.01, basePrice - discountAmount);
+    const amount = Math.max(0.01, basePrice - discountAmount);
+    const body = regionCfg.currency === 'pln'
+      ? { currency: 'pln', amountPln: amount, vin: vin?.trim() || 'PENDING', planIndex, email: email ?? '' }
+      : { currency: 'eur', amountEur: amount, vin: vin?.trim() || 'PENDING', planIndex, email: email ?? '' };
     fetch('/api/create-payment-intent', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amountEur, vin: vin?.trim() || 'PENDING', planIndex, email: email ?? '' }),
+      body: JSON.stringify(body),
     })
       .then((res) => res.json())
       .then((data) => {
@@ -122,7 +129,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       })
       .catch(() => setStripeError(t.pricing.paymentApiUnavailable))
       .finally(() => setStripeLoading(false));
-  }, [open, vin, planIndex, email, stripePk, appliedCode, t.pricing.paymentApiUnavailable]);
+  }, [open, vin, planIndex, email, stripePk, appliedCode, t.pricing.paymentApiUnavailable, regionCfg, planPrices]);
 
   // Uždarius modalą išvalome clientSecret, kad kitą kartą būtų naujas PaymentIntent
   useEffect(() => {
@@ -160,7 +167,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     `${t.pricing.planBestValue} (${t.pricing.reports3})`,
   ];
 
-  const basePrice = PLAN_PRICES[Math.min(planIndex, 2)] ?? 20;
+  const basePrice = planPrices[Math.min(planIndex, 2)] ?? planPrices[1];
   const planName = planNames[Math.min(planIndex, 2)] ?? planNames[1];
 
   const discountConfig = appliedCode ? DISCOUNT_CODES[appliedCode.toUpperCase()] : null;
@@ -195,12 +202,11 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         const res = await fetch('/api/create-payment-intent', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            amountEur: total,
-            vin,
-            planIndex,
-            email: email ?? '',
-          }),
+          body: JSON.stringify(
+          regionCfg.currency === 'pln'
+            ? { currency: 'pln', amountPln: total, vin, planIndex, email: email ?? '' }
+            : { currency: 'eur', amountEur: total, vin, planIndex, email: email ?? '' }
+        ),
         });
         const data = await res.json();
         if (!res.ok) {
@@ -257,17 +263,17 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         )}
         <div className="border-t border-slate-200 pt-3 mt-3 flex justify-between">
           <span className="text-slate-600">{t.pricing.paymentSubtotal}</span>
-          <span className="font-semibold text-slate-900">{basePrice.toFixed(2)} €</span>
+          <span className="font-semibold text-slate-900">{basePrice.toFixed(2)} {regionCfg.symbol}</span>
         </div>
         {discountAmount > 0 && (
           <div className="flex justify-between text-emerald-600">
             <span>{t.pricing.paymentDiscount} ({appliedCode})</span>
-            <span className="font-semibold">−{discountAmount.toFixed(2)} €</span>
+            <span className="font-semibold">−{discountAmount.toFixed(2)} {regionCfg.symbol}</span>
           </div>
         )}
         <div className="flex justify-between text-base font-black text-slate-900 pt-2 border-t border-slate-200">
           <span>{t.pricing.paymentTotal}</span>
-          <span>{total.toFixed(2)} €</span>
+          <span>{total.toFixed(2)} {regionCfg.symbol}</span>
         </div>
       </div>
     </div>
@@ -380,13 +386,14 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                   <StripePaymentForm
                     onSuccess={handleStripeSuccess}
                     onBack={handleStripeBack}
-                    totalFormatted={`${total.toFixed(2)} €`}
+                    totalFormatted={`${total.toFixed(2)} ${regionCfg.symbol}`}
                     payLabel={t.pricing.paymentPay}
                     closeLabel={t.pricing.close}
                     pendingVin={vin}
                     pendingEmail={email}
                     pendingPlanIndex={planIndex}
                     pendingLang={lang}
+                    returnPath={region === 'pl' ? '/pl' : '/'}
                   />
                 </Elements>
               </div>
@@ -413,7 +420,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
           <div className="rounded-2xl border border-slate-200 p-4 bg-white">
             <p className="text-slate-500 text-sm font-medium">{planName}</p>
             <p className="font-mono text-slate-900 font-bold text-lg">{vin}</p>
-            <p className="text-xl font-black text-slate-900 mt-1">{total.toFixed(2)} €</p>
+            <p className="text-xl font-black text-slate-900 mt-1">{total.toFixed(2)} {regionCfg.symbol}</p>
           </div>
 
           {expressButtons}
@@ -440,7 +447,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
             disabled={stripeLoading}
             className="w-full py-4 rounded-xl font-black text-sm uppercase tracking-widest bg-indigo-600 text-white hover:bg-indigo-500 transition-colors shadow-lg shadow-indigo-900/30 disabled:opacity-50"
           >
-            {stripeLoading ? '…' : `${t.pricing.paymentPay} ${total.toFixed(2)} €`}
+            {stripeLoading ? '…' : `${t.pricing.paymentPay} ${total.toFixed(2)} ${regionCfg.symbol}`}
           </button>
         </div>
 
@@ -469,7 +476,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
             disabled={stripeLoading}
             className="w-full py-4 rounded-xl font-black text-sm uppercase tracking-widest bg-orange-500 text-white hover:bg-orange-600 transition-colors shadow-lg disabled:opacity-50"
           >
-            {stripeLoading ? '…' : `${t.pricing.paymentPay} ${total.toFixed(2)} €`}
+            {stripeLoading ? '…' : `${t.pricing.paymentPay} ${total.toFixed(2)} ${regionCfg.symbol}`}
           </button>
           </div>
           <div className="p-8 bg-slate-50/50">

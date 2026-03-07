@@ -1,20 +1,23 @@
 import React from 'react';
+import type { RegionConfig } from '../constants/regionConfig';
 
 interface MobilePlanSheetProps {
   pendingVin: string;
   t: { pricing: { selectPlanForVin: string; order: string; confirm: string; bestValue: string; close: string; refundPolicy: string; refundPolicyText: string; perReport: string; planSingle: string; planPopular: string; planBestValue: string; report1: string; reports2: string; reports3: string }; nav: { services: string } };
   onPlanSelect: (vin: string, planIndex: number) => void;
   onClose: () => void;
+  regionCfg?: RegionConfig;
 }
 
-const MobilePlanSheet: React.FC<MobilePlanSheetProps> = ({ pendingVin, t, onPlanSelect, onClose }) => {
+const defaultRegionCfg: RegionConfig = { currency: 'eur', symbol: '€', prices: [14, 24, 33], oldPrices: [28, 48, 66] };
+
+const MobilePlanSheet: React.FC<MobilePlanSheetProps> = ({ pendingVin, t, onPlanSelect, onClose, regionCfg = defaultRegionCfg }) => {
   const [selectedIdx, setSelectedIdx] = React.useState<number>(1);
   const [refundModalOpen, setRefundModalOpen] = React.useState(false);
   const plans = [
-    // TESTAVIMUI: kainos sumažintos iki 0.50 EUR (grąžinti prieš production!)
-    { name: t.pricing.planSingle, count: t.pricing.report1, price: 12, oldPrice: 24, highlight: false },
-    { name: t.pricing.planPopular, count: t.pricing.reports2, price: 20, oldPrice: 40, highlight: false },
-    { name: t.pricing.planBestValue, count: t.pricing.reports3, price: 0.5, oldPrice: 27, highlight: true },
+    { name: t.pricing.planSingle, count: t.pricing.report1, price: regionCfg.prices[0], oldPrice: regionCfg.oldPrices[0], highlight: false },
+    { name: t.pricing.planPopular, count: t.pricing.reports2, price: regionCfg.prices[1], oldPrice: regionCfg.oldPrices[1], highlight: false },
+    { name: t.pricing.planBestValue, count: t.pricing.reports3, price: regionCfg.prices[2], oldPrice: regionCfg.oldPrices[2], highlight: true },
   ];
 
   const handleConfirm = () => {
@@ -56,11 +59,11 @@ const MobilePlanSheet: React.FC<MobilePlanSheetProps> = ({ pendingVin, t, onPlan
                   ({plan.name.toLowerCase()})
                 </div>
                 <div className="flex items-center justify-center gap-1.5 flex-wrap">
-                  <span className="text-lg font-black tracking-tighter text-slate-900">{plan.price} €</span>
-                  <span className="text-[10px] text-slate-400 line-through decoration-2 decoration-rose-500 font-bold">{plan.oldPrice} €</span>
+                  <span className="text-lg font-black tracking-tighter text-slate-900">{plan.price} {regionCfg.symbol}</span>
+                  <span className="text-[10px] text-slate-400 line-through decoration-2 decoration-rose-500 font-bold">{plan.oldPrice} {regionCfg.symbol}</span>
                 </div>
                 <div className="text-[9px] text-slate-500 mt-1">
-                  {t.pricing.perReport} {Number.isInteger(plan.price / (idx + 1)) ? plan.price / (idx + 1) : (plan.price / (idx + 1)).toFixed(1)} €
+                  {t.pricing.perReport} {Number.isInteger(plan.price / (idx + 1)) ? plan.price / (idx + 1) : (plan.price / (idx + 1)).toFixed(1)} {regionCfg.symbol}
                 </div>
               </button>
             ))}

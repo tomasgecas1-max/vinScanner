@@ -1,19 +1,22 @@
 import React, { useState } from 'react';
+import type { RegionCode, RegionConfig } from '../constants/regionConfig';
 
 interface PricingProps {
   t: any;
   pendingVin: string | null;
   onPlanSelect: (vin: string, planIndex: number) => void;
+  region: RegionCode;
+  regionCfg: RegionConfig;
 }
 
-const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect }) => {
+const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect, region, regionCfg }) => {
   const [refundModalOpen, setRefundModalOpen] = useState(false);
   const [selectedPlanIdx, setSelectedPlanIdx] = useState<number>(1);
 
   const plans = [
-    { name: t.pricing.planSingle, count: t.pricing.report1, reportCount: 1, price: 14, oldPrice: 28, bestValue: false },
-    { name: t.pricing.planPopular, count: t.pricing.reports2, reportCount: 2, price: 24, oldPrice: 48, bestValue: false },
-    { name: t.pricing.planBestValue, count: t.pricing.reports3, reportCount: 3, price: 33, oldPrice: 66, bestValue: true },
+    { name: t.pricing.planSingle, count: t.pricing.report1, reportCount: 1, price: regionCfg.prices[0], oldPrice: regionCfg.oldPrices[0], bestValue: false },
+    { name: t.pricing.planPopular, count: t.pricing.reports2, reportCount: 2, price: regionCfg.prices[1], oldPrice: regionCfg.oldPrices[1], bestValue: false },
+    { name: t.pricing.planBestValue, count: t.pricing.reports3, reportCount: 3, price: regionCfg.prices[2], oldPrice: regionCfg.oldPrices[2], bestValue: true },
   ];
 
   return (
@@ -65,13 +68,13 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect }) => {
                   </h3>
                   <div className="text-2xl sm:text-3xl font-black mb-3 sm:mb-4 tracking-tight">{plan.count}</div>
                   <div className="flex items-center justify-center gap-2 sm:gap-3">
-                    <span className="text-4xl sm:text-5xl font-black tracking-tighter">{plan.price} €</span>
+                    <span className="text-4xl sm:text-5xl font-black tracking-tighter">{plan.price} {regionCfg.symbol}</span>
                     {plan.oldPrice != null && (
-                      <span className="text-xl sm:text-2xl text-slate-400 line-through decoration-2 decoration-rose-500 font-bold">{plan.oldPrice} €</span>
+                      <span className="text-xl sm:text-2xl text-slate-400 line-through decoration-2 decoration-rose-500 font-bold">{plan.oldPrice} {regionCfg.symbol}</span>
                     )}
                   </div>
                   <p className={`text-xs sm:text-sm font-semibold mt-1 ${isSelected ? 'text-slate-400' : 'text-slate-500'}`}>
-                    ({t.pricing.perReport} {(plan.price / plan.reportCount).toFixed(0)} €)
+                    ({t.pricing.perReport} {(plan.price / plan.reportCount).toFixed(0)} {regionCfg.symbol})
                   </p>
                 </div>
 

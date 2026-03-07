@@ -42,11 +42,13 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid JSON' });
   }
 
-  const { amountEur, vin, planIndex, email } = body;
-  const amountCents = Math.round(Number(amountEur) * 100);
+  const { amountEur, amountPln, currency: reqCurrency, vin, planIndex, email } = body;
+  const currency = (reqCurrency === 'pln' ? 'pln' : 'eur');
+  const amountMajor = currency === 'pln' ? Number(amountPln) : Number(amountEur);
+  const amountMinor = Math.round(amountMajor * 100);
 
-  if (!Number.isFinite(amountCents) || amountCents < 50) {
-    return res.status(400).json({ error: 'Invalid amount (min 0.50 EUR)' });
+  if (!Number.isFinite(amountMinor) || amountMinor < 50) {
+    return res.status(400).json({ error: currency === 'pln' ? 'Invalid amount (min 0.50 PLN)' : 'Invalid amount (min 0.50 EUR)' });
   }
   if (!vin || typeof vin !== 'string' || vin.trim().length < 6) {
     return res.status(400).json({ error: 'vin required' });
@@ -57,8 +59,8 @@ export default async function handler(req, res) {
 
   try {
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: amountCents,
-      currency: 'eur',
+      amount: amountMinor,
+      currency,
       automatic_payment_methods: { enabled: true },
       metadata: {
         vin: String(vin).trim().slice(0, 100),
@@ -75,7 +77,7 @@ export default async function handler(req, res) {
     });
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
-    captureError(e, { context: 'create-payment-intent', vin, amountCents });
+    captureError(e, { context: 'create-payment-intent', vin, amountMinor, currency });
     return res.status(502).json({ error: message });
   }
 }
