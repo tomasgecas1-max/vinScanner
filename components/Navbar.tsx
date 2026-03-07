@@ -48,7 +48,7 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, t, onMyReportsClick, onS
     <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-b border-slate-100 z-[100]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 sm:h-20 items-center" ref={menuRef}>
-          <div className="shrink-0 self-end md:self-center [&>div>div]:!text-4xl md:[&>div>div]:!text-3xl sm:[&>div>div]:!text-4xl lg:[&>div>div]:!text-5xl pb-0.5 md:pb-0">
+          <div className="shrink-0 self-end md:self-center [&>div>div]:!text-5xl sm:[&>div>div]:!text-5xl md:[&>div>div]:!text-5xl lg:[&>div>div]:!text-6xl pb-0.5 md:pb-0">
             <Logo onClick={() => window.location.reload()} />
           </div>
 
