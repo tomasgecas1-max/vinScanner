@@ -486,9 +486,13 @@ const App: React.FC = () => {
 
   const handleSearch = async (vin: string, customerEmail?: string, planIndex: number = 1, orderId?: string, paymentIntentId?: string, purchaseLang?: LangCode) => {
     const previousReport = report;
-    setLoading(true);
-    setReport(null);
-    setError(null);
+    const vinNorm = vin?.trim() ?? '';
+    const isPurchaseOnly = !vinNorm && !!customerEmail && planIndex >= 0;
+    if (!isPurchaseOnly) {
+      setLoading(true);
+      setReport(null);
+      setError(null);
+    }
     if (orderId) {
       setCurrentReportOrderId(orderId);
     } else if (!customerEmail) {
@@ -500,8 +504,6 @@ const App: React.FC = () => {
     let purchaseOrderId: string | undefined = orderId;
     let reportsRemainingValue = planIndex + 1;
     const emailLang = purchaseLang ?? lang;
-    const vinNorm = vin?.trim() ?? '';
-    const isPurchaseOnly = !vinNorm && !!customerEmail && planIndex >= 0;
     
     if (customerEmail && planIndex >= 0) {
       try {
