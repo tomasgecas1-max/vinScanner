@@ -1262,9 +1262,9 @@ const translationsMap: Record<SupportedLang, Translations> = {
   fr: {
     seo: {
       title: 'VinScanner - Vérification historique véhicule',
-      description: 'Vérifiez le code VIN et découvrez l\'historique du véhicule: kilométrage, accidents, réparations, historique de propriété. Vérification rapide et fiable.',
+      description: 'Découvrez l\'historique complet de votre véhicule par code VIN. Vérifiez le kilométrage, les accidents et l\'historique d\'entretien en quelques secondes. Rapport fiable pour acheter votre voiture d\'occasion en toute confiance.',
       ogTitle: 'VinScanner - Vérification historique véhicule',
-      ogDescription: 'Vérifiez le code VIN et découvrez l\'historique du véhicule: kilométrage, accidents, réparations.',
+      ogDescription: 'Découvrez l\'historique complet de votre véhicule par code VIN. Vérifiez le kilométrage, les accidents et l\'historique d\'entretien en quelques secondes. Rapport fiable pour acheter votre voiture d\'occasion en toute confiance.',
     },
     nav: { services: 'Services', pricing: 'Tarifs', sampleReport: 'Rapport exemple', settings: 'Paramètres', login: 'Connexion', myReports: 'Mes rapports', signOut: 'Déconnexion', deleteAccount: 'Supprimer le compte', deleteAccountConfirm: 'Supprimer le compte', deleteAccountConfirmText: 'Êtes-vous sûr de vouloir supprimer votre compte ? Tous les rapports enregistrés seront supprimés. Cette action est irréversible.', deleteAccountDeleting: 'Suppression…', deleteAccountError: 'Échec de la suppression. Veuillez réessayer.' },
     tokenMode: { banner: 'Vous avez {n} sur {total} rapports. Entrez le VIN ci-dessous.', noReports: 'Aucun rapport restant. Achetez un nouveau forfait pour vérifier un autre véhicule.', loading: 'Chargement…', error: 'Échec du chargement de l\'achat. Vérifiez le lien.', confirmationSentToEmail: 'La confirmation et le lien ont été envoyés à votre e-mail.' },
