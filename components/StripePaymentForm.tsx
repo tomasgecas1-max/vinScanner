@@ -51,6 +51,14 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
       confirmParams: {
         return_url: window.location.origin + '/',
         ...(billingEmail && { receipt_email: billingEmail }),
+        payment_method_data: {
+          billing_details: {
+            name: 'Customer',
+            email: billingEmail ?? undefined,
+            address: { line1: '', city: '', state: '', postal_code: '', country: 'LT' },
+            phone: '',
+          },
+        },
       },
     });
     setLoading(false);
