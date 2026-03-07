@@ -455,14 +455,10 @@ const App: React.FC = () => {
       return;
     }
 
-    if (isMobile) {
-      setShowMobilePlanSheet(true);
-    } else {
-      setTimeout(() => {
-        const el = document.getElementById('pricing');
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
-    }
+    setTimeout(() => {
+      const el = document.getElementById('pricing-plans') || document.getElementById('pricing');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
   };
 
   const handlePlanSelect = (vin: string, planIndex: number = 1) => {

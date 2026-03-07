@@ -48,7 +48,7 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect }) => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8 items-stretch">
+        <div id="pricing-plans" className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8 items-stretch scroll-mt-20 sm:scroll-mt-24">
           {plans.map((plan, idx) => {
             const isSelected = selectedPlanIdx === idx;
             return (
@@ -93,7 +93,7 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect }) => {
                         setSelectedPlanIdx(idx);
                       }
                     }}
-                    className={`w-full max-w-[200px] py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg active:scale-95 cursor-pointer ${
+                    className={`w-full max-w-[260px] py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg active:scale-95 cursor-pointer ${
                       isSelected
                         ? 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-indigo-900/40'
                         : 'bg-slate-300 text-slate-500 shadow-slate-100 hover:bg-slate-400'
