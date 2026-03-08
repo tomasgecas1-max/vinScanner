@@ -37,7 +37,7 @@ interface WheelSegment {
 
 const WHEEL_SEGMENTS: WheelSegment[] = [
   { percent: 25, code: 'V25A9K' },
-  { percent: 70, code: 'X70B2M', highlight: true },
+  { percent: 50, code: 'X50B2M', highlight: true },
   { percent: 22, code: 'N22C3P' },
   { percent: 8, code: 'R08D5T' },
   { percent: 23, code: 'W23E9Q' },

@@ -10,7 +10,7 @@ const stripePromise = stripePk ? loadStripe(stripePk) : null;
 
 const DISCOUNT_CODES: Record<string, { type: 'percent' | 'fixed'; value: number }> = {
   'V25A9K': { type: 'percent', value: 25 },
-  'X70B2M': { type: 'percent', value: 70 },
+  'X50B2M': { type: 'percent', value: 50 },
   'N22C3P': { type: 'percent', value: 22 },
   'R08D5T': { type: 'percent', value: 8 },
   'W23E9Q': { type: 'percent', value: 23 },
