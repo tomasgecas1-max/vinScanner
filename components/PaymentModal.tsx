@@ -10,7 +10,7 @@ const stripePromise = stripePk ? loadStripe(stripePk) : null;
 
 const DISCOUNT_CODES: Record<string, { type: 'percent' | 'fixed'; value: number }> = {
   'V25A9K': { type: 'percent', value: 25 },
-  'X05B2M': { type: 'percent', value: 5 },
+  'X70B2M': { type: 'percent', value: 70 },
   'N22C3P': { type: 'percent', value: 22 },
   'R08D5T': { type: 'percent', value: 8 },
   'W23E9Q': { type: 'percent', value: 23 },
@@ -83,9 +83,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   regionCfg = { currency: 'eur', symbol: '€', prices: [14, 24, 33], oldPrices: [28, 48, 66] },
 }) => {
   const planPrices = regionCfg.prices;
-  const [discountInput, setDiscountInput] = useState('');
   const [appliedCode, setAppliedCode] = useState<string | null>(null);
-  const [codeError, setCodeError] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'link' | 'apple'>('card');
   const [stripeClientSecret, setStripeClientSecret] = useState<string | null>(null);
   const [stripeError, setStripeError] = useState<string | null>(null);
@@ -147,9 +145,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         const parsed = JSON.parse(raw);
         const code = parsed?.code?.toUpperCase?.();
         if (code && DISCOUNT_CODES[code]) {
-          setDiscountInput(code);
           setAppliedCode(code);
-          setCodeError(false);
           // Nekeliame – kodas lieka iki naujo sukimų iš rulete (overwrite DiscountWheelModal)
         }
       }
@@ -174,22 +170,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       : Math.min(discountConfig.value, basePrice - 0.01)
     : 0;
   const total = Math.max(0.01, basePrice - discountAmount);
-
-  const handleApplyCode = () => {
-    const code = discountInput.trim().toUpperCase();
-    if (!code) {
-      setAppliedCode(null);
-      setCodeError(false);
-      return;
-    }
-    if (DISCOUNT_CODES[code]) {
-      setAppliedCode(code);
-      setCodeError(false);
-    } else {
-      setAppliedCode(null);
-      setCodeError(true);
-    }
-  };
 
   const handlePay = async () => {
     if (stripePromise && stripePk) {
@@ -312,28 +292,15 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     </div>
   );
 
-  const discountBlock = (
-    <div>
-      <label className="block text-xs font-bold text-slate-700 mb-2">{t.pricing.paymentDiscountCode}</label>
-      <div className="flex gap-2">
-        <input
-          type="text"
-          value={discountInput}
-          onChange={(e) => { setDiscountInput(e.target.value); setCodeError(false); }}
-          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleApplyCode())}
-          placeholder={t.pricing.paymentDiscountPlaceholder}
-          className={`flex-1 px-4 py-3 rounded-xl border-2 bg-white font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all ${
-            codeError ? 'border-rose-300 focus:border-rose-500' : 'border-slate-200 focus:border-indigo-500'
-          }`}
-        />
-        <button type="button" onClick={handleApplyCode} className="px-5 py-3 rounded-xl font-bold text-sm bg-slate-900 text-white hover:bg-slate-800 transition-colors shrink-0">
-          {t.pricing.paymentApply}
-        </button>
-      </div>
-      {codeError && <p className="mt-2 text-xs font-medium text-rose-600">{t.pricing.paymentCodeInvalid}</p>}
-      {appliedCode && !codeError && <p className="mt-2 text-xs font-medium text-emerald-600">{t.pricing.paymentCodeApplied}</p>}
+  const discountBlock = appliedCode ? (
+    <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-3 flex items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-emerald-600 shrink-0">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+        <polyline points="22 4 12 14.01 9 11.01"/>
+      </svg>
+      <p className="text-sm font-bold text-emerald-700">{t.pricing.paymentCodeApplied}</p>
     </div>
-  );
+  ) : null;
 
   const secureBlock = (
     <div className="rounded-xl bg-slate-50 border border-slate-100 p-3 flex items-center gap-3">

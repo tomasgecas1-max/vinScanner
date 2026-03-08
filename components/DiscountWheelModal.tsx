@@ -28,9 +28,15 @@ interface DiscountWheelModalProps {
   };
 }
 
-const WHEEL_SEGMENTS = [
+interface WheelSegment {
+  percent: number;
+  code: string;
+  highlight?: boolean;
+}
+
+const WHEEL_SEGMENTS: WheelSegment[] = [
   { percent: 25, code: 'V25A9K' },
-  { percent: 5, code: 'X05B2M' },
+  { percent: 70, code: 'X70B2M', highlight: true },
   { percent: 22, code: 'N22C3P' },
   { percent: 8, code: 'R08D5T' },
   { percent: 23, code: 'W23E9Q' },
@@ -169,10 +175,10 @@ const DiscountWheelModal: React.FC<DiscountWheelModalProps> = ({ open, onClose, 
     return () => { cancelled = true; };
   }, [open]);
 
-  const conicStops = WHEEL_SEGMENTS.map((_, i) => {
+  const conicStops = WHEEL_SEGMENTS.map((seg, i) => {
     const deg = i * DEG_PER_SEGMENT;
     const nextDeg = (i + 1) * DEG_PER_SEGMENT;
-    const color = i % 2 === 0 ? '#c7d2fe' : '#e0e7ff';
+    const color = seg.highlight ? '#ef4444' : (i % 2 === 0 ? '#c7d2fe' : '#e0e7ff');
     return `${color} ${deg}deg ${nextDeg}deg`;
   }).join(', ');
 
@@ -237,7 +243,7 @@ const DiscountWheelModal: React.FC<DiscountWheelModalProps> = ({ open, onClose, 
               return (
                 <span
                   key={i}
-                  className="absolute text-sm font-black text-indigo-700 whitespace-nowrap pointer-events-none"
+                  className={`absolute text-sm font-black whitespace-nowrap pointer-events-none ${seg.highlight ? 'text-white' : 'text-indigo-700'}`}
                   style={{
                     left: x,
                     top: y,
