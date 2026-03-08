@@ -3,6 +3,8 @@
     { "source": "/pl", "destination": "/" },
     { "source": "/pl/:path*", "destination": "/" },
     { "source": "/fr", "destination": "/" },
-    { "source": "/fr/:path*", "destination": "/" }
+    { "source": "/fr/:path*", "destination": "/" },
+    { "source": "/it", "destination": "/" },
+    { "source": "/it/:path*", "destination": "/" }
   ]
 }

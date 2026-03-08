@@ -390,7 +390,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                     pendingEmail={email}
                     pendingPlanIndex={planIndex}
                     pendingLang={lang}
-                    returnPath={region === 'pl' ? '/pl' : region === 'fr' ? '/fr' : '/'}
+                    returnPath={region === 'pl' ? '/pl' : region === 'fr' ? '/fr' : region === 'it' ? '/it' : '/'}
                   />
                 </Elements>
               </div>

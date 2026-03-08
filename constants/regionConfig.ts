@@ -1,11 +1,11 @@
 /**
  * Regionų konfigūracija – valiuta ir kainos.
- * Regionas nustatomas pagal pathname: /pl → pl, /fr → fr, kiti → default.
+ * Regionas nustatomas pagal pathname: /pl → pl, /fr → fr, /it → it, kiti → default.
  */
-export type RegionCode = 'pl' | 'fr' | 'default';
+export type RegionCode = 'pl' | 'fr' | 'it' | 'default';
 
-/** Visi regionai – naudoti masiniams pakeitimams (default, pl, fr) */
-export const REGIONS: RegionCode[] = ['default', 'pl', 'fr'];
+/** Visi regionai – naudoti masiniams pakeitimams (default, pl, fr, it) */
+export const REGIONS: RegionCode[] = ['default', 'pl', 'fr', 'it'];
 
 export interface RegionConfig {
   currency: 'eur' | 'pln';
@@ -35,6 +35,12 @@ export const REGION_CONFIG: Record<RegionCode, RegionConfig> = {
     prices: [14, 24, 33],
     oldPrices: [28, 48, 66],
   },
+  it: {
+    currency: 'eur',
+    symbol: '€',
+    prices: [14, 24, 33],
+    oldPrices: [28, 48, 66],
+  },
 };
 
 export function getRegionFromPathname(): RegionCode {
@@ -42,5 +48,6 @@ export function getRegionFromPathname(): RegionCode {
   const p = window.location.pathname || '';
   if (p.startsWith('/pl')) return 'pl';
   if (p.startsWith('/fr')) return 'fr';
+  if (p.startsWith('/it')) return 'it';
   return 'default';
 }

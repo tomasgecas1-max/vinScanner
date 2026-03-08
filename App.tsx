@@ -50,6 +50,7 @@ const App: React.FC = () => {
     const p = typeof window !== 'undefined' ? window.location.pathname || '' : '';
     if (p.startsWith('/pl')) return 'pl';
     if (p.startsWith('/fr')) return 'fr';
+    if (p.startsWith('/it')) return 'it';
     return 'lt';
   });
   
@@ -146,11 +147,11 @@ const App: React.FC = () => {
     return () => window.removeEventListener('openPrivacyPolicy', handleOpenPrivacy);
   }, []);
 
-  // Kalba pagal IP tik pagrindiniam puslapiui (ne /pl, /fr), be localStorage
+  // Kalba pagal IP tik pagrindiniam puslapiui (ne /pl, /fr, /it), be localStorage
   useEffect(() => {
     if (localStorage.getItem('vinscanner_lang') || isBot()) return;
     const p = window.location.pathname || '';
-    if (p.startsWith('/pl') || p.startsWith('/fr')) return;
+    if (p.startsWith('/pl') || p.startsWith('/fr') || p.startsWith('/it')) return;
     getLangFromIp().then((detected) => {
       if (detected) {
         setLangState(detected);
