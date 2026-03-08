@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
+import { trackEvent } from '../hooks/useGoogleAnalytics';
 
 const PENDING_DISCOUNT_KEY = 'vinscanner_pending_discount';
 const WHEEL_LAST_DAY_KEY = 'vinscanner_wheel_last_day';
@@ -112,7 +113,9 @@ const DiscountWheelModal: React.FC<DiscountWheelModalProps> = ({ open, onClose, 
         setRotation(startRotation + finalDelta);
         setDisplayIndex(winIndex);
         setSpinning(false);
-        setResults((prev) => [...prev, winningRef.current]);
+        const result = winningRef.current;
+        setResults((prev) => [...prev, result]);
+        trackEvent('discount_wheel_spin', { percent: result.percent });
       }
     };
     animIdRef.current = requestAnimationFrame(animate);

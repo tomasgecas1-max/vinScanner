@@ -96,3 +96,25 @@ export function trackVinSearch(vin: string) {
     });
   }
 }
+
+/** GA ID iš index.html – naudojamas user_id ir login event */
+const GA_ID_FROM_HTML = 'G-FBYC8P2RK4';
+
+function canTrackGtag(): boolean {
+  return typeof window !== 'undefined' && !!window.gtag && hasAnalyticsConsent();
+}
+
+/** Siunčia user_id į GA prisijungus – leidžia matyti prisijungusius vartotojus GA4 */
+export function setUserId(userId: string | null) {
+  if (!canTrackGtag()) return;
+  window.gtag('config', GA_ID_FROM_HTML, {
+    user_id: userId || undefined,
+  });
+}
+
+/** Įvykis prisijungus – matomas GA4 Events */
+export function trackLogin(method: string) {
+  if (canTrackGtag()) {
+    window.gtag('event', 'login', { method });
+  }
+}

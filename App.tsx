@@ -27,7 +27,7 @@ import { CarReport } from './types';
 import { getTranslations } from './constants/translations';
 import type { LangCode } from './constants/translations';
 import { getRegionFromPathname, REGION_CONFIG, type RegionCode } from './constants/regionConfig';
-import { useGoogleAnalytics, trackPurchase, trackVinSearch } from './hooks/useGoogleAnalytics';
+import { useGoogleAnalytics, trackPurchase, trackVinSearch, setUserId, trackLogin } from './hooks/useGoogleAnalytics';
 import { useMetaTags } from './hooks/useMetaTags';
 import { captureError } from './services/sentry';
 import { getLangFromIp } from './services/geoLangService';
@@ -105,6 +105,20 @@ const App: React.FC = () => {
   const regionCfg = REGION_CONFIG[region];
   const effectiveLang: LangCode = lang;
   const t = getTranslations(effectiveLang);
+
+  const prevUserRef = React.useRef<User | null | undefined>(undefined);
+  useEffect(() => {
+    if (user) {
+      setUserId(user.uid);
+      if (prevUserRef.current === null) {
+        const provider = user.providerData?.[0]?.providerId;
+        trackLogin(provider === 'google.com' ? 'Google' : provider === 'facebook.com' ? 'Facebook' : 'Email');
+      }
+    } else {
+      setUserId(null);
+    }
+    prevUserRef.current = user;
+  }, [user]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
