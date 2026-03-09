@@ -8,9 +8,10 @@ import type { RegionConfig } from '../constants/regionConfig';
 const stripePk = import.meta.env.VITE_STRIPE_PUBLISHABLE as string | undefined;
 const stripePromise = stripePk ? loadStripe(stripePk) : null;
 
+// Ruletės segmentų kodai + papildomi kodai intervalui 23–75% (ruletės suma)
 const DISCOUNT_CODES: Record<string, { type: 'percent' | 'fixed'; value: number }> = {
   'V25A9K': { type: 'percent', value: 25 },
-  'X50B2M': { type: 'percent', value: 50 },
+  'X05B2M': { type: 'percent', value: 5 },
   'N22C3P': { type: 'percent', value: 22 },
   'R08D5T': { type: 'percent', value: 8 },
   'W23E9Q': { type: 'percent', value: 23 },
@@ -19,6 +20,12 @@ const DISCOUNT_CODES: Record<string, { type: 'percent' | 'fixed'; value: number 
   'K12H8J': { type: 'percent', value: 12 },
   'L18I2U': { type: 'percent', value: 18 },
   'M15J0V': { type: 'percent', value: 15 },
+  ...Object.fromEntries(
+    Array.from({ length: 61 }, (_, i) => {
+      const pct = 15 + i;
+      return [`W${pct}`, { type: 'percent' as const, value: pct }];
+    })
+  ),
 };
 
 interface PaymentModalProps {
@@ -84,6 +91,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 }) => {
   const planPrices = regionCfg.prices;
   const [appliedCode, setAppliedCode] = useState<string | null>(null);
+  const [appliedWheelPercent, setAppliedWheelPercent] = useState<number | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'link' | 'apple'>('card');
   const [stripeClientSecret, setStripeClientSecret] = useState<string | null>(null);
   const [stripeError, setStripeError] = useState<string | null>(null);
@@ -97,7 +105,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     setStripeError(null);
     setStripeLoading(true);
     const basePrice = planPrices[Math.min(planIndex, 2)] ?? planPrices[1];
-    const discountConfig = appliedCode ? DISCOUNT_CODES[appliedCode.toUpperCase()] : null;
+    const discountConfig = appliedWheelPercent != null
+      ? { type: 'percent' as const, value: appliedWheelPercent }
+      : (appliedCode ? DISCOUNT_CODES[appliedCode.toUpperCase()] : null);
     const discountAmount = discountConfig
       ? discountConfig.type === 'percent'
         ? Math.round((basePrice * discountConfig.value) / 100 * 100) / 100
@@ -124,7 +134,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       })
       .catch(() => setStripeError(t.pricing.paymentApiUnavailable))
       .finally(() => setStripeLoading(false));
-  }, [open, vin, planIndex, email, stripePk, appliedCode, t.pricing.paymentApiUnavailable, regionCfg, planPrices]);
+  }, [open, vin, planIndex, email, stripePk, appliedCode, appliedWheelPercent, t.pricing.paymentApiUnavailable, regionCfg, planPrices]);
 
   // Uždarius modalą išvalome clientSecret, kad kitą kartą būtų naujas PaymentIntent
   useEffect(() => {
@@ -144,12 +154,18 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       if (raw) {
         const parsed = JSON.parse(raw);
         const code = parsed?.code?.toUpperCase?.();
-        if (code && DISCOUNT_CODES[code]) {
+        if (code && (DISCOUNT_CODES[code] || parsed?.isWheelTotal)) {
           setAppliedCode(code);
-          // Nekeliame – kodas lieka iki naujo sukimų iš rulete (overwrite DiscountWheelModal)
+          setAppliedWheelPercent(parsed?.isWheelTotal && typeof parsed?.percent === 'number' ? parsed.percent : null);
+        } else {
+          setAppliedWheelPercent(null);
         }
+      } else {
+        setAppliedWheelPercent(null);
       }
-    } catch {}
+    } catch {
+      setAppliedWheelPercent(null);
+    }
   }, [open]);
 
   if (!open) return null;
@@ -163,7 +179,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   const basePrice = planPrices[Math.min(planIndex, 2)] ?? planPrices[1];
   const planName = planNames[Math.min(planIndex, 2)] ?? planNames[1];
 
-  const discountConfig = appliedCode ? DISCOUNT_CODES[appliedCode.toUpperCase()] : null;
+  const discountConfig = appliedWheelPercent != null
+    ? { type: 'percent' as const, value: appliedWheelPercent }
+    : (appliedCode ? DISCOUNT_CODES[appliedCode.toUpperCase()] : null);
   const discountAmount = discountConfig
     ? discountConfig.type === 'percent'
       ? Math.round((basePrice * discountConfig.value) / 100 * 100) / 100
@@ -203,6 +221,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     onClose();
     setDiscountInput('');
     setAppliedCode(null);
+    setAppliedWheelPercent(null);
     setCodeError(false);
   };
 
@@ -213,6 +232,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     setStripeError(null);
     setDiscountInput('');
     setAppliedCode(null);
+    setAppliedWheelPercent(null);
     setCurrentOrderId(null);
     setCurrentPaymentIntentId(null);
     onPay(vin, email ?? undefined, savedOrderId ?? undefined, savedPaymentIntentId ?? undefined);
@@ -244,7 +264,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         </div>
         {discountAmount > 0 && (
           <div className="flex justify-between text-emerald-600">
-            <span>{t.pricing.paymentDiscount} ({appliedCode})</span>
+            <span>{t.pricing.paymentDiscount} ({appliedWheelPercent != null ? `${appliedWheelPercent}%` : appliedCode})</span>
             <span className="font-semibold">−{discountAmount.toFixed(2)} {regionCfg.symbol}</span>
           </div>
         )}

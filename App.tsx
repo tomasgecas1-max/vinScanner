@@ -5,7 +5,7 @@ import MobilePlanSheet from './components/MobilePlanSheet';
 import OrderEmailStepModal from './components/OrderEmailStepModal';
 import PrivacyPolicyModal from './components/PrivacyPolicyModal';
 import AboutModal from './components/AboutModal';
-import CookieConsent from './components/CookieConsent';
+import CookieConsent, { getConsentPreferences } from './components/CookieConsent';
 import UsageInstructionsModal from './components/UsageInstructionsModal';
 import AuthModal from './components/AuthModal';
 import SampleReportModal from './components/SampleReportModal';
@@ -107,6 +107,37 @@ const App: React.FC = () => {
   const t = getTranslations(effectiveLang);
 
   const prevUserRef = React.useRef<User | null | undefined>(undefined);
+
+  // Ruletės popup rodyti po cookies patvirtinimo, praėjus 2 s; nerodyti jei jau išsukta šiandien
+  const WHEEL_LAST_DAY_KEY = 'vinscanner_wheel_last_day';
+  const wheelCleanupRef = React.useRef<(() => void) | null>(null);
+  useEffect(() => {
+    if (isBot()) return;
+    const getTodayLocal = () => {
+      const d = new Date();
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    };
+    const isWheelUsedToday = () =>
+      typeof localStorage !== 'undefined' && localStorage.getItem(WHEEL_LAST_DAY_KEY) === getTodayLocal();
+    const scheduleWheel = () => {
+      wheelCleanupRef.current?.();
+      const openTimer = setTimeout(() => {
+        if (!isWheelUsedToday()) setShowDiscountWheel(true);
+      }, 2000);
+      wheelCleanupRef.current = () => clearTimeout(openTimer);
+    };
+    const handleConsent = () => scheduleWheel();
+    if (getConsentPreferences()) {
+      scheduleWheel();
+    } else {
+      window.addEventListener('cookieConsentChanged', handleConsent);
+    }
+    return () => {
+      window.removeEventListener('cookieConsentChanged', handleConsent);
+      wheelCleanupRef.current?.();
+    };
+  }, []);
+
   useEffect(() => {
     if (user) {
       setUserId(user.uid);
