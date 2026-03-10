@@ -30,14 +30,14 @@ function isServiceHistorySkipped(): boolean {
   return v === "true" || v === "1";
 }
 
-/** EzyVIN Service History – asinchroninis: 202 Accepted, tada pollinti. Laukiama max ~30s (10×3s), po to – „istorija nerasta“. */
+/** EzyVIN Service History – asinchroninis: 202 Accepted, tada pollinti. Laukiama max ~60s (20×3s), po to – „istorija nerasta“. */
 async function fetchServiceHistory(
   vin: string,
   apiKey: string,
   baseUrl: string,
   options?: { returnDataInCallback?: boolean; maxPollAttempts?: number; pollIntervalMs?: number }
 ): Promise<{ success: boolean; result?: EzyVinServiceHistoryResult; error?: string }> {
-  const { maxPollAttempts = 10, pollIntervalMs = 3000 } = options ?? {};
+  const { maxPollAttempts = 20, pollIntervalMs = 3000 } = options ?? {};
   const url = new URL("/ezyvin/servicehistory/", baseUrl);
   url.searchParams.set("vehicle_identification_number", vin);
   url.searchParams.set("return_data_in_callback", "false");
@@ -69,14 +69,14 @@ async function fetchServiceHistory(
   };
 }
 
-/** EzyVIN VIN Lookup – OE duomenys iš VIN (gali būti 202). Laukiama max ~30s (10×3s). */
+/** EzyVIN VIN Lookup – OE duomenys iš VIN (gali būti 202). Laukiama max ~60s (20×3s). */
 async function fetchVinLookup(
   vin: string,
   apiKey: string,
   baseUrl: string,
   options?: { maxPollAttempts?: number; pollIntervalMs?: number }
 ): Promise<{ success: boolean; result?: EzyVinLookupResult; error?: string }> {
-  const { maxPollAttempts = 10, pollIntervalMs = 3000 } = options ?? {};
+  const { maxPollAttempts = 20, pollIntervalMs = 3000 } = options ?? {};
   const url = new URL("/ezyvin/vinlookup/", baseUrl);
   url.searchParams.set("vehicle_identification_number", vin);
 
