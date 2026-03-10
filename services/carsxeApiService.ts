@@ -32,7 +32,7 @@ export async function fetchVehicleSpecs(vin: string): Promise<CarsXeSpecsResult>
   url.searchParams.set("vin", vin.trim());
 
   try {
-    const res = await fetch(url.toString(), { method: "GET" });
+    const res = await fetch(url.toString(), { method: "GET", cache: "no-store" });
     const data = (await res.json()) as CarsXeSpecsResponse;
 
     if (!res.ok) {
@@ -179,7 +179,7 @@ export async function fetchVehicleHistory(vin: string): Promise<CarsXeHistoryRes
   const url = new URL(CARSXE_HISTORY_URL, window.location.origin);
   url.searchParams.set("vin", vin.trim());
   try {
-    const res = await fetch(url.toString(), { method: "GET" });
+    const res = await fetch(url.toString(), { method: "GET", cache: "no-store" });
     const data = (await res.json()) as CarsXeHistoryResponse & { error?: string };
     if (!res.ok) return { success: false, error: data.error || res.statusText || `HTTP ${res.status}` };
     if (data.error?.code === "report_not_found" || !data.success) {
@@ -371,7 +371,7 @@ export async function fetchTheftCheck(vin: string): Promise<CarsXeTheftResult> {
   const url = new URL(CARSXE_THEFT_URL, window.location.origin);
   url.searchParams.set("vin", vin.trim());
   try {
-    const res = await fetch(url.toString(), { method: "GET" });
+    const res = await fetch(url.toString(), { method: "GET", cache: "no-store" });
     const data = (await res.json()) as CarsXeTheftResponse & { error?: string };
     if (!res.ok) {
       return { success: false, error: typeof data.error === 'string' ? data.error : res.statusText || `HTTP ${res.status}` };
