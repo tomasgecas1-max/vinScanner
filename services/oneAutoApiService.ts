@@ -616,7 +616,7 @@ export async function fetchCarReportFromOneAuto(
   }
 
   const baseUrl = getBaseUrl(options?.useSandbox ? "sandbox" : "live");
-  const pollOpts = { maxPollAttempts: options?.maxPollAttempts ?? 10, pollIntervalMs: options?.pollIntervalMs ?? 3000 };
+  const pollOpts = { maxPollAttempts: options?.maxPollAttempts ?? 20, pollIntervalMs: options?.pollIntervalMs ?? 3000 };
   const skipServiceHistory = isServiceHistorySkipped() || options?.useServiceHistory === false;
   const skipVinLookup = options?.useVinLookup === false;
   const sequential = options?.sequential === true;
