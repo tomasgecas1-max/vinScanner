@@ -53,6 +53,10 @@ async function fetchServiceHistory(
 
     if (status === 200) {
       const data = await res.json();
+      if (typeof console !== "undefined" && console.log) {
+        const ev = (data as { result?: { service_events?: unknown[] } }).result?.service_events;
+        console.log("[VIN API] Service History 200:", data?.success ? "OK" : "fail", ev?.length ?? 0, "events");
+      }
       return data;
     }
     if (status === 202) {
