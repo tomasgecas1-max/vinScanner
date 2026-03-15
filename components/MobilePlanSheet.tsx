@@ -9,7 +9,7 @@ interface MobilePlanSheetProps {
   regionCfg?: RegionConfig;
 }
 
-const defaultRegionCfg: RegionConfig = { currency: 'eur', symbol: '€', prices: [14, 24, 33], oldPrices: [28, 48, 66] };
+const defaultRegionCfg: RegionConfig = { currency: 'eur', symbol: '€', prices: [7, 12, 17], oldPrices: [14, 24, 33] };
 
 const MobilePlanSheet: React.FC<MobilePlanSheetProps> = ({ pendingVin, t, onPlanSelect, onClose, regionCfg = defaultRegionCfg }) => {
   const [selectedIdx, setSelectedIdx] = React.useState<number>(1);

@@ -16,30 +16,31 @@ export interface RegionConfig {
   oldPrices: [number, number, number];
 }
 
+/** Laikinai sumažintos kainos (per pusę) */
 export const REGION_CONFIG: Record<RegionCode, RegionConfig> = {
   default: {
     currency: 'eur',
     symbol: '€',
-    prices: [14, 24, 33],
-    oldPrices: [28, 48, 66],
+    prices: [7, 12, 17],
+    oldPrices: [14, 24, 33],
   },
   pl: {
     currency: 'pln',
     symbol: 'zł',
-    prices: [60, 100, 120],
-    oldPrices: [120, 200, 240],
+    prices: [30, 50, 60],
+    oldPrices: [60, 100, 120],
   },
   fr: {
     currency: 'eur',
     symbol: '€',
-    prices: [14, 24, 33],
-    oldPrices: [28, 48, 66],
+    prices: [7, 12, 17],
+    oldPrices: [14, 24, 33],
   },
   it: {
     currency: 'eur',
     symbol: '€',
-    prices: [14, 24, 33],
-    oldPrices: [28, 48, 66],
+    prices: [7, 12, 17],
+    oldPrices: [14, 24, 33],
   },
 };
 
