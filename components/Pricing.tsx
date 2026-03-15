@@ -74,7 +74,7 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect, region, 
                     )}
                   </div>
                   <p className={`text-xs sm:text-sm font-semibold mt-1 ${isSelected ? 'text-slate-400' : 'text-slate-500'}`}>
-                    ({t.pricing.perReport} {(plan.price / plan.reportCount).toFixed(0)} {regionCfg.symbol})
+                    ({t.pricing.perReport} {(plan.price / plan.reportCount).toFixed(2)} {regionCfg.symbol})
                   </p>
                 </div>
 
