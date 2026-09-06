@@ -26,6 +26,13 @@ const EMAIL_STRINGS = {
     technicalError: 'Deja, techninės klaidos dėka nuoroda negali būti rodoma. Susisiekite su mumis:',
     weWillHelp: ' – mes padėsime pasiekti likusias ataskaitas.',
     pdfFilename: 'vinscanner-ataskaita',
+    retrySubject: 'VIN ataskaita nerasta – kreditas išsaugotas',
+    retryGreeting: 'Sveiki,',
+    retryIntroBeforeVin: 'Deja, VIN ',
+    retryIntroAfterVin: ' ataskaitos sugeneruoti nepavyko – šio automobilio duomenų neradome.',
+    retryKeepCredit: 'Mokėjimas nepanaudotas. Galite dar kartą patikrinti tą patį arba kitą VIN kodą.',
+    retryCta: 'Panaudoti ataskaitą →',
+    retryHow: 'Atidarykite nuorodą ir įveskite VIN kodą. Kreditas nuskaitomas tik jei ataskaita randama.',
   },
   en: {
     subject: 'Your VIN report is ready – vinscanner.eu',
@@ -47,6 +54,13 @@ const EMAIL_STRINGS = {
     technicalError: 'Unfortunately due to a technical error the link cannot be displayed. Contact us:',
     weWillHelp: ' – we will help you access the remaining reports.',
     pdfFilename: 'vinscanner-report',
+    retrySubject: 'VIN report not found – your credit is still available',
+    retryGreeting: 'Hello,',
+    retryIntroBeforeVin: 'Unfortunately we could not generate a report for VIN ',
+    retryIntroAfterVin: ' – no records were found for this vehicle.',
+    retryKeepCredit: 'Your payment was not used. You can try the same VIN again or enter another one.',
+    retryCta: 'Use your report →',
+    retryHow: 'Open the link and enter a VIN. Credit is used only if a report is found.',
   },
   de: {
     subject: 'Ihr VIN-Bericht ist fertig – vinscanner.eu',
@@ -724,7 +738,7 @@ const EMAIL_STRINGS = {
 
 function getEmailStrings(lang) {
   const key = SUPPORTED.includes(lang) ? lang : FALLBACK;
-  return EMAIL_STRINGS[key] || EMAIL_STRINGS[FALLBACK];
+  return { ...EMAIL_STRINGS[FALLBACK], ...(EMAIL_STRINGS[key] || {}) };
 }
 
 export { getEmailStrings, EMAIL_STRINGS };

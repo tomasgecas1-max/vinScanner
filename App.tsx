@@ -40,6 +40,21 @@ function isBot(): boolean {
   return /bot|crawler|spider|googlebot|bingbot|yandex|slurp|duckduckbot|baiduspider/i.test(navigator.userAgent);
 }
 
+function sendNotFoundRetryEmail(payload: {
+  to: string;
+  vin: string;
+  token?: string;
+  reportsRemaining?: number;
+  orderId?: string;
+  lang?: string;
+}) {
+  fetch('/api/send-order-email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...payload, reason: 'not_found' }),
+  }).catch(() => {});
+}
+
 const App: React.FC = () => {
   const { user } = useAuth();
   useGoogleAnalytics();
@@ -431,12 +446,22 @@ const App: React.FC = () => {
     if (purchaseToken && purchaseInfo && purchaseInfo.reportsRemaining > 0 && !purchaseInfo.loading) {
       setLoading(true);
       setReport(null);
-      const reportEmail = user?.email ?? purchaseInfo.email ?? '';
+      const retryEmail = user?.email || purchaseInfo.email || undefined;
       
       try {
         const reportResult = await handleSearchAndReturn(vinTrimmed);
         
         if (!reportResult) {
+          if (retryEmail) {
+            sendNotFoundRetryEmail({
+              to: retryEmail,
+              vin: vinTrimmed,
+              token: purchaseToken,
+              reportsRemaining: purchaseInfo.reportsRemaining,
+              orderId: purchaseInfo.orderId ?? undefined,
+              lang,
+            });
+          }
           setErrorModalMessage(t.errors.apiFailed);
           setLoading(false);
           return;
@@ -447,6 +472,16 @@ const App: React.FC = () => {
         const hasEnoughData = mileageCount >= 2 || serviceCount >= 2;
         
         if (!hasEnoughData) {
+          if (retryEmail) {
+            sendNotFoundRetryEmail({
+              to: retryEmail,
+              vin: vinTrimmed,
+              token: purchaseToken,
+              reportsRemaining: purchaseInfo.reportsRemaining,
+              orderId: purchaseInfo.orderId ?? undefined,
+              lang,
+            });
+          }
           setShowInsufficientDataModal(true);
           setReport(null);
           setLoading(false);
@@ -478,8 +513,8 @@ const App: React.FC = () => {
             })
             .catch(() => {});
         }
-        if (reportEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(reportEmail)) {
-          setPendingEmailReport({ email: reportEmail, vin: vinTrimmed, token: purchaseToken, reportsRemaining: newRemaining, orderId: purchaseInfo.orderId ?? undefined, lang });
+        if (retryEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(retryEmail)) {
+          setPendingEmailReport({ email: retryEmail, vin: vinTrimmed, token: purchaseToken, reportsRemaining: newRemaining, orderId: purchaseInfo.orderId ?? undefined, lang });
           if (purchaseInfo.orderId) setCurrentReportOrderId(purchaseInfo.orderId);
         }
         
@@ -560,7 +595,7 @@ const App: React.FC = () => {
     let reportsRemainingValue = planIndex + 1;
     const emailLang = purchaseLang ?? lang;
     
-    if (customerEmail && planIndex >= 0) {
+    if (customerEmail) {
       try {
         const pr = await fetch('/api/create-purchase', {
           method: 'POST',
@@ -646,7 +681,14 @@ const App: React.FC = () => {
             
             if (!cachedHasEnoughData) {
               setShowInsufficientDataModal(true);
-              setPendingEmailReport({ email: customerEmail!, vin, token: purchaseTokenValue, reportsRemaining: reportsRemainingValue, orderId: purchaseOrderId, lang: emailLang });
+              sendNotFoundRetryEmail({
+                to: customerEmail!,
+                vin,
+                token: purchaseTokenValue,
+                reportsRemaining: reportsRemainingValue,
+                orderId: purchaseOrderId,
+                lang: emailLang,
+              });
               setTimeout(() => setLoading(false), 500);
               return;
             }
@@ -680,6 +722,16 @@ const App: React.FC = () => {
 
       if (!data) {
         if (mockDisabled) {
+          if (customerEmail) {
+            sendNotFoundRetryEmail({
+              to: customerEmail,
+              vin,
+              token: purchaseTokenValue,
+              reportsRemaining: reportsRemainingValue,
+              orderId: purchaseOrderId,
+              lang: emailLang,
+            });
+          }
           setErrorModalMessage(t.errors.apiFailed);
           setLoading(false);
           return;
@@ -714,7 +766,14 @@ const App: React.FC = () => {
         
         if (!hasEnoughData) {
           setShowInsufficientDataModal(true);
-          setPendingEmailReport({ email: customerEmail!, vin, token: purchaseTokenValue, reportsRemaining: reportsRemainingValue, orderId: purchaseOrderId, lang: emailLang });
+          sendNotFoundRetryEmail({
+            to: customerEmail!,
+            vin,
+            token: purchaseTokenValue,
+            reportsRemaining: reportsRemainingValue,
+            orderId: purchaseOrderId,
+            lang: emailLang,
+          });
           return;
         }
         

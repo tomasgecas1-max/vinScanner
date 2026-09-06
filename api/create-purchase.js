@@ -1,8 +1,9 @@
 /**
- * Sukuria pirkimą – neprisijungusiam vartotojui, kuris įsigijo kelias ataskaitas.
+ * Sukuria pirkimą po mokėjimo – visiems planams (1–3 ataskaitos).
  * POST { email, planIndex, vin, paymentIntentId? }
  * planIndex: 0=1 ataskaita, 1=2, 2=3. reportsTotal = planIndex + 1.
  * Grąžina { token, orderId } – nuoroda: /?token=XXX
+ * Token leidžia pakartoti paiešką, jei pirmo VIN ataskaita nebuvo rasta.
  */
 import admin from 'firebase-admin';
 import crypto from 'crypto';

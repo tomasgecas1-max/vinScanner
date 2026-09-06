@@ -1,7 +1,8 @@
 /**
  * Vercel serverless – siunčia el. laišką klientui po sėkmingo mokėjimo.
  * Naudoja Hostinger SMTP (arba bet kurį SMTP).
- * POST: { to, vin, lang?, pdfBase64?, token?, reportsRemaining?, orderId? }
+ * POST: { to, vin, lang?, pdfBase64?, token?, reportsRemaining?, orderId?, reason? }
+ * reason: 'not_found' – ataskaita nerasta, siunčiama nuoroda pakartoti (kreditas nenuimtas).
  * lang – kalba, kurią pasirinko vartotojas ataskaitos generavimo metu (el. laiškas bus ta kalba).
  */
 import nodemailer from 'nodemailer';
@@ -38,7 +39,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid JSON' });
   }
 
-  const { to, vin, pdfBase64, token, reportsRemaining, orderId, lang } = body;
+  const { to, vin, pdfBase64, token, reportsRemaining, orderId, lang, reason } = body;
   if (!to || typeof to !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
     return res.status(400).json({ error: 'Valid email required' });
   }
@@ -71,7 +72,26 @@ export default async function handler(req, res) {
   const reportsLeftText = n === 1 ? s.reportsLeftOne : s.reportsLeftMany(n);
   const generateNextText = n === 1 ? s.generateNextOne : s.generateNextMany(n);
 
-  const subject = `${s.subject}${orderIdStr ? ` [${orderIdStr}]` : ''}${vinStr ? ` (${vinStr})` : ''}`;
+  const isRetry = reason === 'not_found';
+  const subject = isRetry
+    ? `${s.retrySubject}${orderIdStr ? ` [${orderIdStr}]` : ''}${vinStr ? ` (${vinStr})` : ''}`
+    : `${s.subject}${orderIdStr ? ` [${orderIdStr}]` : ''}${vinStr ? ` (${vinStr})` : ''}`;
+
+  const retryLink = token && n > 0
+    ? `
+    <div style="margin:24px 0;padding:20px;background:#eef2ff;border:2px solid #4f46e5;border-radius:16px;">
+      <p style="margin:0 0 12px 0;font-size:18px;font-weight:bold;color:#1e1b4b;">${reportsLeftText}</p>
+      <p style="margin:0 0 16px 0;font-size:15px;color:#3730a3;">${s.retryHow}</p>
+      <p style="margin:0;"><a href="${baseUrl}/?token=${encodeURIComponent(token)}" style="display:inline-block;padding:14px 24px;background:#4f46e5;color:white;font-weight:bold;font-size:16px;text-decoration:none;border-radius:12px;">${s.retryCta}</a></p>
+      <p style="margin:16px 0 0 0;font-size:12px;color:#6366f1;">${s.orCopy} ${baseUrl}/?token=${String(token).slice(0, 20)}...</p>
+    </div>`
+    : n > 0 && !token
+    ? `
+    <div style="margin:24px 0;padding:20px;background:#fef3c7;border:2px solid #f59e0b;border-radius:16px;">
+      <p style="margin:0 0 12px 0;font-size:18px;font-weight:bold;color:#78350f;">${reportsLeftText}</p>
+      <p style="margin:0;font-size:15px;color:#92400e;">${s.technicalError} <a href="mailto:info@vinscanner.eu" style="color:#d97706;font-weight:bold;">info@vinscanner.eu</a>${s.weWillHelp}</p>
+    </div>`
+    : '';
 
   const reportsLink = token && n > 0
     ? `
@@ -94,7 +114,17 @@ export default async function handler(req, res) {
     : '';
 
   const reportReadySuffix = attachments.length > 0 ? s.reportReadyWithPdf : s.reportReadyPlain;
-  const html = `
+  const html = isRetry
+    ? `
+    <p>${s.retryGreeting}</p>
+    ${orderInfo}
+    <p>${s.retryIntroBeforeVin}<strong>${vinStr || '–'}</strong>${s.retryIntroAfterVin}</p>
+    <p>${s.retryKeepCredit}</p>
+    ${retryLink}
+    <p>${s.contactUs} <a href="mailto:info@vinscanner.eu">info@vinscanner.eu</a></p>
+    <p>${s.teamSign}</p>
+  `
+    : `
     <p>${s.greeting}</p>
     ${orderInfo}
     <p>${s.reportReadyBeforeVin}<strong>${vinStr || '–'}</strong>${s.reportReadyAfterVin}${reportReadySuffix}</p>
