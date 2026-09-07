@@ -8,21 +8,21 @@ import type { RegionConfig } from '../constants/regionConfig';
 const stripePk = import.meta.env.VITE_STRIPE_PUBLISHABLE as string | undefined;
 const stripePromise = stripePk ? loadStripe(stripePk) : null;
 
-// Ruletės segmentų kodai + papildomi kodai intervalui 23–75% (ruletės suma)
+// Ruletės segmentų kodai + papildomi kodai intervalui 2–54% (ruletės suma)
 const DISCOUNT_CODES: Record<string, { type: 'percent' | 'fixed'; value: number }> = {
-  'V25A9K': { type: 'percent', value: 25 },
-  'X05B2M': { type: 'percent', value: 5 },
-  'N22C3P': { type: 'percent', value: 22 },
-  'R08D5T': { type: 'percent', value: 8 },
-  'W23E9Q': { type: 'percent', value: 23 },
-  'Y10F4H': { type: 'percent', value: 10 },
-  'Z20G1S': { type: 'percent', value: 20 },
-  'K12H8J': { type: 'percent', value: 12 },
-  'L18I2U': { type: 'percent', value: 18 },
-  'M15J0V': { type: 'percent', value: 15 },
+  'A02B1K': { type: 'percent', value: 2 },
+  'B04C2M': { type: 'percent', value: 4 },
+  'C06D3P': { type: 'percent', value: 6 },
+  'D08E4T': { type: 'percent', value: 8 },
+  'E10F5H': { type: 'percent', value: 10 },
+  'F12G6J': { type: 'percent', value: 12 },
+  'G14H7N': { type: 'percent', value: 14 },
+  'H16I8Q': { type: 'percent', value: 16 },
+  'I18J9U': { type: 'percent', value: 18 },
+  'J20K0S': { type: 'percent', value: 20 },
   ...Object.fromEntries(
-    Array.from({ length: 61 }, (_, i) => {
-      const pct = 15 + i;
+    Array.from({ length: 53 }, (_, i) => {
+      const pct = 2 + i;
       return [`W${pct}`, { type: 'percent' as const, value: pct }];
     })
   ),

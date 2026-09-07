@@ -35,16 +35,16 @@ interface WheelSegment {
 }
 
 const WHEEL_SEGMENTS: WheelSegment[] = [
-  { percent: 25, code: 'V25A9K' },
-  { percent: 5, code: 'X05B2M' },
-  { percent: 22, code: 'N22C3P' },
-  { percent: 8, code: 'R08D5T' },
-  { percent: 23, code: 'W23E9Q' },
-  { percent: 10, code: 'Y10F4H' },
-  { percent: 20, code: 'Z20G1S' },
-  { percent: 12, code: 'K12H8J' },
-  { percent: 18, code: 'L18I2U' },
-  { percent: 15, code: 'M15J0V' },
+  { percent: 2, code: 'A02B1K' },
+  { percent: 4, code: 'B04C2M' },
+  { percent: 6, code: 'C06D3P' },
+  { percent: 8, code: 'D08E4T' },
+  { percent: 10, code: 'E10F5H' },
+  { percent: 12, code: 'F12G6J' },
+  { percent: 14, code: 'G14H7N' },
+  { percent: 16, code: 'H16I8Q' },
+  { percent: 18, code: 'I18J9U' },
+  { percent: 20, code: 'J20K0S' },
 ];
 
 const SEGMENT_COUNT = WHEEL_SEGMENTS.length;
@@ -75,11 +75,16 @@ const DiscountWheelModal: React.FC<DiscountWheelModalProps> = ({ open, onClose, 
     fetch('/api/discount-wheel', { method: 'POST' }).catch(() => {});
   }, []);
 
-  const winningRef = useRef<SpinResult>({ percent: 25, code: '48291' });
+  const winningRef = useRef<SpinResult>({ percent: 20, code: 'J20K0S' });
   const animIdRef = useRef<number | null>(null);
 
   const runSpin = useCallback(() => {
-    const winIndex = Math.floor(Math.random() * SEGMENT_COUNT);
+    const usedPercents = new Set(results.map((r) => r.percent));
+    const availableIndexes = WHEEL_SEGMENTS
+      .map((seg, i) => i)
+      .filter((i) => !usedPercents.has(WHEEL_SEGMENTS[i].percent));
+    if (availableIndexes.length === 0) return;
+    const winIndex = availableIndexes[Math.floor(Math.random() * availableIndexes.length)];
     const segment = WHEEL_SEGMENTS[winIndex];
     winningRef.current = { percent: segment.percent, code: segment.code };
 
@@ -118,7 +123,7 @@ const DiscountWheelModal: React.FC<DiscountWheelModalProps> = ({ open, onClose, 
       }
     };
     animIdRef.current = requestAnimationFrame(animate);
-  }, [rotation]);
+  }, [rotation, results]);
 
   const handleSpinClick = () => {
     if (spinning || spinCount >= MAX_SPINS) return;
@@ -186,10 +191,12 @@ const DiscountWheelModal: React.FC<DiscountWheelModalProps> = ({ open, onClose, 
     return () => { cancelled = true; };
   }, [open]);
 
+  const usedPercents = new Set(results.map((r) => r.percent));
   const conicStops = WHEEL_SEGMENTS.map((seg, i) => {
     const deg = i * DEG_PER_SEGMENT;
     const nextDeg = (i + 1) * DEG_PER_SEGMENT;
-    const color = i % 2 === 0 ? '#c7d2fe' : '#e0e7ff';
+    const used = usedPercents.has(seg.percent);
+    const color = used ? '#e2e8f0' : (i % 2 === 0 ? '#c7d2fe' : '#e0e7ff');
     return `${color} ${deg}deg ${nextDeg}deg`;
   }).join(', ');
 
@@ -255,7 +262,9 @@ const DiscountWheelModal: React.FC<DiscountWheelModalProps> = ({ open, onClose, 
               return (
                 <span
                   key={i}
-                  className="absolute text-sm font-black whitespace-nowrap pointer-events-none text-indigo-700"
+                  className={`absolute text-sm font-black whitespace-nowrap pointer-events-none ${
+                    usedPercents.has(seg.percent) ? 'text-slate-400' : 'text-indigo-700'
+                  }`}
                   style={{
                     left: x,
                     top: y,
