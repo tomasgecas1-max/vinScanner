@@ -47,8 +47,7 @@ Visos šios kategorijos apdoroja duomenis tik mūsų nurodytu tikslu ir pagal su
 
 **5. DUOMENŲ VALDYTOJAS**
 
-Duomenų valdytojas: Tomas Gečas (individuali veikla pagal individualią pažymą)
-Identifikacinis numeris: 1493175
+Duomenų valdytojas: vinscanner.eu
 El. paštas: info@vinscanner.eu
 Svetainė: https://vinscanner.eu
 
@@ -110,8 +109,7 @@ All categories process data only for our specified purposes under agreements ens
 
 **5. DATA CONTROLLER**
 
-Data controller: Tomas Gečas (individual activity under individual activity certificate)
-Identification number: 1493175
+Data controller: vinscanner.eu
 Email: info@vinscanner.eu
 Website: https://vinscanner.eu
 
@@ -173,8 +171,7 @@ Alle Kategorien verarbeiten Daten nur für unsere festgelegten Zwecke gemäß Ve
 
 **5. VERANTWORTLICHER**
 
-Verantwortlicher: Tomas Gečas (Einzelunternehmen gemäß Einzelunternehmerbescheinigung)
-Identifikationsnummer: 1493175
+Verantwortlicher: vinscanner.eu
 E-Mail: info@vinscanner.eu
 Webseite: https://vinscanner.eu
 
@@ -236,8 +233,7 @@ Wszystkie kategorie przetwarzają dane wyłącznie do naszych celów zgodnie z u
 
 **5. ADMINISTRATOR DANYCH**
 
-Administrator: Tomas Gečas (działalność gospodarcza na podstawie wpisu)
-Numer identyfikacyjny: 1493175
+Administrator: vinscanner.eu
 E-mail: info@vinscanner.eu
 Strona: https://vinscanner.eu
 
@@ -299,8 +295,7 @@ Toutes les catégories traitent les données uniquement pour nos objectifs défi
 
 **5. RESPONSABLE DU TRAITEMENT**
 
-Responsable : Tomas Gečas (activité individuelle sous certificat d'activité)
-Numéro d'identification : 1493175
+Responsable : vinscanner.eu
 E-mail : info@vinscanner.eu
 Site : https://vinscanner.eu
 
@@ -362,8 +357,7 @@ Todas las categorías procesan datos solo para nuestros fines especificados seg�
 
 **5. RESPONSABLE DEL TRATAMIENTO**
 
-Responsable: Tomas Gečas (actividad individual bajo certificado de actividad)
-Número de identificación: 1493175
+Responsable: vinscanner.eu
 Correo: info@vinscanner.eu
 Sitio: https://vinscanner.eu
 
@@ -425,8 +419,7 @@ Tutte le categorie trattano i dati solo per i nostri scopi specificati secondo a
 
 **5. TITOLARE DEL TRATTAMENTO**
 
-Titolare: Tomas Gečas (attività individuale con certificato di attività)
-Numero di identificazione: 1493175
+Titolare: vinscanner.eu
 E-mail: info@vinscanner.eu
 Sito: https://vinscanner.eu
 
@@ -488,8 +481,7 @@ Alle categorieën verwerken gegevens alleen voor onze vastgelegde doeleinden vol
 
 **5. VERANTWOORDELIJKE**
 
-Verantwoordelijke: Tomas Gečas (individuele activiteit onder activiteitscertificaat)
-Identificatienummer: 1493175
+Verantwoordelijke: vinscanner.eu
 E-mail: info@vinscanner.eu
 Website: https://vinscanner.eu
 
@@ -551,8 +543,7 @@ Všechny kategorie zpracovávají údaje pouze pro naše stanovené účely podl
 
 **5. SPRÁVCE ÚDAJŮ**
 
-Správce: Tomas Gečas (samostatná činnost podle živnostenského oprávnění)
-Identifikační číslo: 1493175
+Správce: vinscanner.eu
 E-mail: info@vinscanner.eu
 Web: https://vinscanner.eu
 
@@ -614,8 +605,7 @@ Tuto politiku můžeme aktualizovat. Podstatné změny budou oznámeny na webu. 
 
 **5. ВІДПОВІДАЛЬНИЙ ЗА ОБРОБКУ**
 
-Відповідальний: Tomas Gečas (індивідуальна діяльність за свідоцтвом)
-Ідентифікаційний номер: 1493175
+Відповідальний: vinscanner.eu
 Email: info@vinscanner.eu
 Сайт: https://vinscanner.eu
 
@@ -677,8 +667,7 @@ Toate categoriile procesează datele doar pentru scopurile noastre specificate c
 
 **5. OPERATORUL DATELOR**
 
-Operator: Tomas Gečas (activitate individuală sub certificat de activitate)
-Număr de identificare: 1493175
+Operator: vinscanner.eu
 E-mail: info@vinscanner.eu
 Site: https://vinscanner.eu
 
@@ -740,8 +729,7 @@ Alla kategorier behandlar uppgifter endast för våra angivna ändamål enligt a
 
 **5. PERSONUPPGIFTSANSVARIG**
 
-Ansvarig: Tomas Gečas (enskild näringsverksamhet under verksamhetsintyg)
-Organisationsnummer: 1493175
+Ansvarig: vinscanner.eu
 E-post: info@vinscanner.eu
 Webbplats: https://vinscanner.eu
 
@@ -803,8 +791,7 @@ Vi kan uppdatera denna policy. Betydande ändringar annonseras på webbplatsen. 
 
 **5. ΥΠΕΥΘΥΝΟΣ ΕΠΕΞΕΡΓΑΣΙΑΣ**
 
-Υπεύθυνος: Tomas Gečas (ατομική επιχείρηση βάσει πιστοποιητικού δραστηριότητας)
-Αριθμός ταυτοποίησης: 1493175
+Υπεύθυνος: vinscanner.eu
 Email: info@vinscanner.eu
 Ιστοσελίδα: https://vinscanner.eu
 
@@ -866,8 +853,7 @@ Todas as categorias processam dados apenas para os nossos fins especificados de 
 
 **5. RESPONSÁVEL PELO TRATAMENTO**
 
-Responsável: Tomas Gečas (atividade individual sob certificado de atividade)
-Número de identificação: 1493175
+Responsável: vinscanner.eu
 E-mail: info@vinscanner.eu
 Site: https://vinscanner.eu
 
@@ -929,8 +915,7 @@ Minden kategória kizárólag meghatározott céljainkra dolgozza fel az adatoka
 
 **5. ADATKEZELŐ**
 
-Adatkezelő: Tomas Gečas (egyéni vállalkozás tevékenységi igazolás alapján)
-Azonosító szám: 1493175
+Adatkezelő: vinscanner.eu
 E-mail: info@vinscanner.eu
 Weboldal: https://vinscanner.eu
 
@@ -992,8 +977,7 @@ Frissíthetjük ezt a szabályzatot. A lényeges változások a weboldalon kerü
 
 **5. АДМИНИСТРАТОР НА ДАННИТЕ**
 
-Администратор: Tomas Gečas (индивидуална дейност по удостоверение)
-Идентификационен номер: 1493175
+Администратор: vinscanner.eu
 Имейл: info@vinscanner.eu
 Сайт: https://vinscanner.eu
 
@@ -1055,8 +1039,7 @@ Frissíthetjük ezt a szabályzatot. A lényeges változások a weboldalon kerü
 
 **5. НАДЛЕЖАН ЗА УПРАВЉАЊЕ ПОДАЦИМА**
 
-Надлежан: Tomas Gečas (индивидуална делатност под уверењем о делатности)
-Идентификациони број: 1493175
+Надлежан: vinscanner.eu
 Е-пошта: info@vinscanner.eu
 Веб-сајт: https://vinscanner.eu
 
@@ -1118,8 +1101,7 @@ Alle kategorier behandler data udelukkende til vores angivne formål efter aftal
 
 **5. DATAANSVARLIG**
 
-Ansvarlig: Tomas Gečas (enkeltmandsvirksomhed under aktivitetsbevis)
-Identifikationsnummer: 1493175
+Ansvarlig: vinscanner.eu
 E-mail: info@vinscanner.eu
 Websted: https://vinscanner.eu
 
@@ -1181,8 +1163,7 @@ Alle kategorier behandler data kun for våre angitte formål i henhold til avtal
 
 **5. PERSONVERNANSVARLIG**
 
-Ansvarlig: Tomas Gečas (enkeltpersonsforetak under aktivitetsbevis)
-Organisasjonsnummer: 1493175
+Ansvarlig: vinscanner.eu
 E-post: info@vinscanner.eu
 Nettsted: https://vinscanner.eu
 
@@ -1244,8 +1225,7 @@ Kaikki kategoriat käsittelevät tietoja vain määrittämiemme tarkoitusten muk
 
 **5. REKISTERINPITÄJÄ**
 
-Vastuullinen: Tomas Gečas (yksityisyritys toimintatodistuksen mukaisesti)
-Tunnistenumero: 1493175
+Vastuullinen: vinscanner.eu
 Sähköposti: info@vinscanner.eu
 Verkkosivu: https://vinscanner.eu
 
@@ -1307,8 +1287,7 @@ Všetky kategórie spracovávajú údaje iba pre naše stanovené účely podľa
 
 **5. SPRÁVCA ÚDAJOV**
 
-Správca: Tomas Gečas (samostatná zárobková činnosť podľa živnostenského oprávnenia)
-IČ: 1493175
+Správca: vinscanner.eu
 E-mail: info@vinscanner.eu
 Web: https://vinscanner.eu
 
@@ -1370,8 +1349,7 @@ Sve kategorije obrađuju podatke samo za naše navedene svrhe prema ugovorima ko
 
 **5. VODITELJ OBRADE**
 
-Voditelj: Tomas Gečas (samostalna djelatnost prema potvrdi o obavljanju djelatnosti)
-OIB: 1493175
+Voditelj: vinscanner.eu
 E-pošta: info@vinscanner.eu
 Web-stranica: https://vinscanner.eu
 
@@ -1433,8 +1411,7 @@ Sve kategorije obrađuju podatke samo za naše navedene svrhe prema ugovorima ko
 
 **5. VODITELJ OBRADE**
 
-Voditelj: Tomas Gečas (samostalna djelatnost prema potvrdi o obavljanju djelatnosti)
-Identifikacioni broj: 1493175
+Voditelj: vinscanner.eu
 E-pošta: info@vinscanner.eu
 Web-stranica: https://vinscanner.eu
 
@@ -1496,8 +1473,7 @@ Të gjitha kategoritë përpunojnë të dhënat vetëm për qëllimet tona të s
 
 **5. PËRGJEGJËSI I TË DHËNAVE**
 
-Përgjegjës: Tomas Gečas (veprimtari individual sipas certifikatit të veprimtarisë)
-Numri identifikues: 1493175
+Përgjegjës: vinscanner.eu
 Email: info@vinscanner.eu
 Faqja: https://vinscanner.eu
 
@@ -1559,8 +1535,7 @@ Vse kategorije obdelujejo podatke samo za naše navedene namene v skladu s pogod
 
 **5. UPRAVLJAVEC PODATKOV**
 
-Upravljavec: Tomas Gečas (samostojna dejavnost po potrdilu o dejavnosti)
-Identifikacijska številka: 1493175
+Upravljavec: vinscanner.eu
 E-pošta: info@vinscanner.eu
 Spletna stran: https://vinscanner.eu
 
@@ -1622,8 +1597,7 @@ Visas kategorijas apstrādā datus tikai mūsu norādītajiem mērķiem saskaņ�
 
 **5. DATU PĀRZINIS**
 
-Pārzinis: Tomas Gečas (individuālā saimnieciskā darbība saskaņā ar darbības apliecinājumu)
-Identifikācijas numurs: 1493175
+Pārzinis: vinscanner.eu
 E-pasts: info@vinscanner.eu
 Vietne: https://vinscanner.eu
 
@@ -1685,8 +1659,7 @@ Mēs varam atjaunināt šo politiku. Būtiskas izmaiņas tiks paziņotas vietnē
 
 **5. ОДГОВОРЕН ЗА ПОДАТОЦИ**
 
-Одговорен: Tomas Gečas (индивидуална дејност под потврда за дејност)
-Идентификационен број: 1493175
+Одговорен: vinscanner.eu
 Е-пошта: info@vinscanner.eu
 Веб-страница: https://vinscanner.eu
 
@@ -1748,8 +1721,7 @@ Kõik kategooriad töötlevad andmeid ainult meie määratud eesmärkideks lepin
 
 **5. ANDMEKONTROLLIJA**
 
-Vastutav: Tomas Gečas (üksikettevõtlus tegevusloa alusel)
-Identifitseerimisnumber: 1493175
+Vastutav: vinscanner.eu
 E-post: info@vinscanner.eu
 Veebileht: https://vinscanner.eu
 
@@ -1811,8 +1783,7 @@ Totes les categories processen dades només per als nostres fins especificats se
 
 **5. RESPONSABLE DEL TRACTAMENT**
 
-Responsable: Tomas Gečas (activitat individual sota certificat d'activitat)
-Número d'identificació: 1493175
+Responsable: vinscanner.eu
 Correu: info@vinscanner.eu
 Lloc web: https://vinscanner.eu
 
@@ -1874,8 +1845,7 @@ All Kategorien veraarbechte Donnéeën nëmme fir eis spezifizéiert Ziler no Ve
 
 **5. DONNÉÉEN VERANTWORTECHEN**
 
-Verantwortlech: Tomas Gečas (individuell Aktivitéit ënner Aktivitéitermuszeechnung)
-Identifikatiounsnummer: 1493175
+Verantwortlech: vinscanner.eu
 E-Mail: info@vinscanner.eu
 Website: https://vinscanner.eu
 
@@ -1937,8 +1907,7 @@ Sve kategorije obrađuju podatke samo za naše navedene svrhe prema ugovorima ko
 
 **5. VODITELJ OBRADE**
 
-Voditelj: Tomas Gečas (samostalna djelatnost prema potvrdi o obavljanju djelatnosti)
-Identifikacioni broj: 1493175
+Voditelj: vinscanner.eu
 E-pošta: info@vinscanner.eu
 Web-stranica: https://vinscanner.eu
 
@@ -2000,8 +1969,7 @@ L-irjus ta' kategoriji kollha jipproċessaw id-data biss għall-għanijiet speċ
 
 **5. RESPONSABBIL TAD-DEJTA**
 
-Responsabbli: Tomas Gečas (attività individwali taħt ċertifikat ta' attività)
-Numru ta' identifikazzjoni: 1493175
+Responsabbli: vinscanner.eu
 Email: info@vinscanner.eu
 Sit: https://vinscanner.eu
 
@@ -2063,8 +2031,7 @@ Allir flokkar vinna gögn aðeins fyrir okkar tiltekna tilgangi samkvæmt samnin
 
 **5. UMSJÓNARMAÐUR GAGNA**
 
-Ábyrgur: Tomas Gečas (einstaklingsrekstur samkvæmt starfsleyfi)
-Kennitölu: 1493175
+Ábyrgur: vinscanner.eu
 Tölvupóstur: info@vinscanner.eu
 Vefsíða: https://vinscanner.eu
 
@@ -2126,8 +2093,7 @@ Tüm kategoriler verileri yalnızca belirtilen amaçlarımız için GDPR uyumunu
 
 **5. VERİ SORUMLUSU**
 
-Sorumlu: Tomas Gečas (tek kişilik işletme faaliyet belgesi altında)
-Kimlik numarası: 1493175
+Sorumlu: vinscanner.eu
 E-posta: info@vinscanner.eu
 Web sitesi: https://vinscanner.eu
 

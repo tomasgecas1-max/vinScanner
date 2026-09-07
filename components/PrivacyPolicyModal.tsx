@@ -67,7 +67,7 @@ const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({ open, onClose, 
           </h2>
           <p className="text-xs text-slate-500 mt-1">
             vinscanner.eu – GDPR
-            {' · '}{policyLang === 'lt' ? 'Paskutinis atnaujinimas' : policyLang === 'de' ? 'Letzte Aktualisierung' : 'Last updated'}: 2026-02-28
+            {' · '}{policyLang === 'lt' ? 'Paskutinis atnaujinimas' : policyLang === 'de' ? 'Letzte Aktualisierung' : 'Last updated'}: 2026-09-07
           </p>
         </div>
         <div
