@@ -8,12 +8,12 @@ import type { RegionConfig } from '../constants/regionConfig';
 const stripePk = import.meta.env.VITE_STRIPE_PUBLISHABLE as string | undefined;
 const stripePromise = stripePk ? loadStripe(stripePk) : null;
 
-// Ruletės segmentų kodai + papildomi kodai intervalui 2–54% (ruletės suma)
+// Ruletės segmentų kodai + papildomi kodai intervalui 6–20%
 const DISCOUNT_CODES: Record<string, { type: 'percent' | 'fixed'; value: number }> = {
-  'A02B1K': { type: 'percent', value: 2 },
-  'B04C2M': { type: 'percent', value: 4 },
   'C06D3P': { type: 'percent', value: 6 },
+  'K07L2R': { type: 'percent', value: 7 },
   'D08E4T': { type: 'percent', value: 8 },
+  'P09Q4W': { type: 'percent', value: 9 },
   'E10F5H': { type: 'percent', value: 10 },
   'F12G6J': { type: 'percent', value: 12 },
   'G14H7N': { type: 'percent', value: 14 },

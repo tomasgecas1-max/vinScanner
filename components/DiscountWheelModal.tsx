@@ -3,7 +3,7 @@ import { trackEvent } from '../hooks/useGoogleAnalytics';
 
 const PENDING_DISCOUNT_KEY = 'vinscanner_pending_discount';
 const WHEEL_LAST_DAY_KEY = 'vinscanner_wheel_last_day';
-const MAX_SPINS = 3;
+const MAX_SPINS = 1;
 
 function getTodayLocal(): string {
   const d = new Date();
@@ -35,16 +35,16 @@ interface WheelSegment {
 }
 
 const WHEEL_SEGMENTS: WheelSegment[] = [
-  { percent: 4, code: 'B04C2M' },
-  { percent: 10, code: 'E10F5H' },
   { percent: 6, code: 'C06D3P' },
-  { percent: 14, code: 'G14H7N' },
-  { percent: 8, code: 'D08E4T' },
-  { percent: 4, code: 'B04C2M' },
   { percent: 12, code: 'F12G6J' },
-  { percent: 6, code: 'C06D3P' },
+  { percent: 7, code: 'K07L2R' },
   { percent: 16, code: 'H16I8Q' },
   { percent: 8, code: 'D08E4T' },
+  { percent: 18, code: 'I18J9U' },
+  { percent: 9, code: 'P09Q4W' },
+  { percent: 14, code: 'G14H7N' },
+  { percent: 10, code: 'E10F5H' },
+  { percent: 20, code: 'J20K0S' },
 ];
 
 const SEGMENT_COUNT = WHEEL_SEGMENTS.length;
@@ -75,16 +75,11 @@ const DiscountWheelModal: React.FC<DiscountWheelModalProps> = ({ open, onClose, 
     fetch('/api/discount-wheel', { method: 'POST' }).catch(() => {});
   }, []);
 
-  const winningRef = useRef<SpinResult>({ percent: 16, code: 'H16I8Q' });
+  const winningRef = useRef<SpinResult>({ percent: 20, code: 'J20K0S' });
   const animIdRef = useRef<number | null>(null);
 
   const runSpin = useCallback(() => {
-    const usedPercents = new Set(results.map((r) => r.percent));
-    const availableIndexes = WHEEL_SEGMENTS
-      .map((seg, i) => i)
-      .filter((i) => !usedPercents.has(WHEEL_SEGMENTS[i].percent));
-    if (availableIndexes.length === 0) return;
-    const winIndex = availableIndexes[Math.floor(Math.random() * availableIndexes.length)];
+    const winIndex = Math.floor(Math.random() * SEGMENT_COUNT);
     const segment = WHEEL_SEGMENTS[winIndex];
     winningRef.current = { percent: segment.percent, code: segment.code };
 
@@ -123,7 +118,7 @@ const DiscountWheelModal: React.FC<DiscountWheelModalProps> = ({ open, onClose, 
       }
     };
     animIdRef.current = requestAnimationFrame(animate);
-  }, [rotation, results]);
+  }, [rotation]);
 
   const handleSpinClick = () => {
     if (spinning || spinCount >= MAX_SPINS) return;
@@ -133,10 +128,9 @@ const DiscountWheelModal: React.FC<DiscountWheelModalProps> = ({ open, onClose, 
   const handleApplyDiscount = () => {
     if (results.length === 0) return;
     recordSessionUsed();
-    const best = results.reduce((a, b) => (a.percent >= b.percent ? a : b));
-    const sum = results.reduce((s, r) => s + r.percent, 0);
+    const won = results[0];
     if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(PENDING_DISCOUNT_KEY, JSON.stringify({ code: best.code, percent: sum, isWheelTotal: true, active: false }));
+      localStorage.setItem(PENDING_DISCOUNT_KEY, JSON.stringify({ code: won.code, percent: won.percent, isWheelTotal: true, active: false }));
     }
     window.dispatchEvent(new CustomEvent('vinscanner-discount-applied'));
     onApplyDiscount?.();
@@ -147,10 +141,9 @@ const DiscountWheelModal: React.FC<DiscountWheelModalProps> = ({ open, onClose, 
     if (!spinning) {
       if (results.length > 0) {
         recordSessionUsed();
-        const best = results.reduce((a, b) => (a.percent >= b.percent ? a : b));
-        const sum = results.reduce((s, r) => s + r.percent, 0);
+        const won = results[0];
         if (typeof localStorage !== 'undefined') {
-          localStorage.setItem(PENDING_DISCOUNT_KEY, JSON.stringify({ code: best.code, percent: sum, isWheelTotal: true, active: false }));
+          localStorage.setItem(PENDING_DISCOUNT_KEY, JSON.stringify({ code: won.code, percent: won.percent, isWheelTotal: true, active: false }));
         }
         window.dispatchEvent(new CustomEvent('vinscanner-discount-applied'));
       }
@@ -191,19 +184,16 @@ const DiscountWheelModal: React.FC<DiscountWheelModalProps> = ({ open, onClose, 
     return () => { cancelled = true; };
   }, [open]);
 
-  const usedPercents = new Set(results.map((r) => r.percent));
+  const wonPercent = results[0]?.percent ?? null;
   const conicStops = WHEEL_SEGMENTS.map((seg, i) => {
     const deg = i * DEG_PER_SEGMENT;
     const nextDeg = (i + 1) * DEG_PER_SEGMENT;
-    const used = usedPercents.has(seg.percent);
+    const used = wonPercent != null && seg.percent === wonPercent;
     const color = used ? '#e2e8f0' : (i % 2 === 0 ? '#c7d2fe' : '#e0e7ff');
     return `${color} ${deg}deg ${nextDeg}deg`;
   }).join(', ');
 
-  const bestResult = results.length > 0 ? results.reduce((a, b) => (a.percent >= b.percent ? a : b)) : null;
-  const totalPercent = results.reduce((sum, r) => sum + r.percent, 0);
   const spinButton = t.discountWheel?.spinButton ?? t.discountWheel?.spin ?? 'Spin';
-  const spinsOfThree = t.discountWheel?.spinsOfThree ?? 'of 3 spins';
   const nextSpinMsg = t.discountWheel?.nextSpinTomorrow ?? 'Kitas sukimas galimas kitą dieną.';
 
   if (!open) return null;
@@ -263,7 +253,7 @@ const DiscountWheelModal: React.FC<DiscountWheelModalProps> = ({ open, onClose, 
                 <span
                   key={i}
                   className={`absolute text-sm font-black whitespace-nowrap pointer-events-none ${
-                    usedPercents.has(seg.percent) ? 'text-slate-400' : 'text-indigo-700'
+                    wonPercent != null && seg.percent === wonPercent ? 'text-slate-400' : 'text-indigo-700'
                   }`}
                   style={{
                     left: x,
@@ -303,7 +293,6 @@ const DiscountWheelModal: React.FC<DiscountWheelModalProps> = ({ open, onClose, 
                 className="w-20 h-20 rounded-full bg-indigo-600 text-white shadow-lg hover:bg-indigo-500 hover:shadow-xl active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-indigo-600 disabled:hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-offset-2 flex flex-col items-center justify-center"
               >
                 <span className="text-lg font-black leading-tight">{spinButton}</span>
-                <span className="text-[11px] font-semibold text-indigo-100 mt-0.5">{spinCount} / 3</span>
               </button>
             )}
           </div>
@@ -321,35 +310,14 @@ const DiscountWheelModal: React.FC<DiscountWheelModalProps> = ({ open, onClose, 
           />
         </div>
 
-        <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2 mb-2 min-h-[2rem]">
-          {[0, 1, 2].map((i) => (
-            <React.Fragment key={i}>
-              {i > 0 && <span className="text-slate-500 font-bold text-lg leading-10">+</span>}
-              <div
-                className={`w-14 h-10 rounded-xl flex items-center justify-center text-sm font-bold ${
-                  results[i]
-                    ? bestResult && results[i]?.percent === bestResult.percent
-                      ? 'bg-indigo-600 text-white ring-2 ring-indigo-300'
-                      : 'bg-indigo-100 text-indigo-700'
-                    : 'bg-slate-100 text-slate-400'
-                }`}
-              >
-                {results[i] ? `${results[i].percent}%` : '–'}
-              </div>
-            </React.Fragment>
-          ))}
-        </div>
-        {results.length > 0 && (
-          <p className="text-slate-600 text-sm font-bold mb-6">= {totalPercent}%</p>
-        )}
-
-        {allDone && bestResult ? (
-          <div className="space-y-4">
+        {allDone && wonPercent != null ? (
+          <div className="space-y-4 mb-2">
+            <p className="text-slate-600 text-sm font-bold">-{wonPercent}%</p>
             <button
               onClick={handleApplyDiscount}
               className="w-full py-3 rounded-2xl bg-indigo-600 text-white font-black text-xs uppercase tracking-widest hover:bg-indigo-500 transition-colors"
             >
-              {t.discountWheel.applyDiscount} ({totalPercent}%)
+              {t.discountWheel.applyDiscount} ({wonPercent}%)
             </button>
           </div>
         ) : null}
