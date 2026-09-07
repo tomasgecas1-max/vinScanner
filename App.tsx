@@ -123,8 +123,10 @@ const App: React.FC = () => {
 
   const prevUserRef = React.useRef<User | null | undefined>(undefined);
 
-  // Ruletės popup rodyti po cookies patvirtinimo, praėjus 2 s; nerodyti jei jau išsukta šiandien
+  // Ruletė: po cookies + 2 s, bet visada ne vėliau kaip po 6 s nuo puslapio atidarymo
   const WHEEL_LAST_DAY_KEY = 'vinscanner_wheel_last_day';
+  const WHEEL_AFTER_CONSENT_MS = 2000;
+  const WHEEL_MAX_DELAY_MS = 6000;
   const wheelCleanupRef = React.useRef<(() => void) | null>(null);
   useEffect(() => {
     if (isBot()) return;
@@ -134,22 +136,27 @@ const App: React.FC = () => {
     };
     const isWheelUsedToday = () =>
       typeof localStorage !== 'undefined' && localStorage.getItem(WHEEL_LAST_DAY_KEY) === getTodayLocal();
-    const scheduleWheel = () => {
+    const openWheel = () => {
+      if (!isWheelUsedToday()) setShowDiscountWheel(true);
+    };
+    const startedAt = Date.now();
+    const scheduleWheel = (delayMs: number) => {
       wheelCleanupRef.current?.();
-      const openTimer = setTimeout(() => {
-        if (!isWheelUsedToday()) setShowDiscountWheel(true);
-      }, 2000);
+      const remainingCap = Math.max(0, WHEEL_MAX_DELAY_MS - (Date.now() - startedAt));
+      const openTimer = setTimeout(openWheel, Math.min(delayMs, remainingCap));
       wheelCleanupRef.current = () => clearTimeout(openTimer);
     };
-    const handleConsent = () => scheduleWheel();
+    const maxTimer = setTimeout(openWheel, WHEEL_MAX_DELAY_MS);
+    const handleConsent = () => scheduleWheel(WHEEL_AFTER_CONSENT_MS);
     if (getConsentPreferences()) {
-      scheduleWheel();
+      scheduleWheel(WHEEL_AFTER_CONSENT_MS);
     } else {
       window.addEventListener('cookieConsentChanged', handleConsent);
     }
     return () => {
       window.removeEventListener('cookieConsentChanged', handleConsent);
       wheelCleanupRef.current?.();
+      clearTimeout(maxTimer);
     };
   }, []);
 
