@@ -29,11 +29,10 @@ const MobilePlanSheet: React.FC<MobilePlanSheetProps> = ({ pendingVin, t, onPlan
     return () => window.removeEventListener('vinscanner-discount-applied', read);
   }, []);
 
-  const showDiscounted = pricesRevealed && wheelPercent != null;
   const plans = [
-    { name: t.pricing.planSingle, count: t.pricing.report1, price: showDiscounted ? priceAfterDiscount(regionCfg.prices[0], wheelPercent) : regionCfg.prices[0], oldPrice: showDiscounted ? regionCfg.prices[0] : regionCfg.oldPrices[0], highlight: false },
-    { name: t.pricing.planPopular, count: t.pricing.reports2, price: showDiscounted ? priceAfterDiscount(regionCfg.prices[1], wheelPercent) : regionCfg.prices[1], oldPrice: showDiscounted ? regionCfg.prices[1] : regionCfg.oldPrices[1], highlight: false },
-    { name: t.pricing.planBestValue, count: t.pricing.reports3, price: showDiscounted ? priceAfterDiscount(regionCfg.prices[2], wheelPercent) : regionCfg.prices[2], oldPrice: showDiscounted ? regionCfg.prices[2] : regionCfg.oldPrices[2], highlight: true },
+    { name: t.pricing.planSingle, count: t.pricing.report1, price: regionCfg.prices[0], oldPrice: regionCfg.oldPrices[0], highlight: false },
+    { name: t.pricing.planPopular, count: t.pricing.reports2, price: regionCfg.prices[1], oldPrice: regionCfg.oldPrices[1], highlight: false },
+    { name: t.pricing.planBestValue, count: t.pricing.reports3, price: regionCfg.prices[2], oldPrice: regionCfg.oldPrices[2], highlight: true },
   ];
 
   const handleConfirm = () => {
@@ -75,7 +74,7 @@ const MobilePlanSheet: React.FC<MobilePlanSheetProps> = ({ pendingVin, t, onPlan
                   ({plan.name.toLowerCase()})
                 </div>
                 <div className="flex items-center justify-center gap-1.5 flex-wrap">
-                  <span className="text-lg font-black tracking-tighter text-slate-900">{formatPlanPrice(plan.price, showDiscounted)} {regionCfg.symbol}</span>
+                  <span className="text-lg font-black tracking-tighter text-slate-900">{plan.price} {regionCfg.symbol}</span>
                   <span className="text-[10px] text-slate-400 line-through decoration-2 decoration-rose-500 font-bold">{plan.oldPrice} {regionCfg.symbol}</span>
                 </div>
                 <div className="text-[9px] text-slate-500 mt-1">
@@ -94,7 +93,9 @@ const MobilePlanSheet: React.FC<MobilePlanSheetProps> = ({ pendingVin, t, onPlan
                   : 'bg-rose-600 text-white shadow-md hover:bg-rose-500'
               }`}
             >
-              -{wheelPercent}%
+              {pricesRevealed
+                ? `${formatPlanPrice(priceAfterDiscount(plans[selectedIdx].price, wheelPercent), true)} ${regionCfg.symbol}`
+                : `-${wheelPercent}%`}
             </button>
           )}
           <button
