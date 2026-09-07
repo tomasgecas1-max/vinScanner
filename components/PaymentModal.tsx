@@ -154,7 +154,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       if (raw) {
         const parsed = JSON.parse(raw);
         const code = parsed?.code?.toUpperCase?.();
-        if (code && (DISCOUNT_CODES[code] || parsed?.isWheelTotal)) {
+        if (parsed?.active === true && code && (DISCOUNT_CODES[code] || parsed?.isWheelTotal)) {
           setAppliedCode(code);
           setAppliedWheelPercent(parsed?.isWheelTotal && typeof parsed?.percent === 'number' ? parsed.percent : null);
         } else {

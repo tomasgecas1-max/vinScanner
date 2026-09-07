@@ -35,16 +35,16 @@ interface WheelSegment {
 }
 
 const WHEEL_SEGMENTS: WheelSegment[] = [
-  { percent: 2, code: 'A02B1K' },
   { percent: 4, code: 'B04C2M' },
-  { percent: 6, code: 'C06D3P' },
-  { percent: 8, code: 'D08E4T' },
   { percent: 10, code: 'E10F5H' },
-  { percent: 12, code: 'F12G6J' },
+  { percent: 6, code: 'C06D3P' },
   { percent: 14, code: 'G14H7N' },
+  { percent: 8, code: 'D08E4T' },
+  { percent: 4, code: 'B04C2M' },
+  { percent: 12, code: 'F12G6J' },
+  { percent: 6, code: 'C06D3P' },
   { percent: 16, code: 'H16I8Q' },
-  { percent: 18, code: 'I18J9U' },
-  { percent: 20, code: 'J20K0S' },
+  { percent: 8, code: 'D08E4T' },
 ];
 
 const SEGMENT_COUNT = WHEEL_SEGMENTS.length;
@@ -75,7 +75,7 @@ const DiscountWheelModal: React.FC<DiscountWheelModalProps> = ({ open, onClose, 
     fetch('/api/discount-wheel', { method: 'POST' }).catch(() => {});
   }, []);
 
-  const winningRef = useRef<SpinResult>({ percent: 20, code: 'J20K0S' });
+  const winningRef = useRef<SpinResult>({ percent: 16, code: 'H16I8Q' });
   const animIdRef = useRef<number | null>(null);
 
   const runSpin = useCallback(() => {
@@ -136,7 +136,7 @@ const DiscountWheelModal: React.FC<DiscountWheelModalProps> = ({ open, onClose, 
     const best = results.reduce((a, b) => (a.percent >= b.percent ? a : b));
     const sum = results.reduce((s, r) => s + r.percent, 0);
     if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(PENDING_DISCOUNT_KEY, JSON.stringify({ code: best.code, percent: sum, isWheelTotal: true }));
+      localStorage.setItem(PENDING_DISCOUNT_KEY, JSON.stringify({ code: best.code, percent: sum, isWheelTotal: true, active: false }));
     }
     window.dispatchEvent(new CustomEvent('vinscanner-discount-applied'));
     onApplyDiscount?.();
@@ -150,7 +150,7 @@ const DiscountWheelModal: React.FC<DiscountWheelModalProps> = ({ open, onClose, 
         const best = results.reduce((a, b) => (a.percent >= b.percent ? a : b));
         const sum = results.reduce((s, r) => s + r.percent, 0);
         if (typeof localStorage !== 'undefined') {
-          localStorage.setItem(PENDING_DISCOUNT_KEY, JSON.stringify({ code: best.code, percent: sum, isWheelTotal: true }));
+          localStorage.setItem(PENDING_DISCOUNT_KEY, JSON.stringify({ code: best.code, percent: sum, isWheelTotal: true, active: false }));
         }
         window.dispatchEvent(new CustomEvent('vinscanner-discount-applied'));
       }

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import type { RegionConfig } from '../constants/regionConfig';
-import { formatPlanPrice, priceAfterDiscount, readPendingDiscountPercent } from '../lib/pendingDiscount';
+import { formatPlanPrice, priceAfterDiscount, readPendingDiscount, setPendingDiscountActive } from '../lib/pendingDiscount';
 
 interface MobilePlanSheetProps {
   pendingVin: string;
@@ -20,10 +20,11 @@ const MobilePlanSheet: React.FC<MobilePlanSheetProps> = ({ pendingVin, t, onPlan
 
   useEffect(() => {
     const read = () => {
-      setWheelPercent(readPendingDiscountPercent());
-      setPricesRevealed(false);
+      const pending = readPendingDiscount();
+      setWheelPercent(pending?.percent ?? null);
+      setPricesRevealed(pending?.active === true);
     };
-    setWheelPercent(readPendingDiscountPercent());
+    read();
     window.addEventListener('vinscanner-discount-applied', read);
     return () => window.removeEventListener('vinscanner-discount-applied', read);
   }, []);
@@ -83,18 +84,22 @@ const MobilePlanSheet: React.FC<MobilePlanSheetProps> = ({ pendingVin, t, onPlan
               </button>
             ))}
           </div>
-          {wheelPercent != null && !pricesRevealed && (
+          {wheelPercent != null && (
             <button
               type="button"
-              onClick={() => setPricesRevealed(true)}
-              className="mt-6 w-full py-3 rounded-2xl font-black text-sm tracking-wide transition-all active:scale-[0.98] bg-rose-600 text-white shadow-md hover:bg-rose-500"
+              onClick={() => setPendingDiscountActive(!pricesRevealed)}
+              className={`mt-6 w-full py-3 rounded-2xl font-black text-sm tracking-wide transition-all active:scale-[0.98] ${
+                pricesRevealed
+                  ? 'bg-slate-300 text-slate-500 shadow-none hover:bg-slate-400'
+                  : 'bg-rose-600 text-white shadow-md hover:bg-rose-500'
+              }`}
             >
               -{wheelPercent}%
             </button>
           )}
           <button
             onClick={handleConfirm}
-            className={`${wheelPercent != null && !pricesRevealed ? 'mt-3' : 'mt-6'} w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all active:scale-[0.98] bg-slate-900 text-white shadow-lg shadow-slate-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-800`}
+            className={`${wheelPercent != null ? 'mt-3' : 'mt-6'} w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all active:scale-[0.98] bg-slate-900 text-white shadow-lg shadow-slate-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-800`}
           >
             {t.pricing.order}
           </button>

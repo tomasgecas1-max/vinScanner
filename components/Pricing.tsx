@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import type { RegionCode, RegionConfig } from '../constants/regionConfig';
-import { formatPlanPrice, priceAfterDiscount, readPendingDiscountPercent } from '../lib/pendingDiscount';
+import { formatPlanPrice, priceAfterDiscount, readPendingDiscount, setPendingDiscountActive } from '../lib/pendingDiscount';
 
 interface PricingProps {
   t: any;
@@ -18,10 +18,11 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect, region, 
 
   useEffect(() => {
     const read = () => {
-      setWheelPercent(readPendingDiscountPercent());
-      setPricesRevealed(false);
+      const pending = readPendingDiscount();
+      setWheelPercent(pending?.percent ?? null);
+      setPricesRevealed(pending?.active === true);
     };
-    setWheelPercent(readPendingDiscountPercent());
+    read();
     window.addEventListener('vinscanner-discount-applied', read);
     return () => window.removeEventListener('vinscanner-discount-applied', read);
   }, []);
@@ -96,14 +97,16 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect, region, 
                   className="flex flex-col items-center gap-3"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  {wheelPercent != null && !pricesRevealed && (
+                  {wheelPercent != null && (
                     <button
                       type="button"
-                      onClick={() => setPricesRevealed(true)}
+                      onClick={() => setPendingDiscountActive(!pricesRevealed)}
                       className={`w-full max-w-[260px] py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-black text-sm tracking-wide transition-all shadow-md active:scale-95 cursor-pointer ${
-                        isSelected
-                          ? 'bg-rose-500 text-white hover:bg-rose-400 shadow-rose-900/30'
-                          : 'bg-rose-600 text-white hover:bg-rose-500 shadow-rose-200'
+                        pricesRevealed
+                          ? 'bg-slate-300 text-slate-500 shadow-none hover:bg-slate-400'
+                          : isSelected
+                            ? 'bg-rose-500 text-white hover:bg-rose-400 shadow-rose-900/30'
+                            : 'bg-rose-600 text-white hover:bg-rose-500 shadow-rose-200'
                       }`}
                     >
                       -{wheelPercent}%
