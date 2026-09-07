@@ -11,8 +11,8 @@ import AuthModal from './components/AuthModal';
 import SampleReportModal from './components/SampleReportModal';
 import PaymentModal from './components/PaymentModal';
 import Hero from './components/Hero';
-// Laikinai išjungta: import DiscountWheelModal from './components/DiscountWheelModal';
-// Laikinai išjungta: import DiscountBanner from './components/DiscountBanner';
+import DiscountWheelModal from './components/DiscountWheelModal';
+import DiscountBanner from './components/DiscountBanner';
 import ReportView from './components/ReportView';
 import MyReports from './components/MyReports';
 import Pricing from './components/Pricing';
@@ -102,7 +102,7 @@ const App: React.FC = () => {
   const [showAboutModal, setShowAboutModal] = useState(false);
   const [showUsageInstructionsModal, setShowUsageInstructionsModal] = useState(false);
   const [showSampleReport, setShowSampleReport] = useState(false);
-  // Laikinai išjungta ruletė: const [showDiscountWheel, setShowDiscountWheel] = useState(false);
+  const [showDiscountWheel, setShowDiscountWheel] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [purchaseInfo, setPurchaseInfo] = useState<{
     reportsRemaining: number;
@@ -123,8 +123,35 @@ const App: React.FC = () => {
 
   const prevUserRef = React.useRef<User | null | undefined>(undefined);
 
-  // Laikinai išjungta ruletė ir jos auto-popup
-  // useEffect(() => { ... ruletės rodymas ... }, []);
+  // Ruletės popup rodyti po cookies patvirtinimo, praėjus 2 s; nerodyti jei jau išsukta šiandien
+  const WHEEL_LAST_DAY_KEY = 'vinscanner_wheel_last_day';
+  const wheelCleanupRef = React.useRef<(() => void) | null>(null);
+  useEffect(() => {
+    if (isBot()) return;
+    const getTodayLocal = () => {
+      const d = new Date();
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    };
+    const isWheelUsedToday = () =>
+      typeof localStorage !== 'undefined' && localStorage.getItem(WHEEL_LAST_DAY_KEY) === getTodayLocal();
+    const scheduleWheel = () => {
+      wheelCleanupRef.current?.();
+      const openTimer = setTimeout(() => {
+        if (!isWheelUsedToday()) setShowDiscountWheel(true);
+      }, 2000);
+      wheelCleanupRef.current = () => clearTimeout(openTimer);
+    };
+    const handleConsent = () => scheduleWheel();
+    if (getConsentPreferences()) {
+      scheduleWheel();
+    } else {
+      window.addEventListener('cookieConsentChanged', handleConsent);
+    }
+    return () => {
+      window.removeEventListener('cookieConsentChanged', handleConsent);
+      wheelCleanupRef.current?.();
+    };
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -886,7 +913,7 @@ const App: React.FC = () => {
       </header>
 
       <div className="sticky top-16 sm:top-20 z-[90]">
-        {/* Laikinai išjungta: <DiscountBanner t={t} onGetDiscountClick={() => setShowDiscountWheel(true)} /> */}
+        <DiscountBanner t={t} onGetDiscountClick={() => setShowDiscountWheel(true)} />
         {purchaseToken && purchaseInfo && (
           <div className="bg-slate-50/95 backdrop-blur-sm border-b border-slate-100">
             <div className="max-w-2xl mx-auto px-4 py-3">
@@ -926,6 +953,7 @@ const App: React.FC = () => {
         <Hero
           onVinSubmit={handleVinSubmit}
           onSampleReportClick={handleSampleReportDemo}
+          onDiscountWheelClick={() => setShowDiscountWheel(true)}
           loading={loading}
           t={t}
           currencySymbol={regionCfg.symbol}
@@ -1171,7 +1199,20 @@ const App: React.FC = () => {
           lang={lang}
         />
       )}
-      {/* Laikinai išjungta ruletė: DiscountWheelModal */}
+      {showDiscountWheel && (
+        <DiscountWheelModal
+          open={showDiscountWheel}
+          onClose={() => setShowDiscountWheel(false)}
+          onApplyDiscount={() => {
+            setShowDiscountWheel(false);
+            setTimeout(() => {
+              const el = document.getElementById('pricing-plans') || document.getElementById('pricing');
+              if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+          }}
+          t={t}
+        />
+      )}
       <AuthModal open={showAuthModal} onClose={() => setShowAuthModal(false)} t={t} />
       
       {showInsufficientDataModal && (
