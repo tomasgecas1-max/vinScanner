@@ -86,11 +86,9 @@ const MobilePlanSheet: React.FC<MobilePlanSheetProps> = ({ pendingVin, t, onPlan
           {wheelPercent != null && (
             <button
               type="button"
-              onClick={() => setPendingDiscountActive(!pricesRevealed)}
-              className={`mt-6 w-full py-3 rounded-2xl font-black text-sm tracking-wide transition-all active:scale-[0.98] ${
-                pricesRevealed
-                  ? 'bg-slate-300 text-slate-500 shadow-none hover:bg-slate-400'
-                  : 'bg-rose-600 text-white shadow-md hover:bg-rose-500'
+              onClick={() => { if (!pricesRevealed) setPendingDiscountActive(true); }}
+              className={`mt-6 w-full py-3 rounded-2xl font-black text-sm tracking-wide bg-rose-600 text-white shadow-md ${
+                pricesRevealed ? 'cursor-default' : 'hover:bg-rose-500 active:scale-[0.98]'
               }`}
             >
               {pricesRevealed

@@ -99,14 +99,12 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect, region, 
                   {wheelPercent != null && (
                     <button
                       type="button"
-                      onClick={() => setPendingDiscountActive(!pricesRevealed)}
-                      className={`w-full max-w-[260px] py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-black text-sm tracking-wide transition-all shadow-md active:scale-95 cursor-pointer ${
-                        pricesRevealed
-                          ? 'bg-slate-300 text-slate-500 shadow-none hover:bg-slate-400'
-                          : isSelected
-                            ? 'bg-rose-500 text-white hover:bg-rose-400 shadow-rose-900/30'
-                            : 'bg-rose-600 text-white hover:bg-rose-500 shadow-rose-200'
-                      }`}
+                      onClick={() => { if (!pricesRevealed) setPendingDiscountActive(true); }}
+                      className={`w-full max-w-[260px] py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-black text-sm tracking-wide transition-all shadow-md ${
+                        isSelected
+                          ? 'bg-rose-500 text-white shadow-rose-900/30'
+                          : 'bg-rose-600 text-white shadow-rose-200'
+                      } ${pricesRevealed ? 'cursor-default' : 'hover:bg-rose-500 active:scale-95 cursor-pointer'}`}
                     >
                       {pricesRevealed
                         ? `${formatPlanPrice(priceAfterDiscount(plan.price, wheelPercent), true)} ${regionCfg.symbol}`
