@@ -5,7 +5,7 @@ import MobilePlanSheet from './components/MobilePlanSheet';
 import OrderEmailStepModal from './components/OrderEmailStepModal';
 import PrivacyPolicyModal from './components/PrivacyPolicyModal';
 import AboutModal from './components/AboutModal';
-import CookieConsent, { getConsentPreferences } from './components/CookieConsent';
+import CookieConsent from './components/CookieConsent';
 import UsageInstructionsModal from './components/UsageInstructionsModal';
 import AuthModal from './components/AuthModal';
 import SampleReportModal from './components/SampleReportModal';
@@ -123,11 +123,9 @@ const App: React.FC = () => {
 
   const prevUserRef = React.useRef<User | null | undefined>(undefined);
 
-  // Ruletė: po cookies + 2 s, bet visada ne vėliau kaip po 6 s nuo puslapio atidarymo
+  // Ruletė: vienas popup po 6 s nuo puslapio atidarymo; nerodyti jei jau išsukta šiandien
   const WHEEL_LAST_DAY_KEY = 'vinscanner_wheel_last_day';
-  const WHEEL_AFTER_CONSENT_MS = 2000;
-  const WHEEL_MAX_DELAY_MS = 6000;
-  const wheelCleanupRef = React.useRef<(() => void) | null>(null);
+  const WHEEL_DELAY_MS = 6000;
   useEffect(() => {
     if (isBot()) return;
     const getTodayLocal = () => {
@@ -136,28 +134,10 @@ const App: React.FC = () => {
     };
     const isWheelUsedToday = () =>
       typeof localStorage !== 'undefined' && localStorage.getItem(WHEEL_LAST_DAY_KEY) === getTodayLocal();
-    const openWheel = () => {
+    const openTimer = setTimeout(() => {
       if (!isWheelUsedToday()) setShowDiscountWheel(true);
-    };
-    const startedAt = Date.now();
-    const scheduleWheel = (delayMs: number) => {
-      wheelCleanupRef.current?.();
-      const remainingCap = Math.max(0, WHEEL_MAX_DELAY_MS - (Date.now() - startedAt));
-      const openTimer = setTimeout(openWheel, Math.min(delayMs, remainingCap));
-      wheelCleanupRef.current = () => clearTimeout(openTimer);
-    };
-    const maxTimer = setTimeout(openWheel, WHEEL_MAX_DELAY_MS);
-    const handleConsent = () => scheduleWheel(WHEEL_AFTER_CONSENT_MS);
-    if (getConsentPreferences()) {
-      scheduleWheel(WHEEL_AFTER_CONSENT_MS);
-    } else {
-      window.addEventListener('cookieConsentChanged', handleConsent);
-    }
-    return () => {
-      window.removeEventListener('cookieConsentChanged', handleConsent);
-      wheelCleanupRef.current?.();
-      clearTimeout(maxTimer);
-    };
+    }, WHEEL_DELAY_MS);
+    return () => clearTimeout(openTimer);
   }, []);
 
   useEffect(() => {
