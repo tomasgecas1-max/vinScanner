@@ -16,18 +16,23 @@ const MobilePlanSheet: React.FC<MobilePlanSheetProps> = ({ pendingVin, t, onPlan
   const [selectedIdx, setSelectedIdx] = useState<number>(1);
   const [refundModalOpen, setRefundModalOpen] = useState(false);
   const [wheelPercent, setWheelPercent] = useState<number | null>(null);
+  const [pricesRevealed, setPricesRevealed] = useState(false);
 
   useEffect(() => {
-    const read = () => setWheelPercent(readPendingDiscountPercent());
-    read();
+    const read = () => {
+      setWheelPercent(readPendingDiscountPercent());
+      setPricesRevealed(false);
+    };
+    setWheelPercent(readPendingDiscountPercent());
     window.addEventListener('vinscanner-discount-applied', read);
     return () => window.removeEventListener('vinscanner-discount-applied', read);
   }, []);
 
+  const showDiscounted = pricesRevealed && wheelPercent != null;
   const plans = [
-    { name: t.pricing.planSingle, count: t.pricing.report1, price: priceAfterDiscount(regionCfg.prices[0], wheelPercent), oldPrice: wheelPercent != null ? regionCfg.prices[0] : regionCfg.oldPrices[0], highlight: false },
-    { name: t.pricing.planPopular, count: t.pricing.reports2, price: priceAfterDiscount(regionCfg.prices[1], wheelPercent), oldPrice: wheelPercent != null ? regionCfg.prices[1] : regionCfg.oldPrices[1], highlight: false },
-    { name: t.pricing.planBestValue, count: t.pricing.reports3, price: priceAfterDiscount(regionCfg.prices[2], wheelPercent), oldPrice: wheelPercent != null ? regionCfg.prices[2] : regionCfg.oldPrices[2], highlight: true },
+    { name: t.pricing.planSingle, count: t.pricing.report1, price: showDiscounted ? priceAfterDiscount(regionCfg.prices[0], wheelPercent) : regionCfg.prices[0], oldPrice: showDiscounted ? regionCfg.prices[0] : regionCfg.oldPrices[0], highlight: false },
+    { name: t.pricing.planPopular, count: t.pricing.reports2, price: showDiscounted ? priceAfterDiscount(regionCfg.prices[1], wheelPercent) : regionCfg.prices[1], oldPrice: showDiscounted ? regionCfg.prices[1] : regionCfg.oldPrices[1], highlight: false },
+    { name: t.pricing.planBestValue, count: t.pricing.reports3, price: showDiscounted ? priceAfterDiscount(regionCfg.prices[2], wheelPercent) : regionCfg.prices[2], oldPrice: showDiscounted ? regionCfg.prices[2] : regionCfg.oldPrices[2], highlight: true },
   ];
 
   const handleConfirm = () => {
@@ -69,7 +74,7 @@ const MobilePlanSheet: React.FC<MobilePlanSheetProps> = ({ pendingVin, t, onPlan
                   ({plan.name.toLowerCase()})
                 </div>
                 <div className="flex items-center justify-center gap-1.5 flex-wrap">
-                  <span className="text-lg font-black tracking-tighter text-slate-900">{formatPlanPrice(plan.price, wheelPercent != null)} {regionCfg.symbol}</span>
+                  <span className="text-lg font-black tracking-tighter text-slate-900">{formatPlanPrice(plan.price, showDiscounted)} {regionCfg.symbol}</span>
                   <span className="text-[10px] text-slate-400 line-through decoration-2 decoration-rose-500 font-bold">{plan.oldPrice} {regionCfg.symbol}</span>
                 </div>
                 <div className="text-[9px] text-slate-500 mt-1">
@@ -78,9 +83,18 @@ const MobilePlanSheet: React.FC<MobilePlanSheetProps> = ({ pendingVin, t, onPlan
               </button>
             ))}
           </div>
+          {wheelPercent != null && !pricesRevealed && (
+            <button
+              type="button"
+              onClick={() => setPricesRevealed(true)}
+              className="mt-6 w-full py-3 rounded-2xl font-black text-sm tracking-wide transition-all active:scale-[0.98] bg-rose-600 text-white shadow-md hover:bg-rose-500"
+            >
+              -{wheelPercent}%
+            </button>
+          )}
           <button
             onClick={handleConfirm}
-            className="mt-6 w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all active:scale-[0.98] bg-slate-900 text-white shadow-lg shadow-slate-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-800"
+            className={`${wheelPercent != null && !pricesRevealed ? 'mt-3' : 'mt-6'} w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all active:scale-[0.98] bg-slate-900 text-white shadow-lg shadow-slate-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-800`}
           >
             {t.pricing.order}
           </button>

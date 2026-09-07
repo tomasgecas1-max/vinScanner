@@ -14,18 +14,23 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect, region, 
   const [refundModalOpen, setRefundModalOpen] = useState(false);
   const [selectedPlanIdx, setSelectedPlanIdx] = useState<number>(1);
   const [wheelPercent, setWheelPercent] = useState<number | null>(null);
+  const [pricesRevealed, setPricesRevealed] = useState(false);
 
   useEffect(() => {
-    const read = () => setWheelPercent(readPendingDiscountPercent());
-    read();
+    const read = () => {
+      setWheelPercent(readPendingDiscountPercent());
+      setPricesRevealed(false);
+    };
+    setWheelPercent(readPendingDiscountPercent());
     window.addEventListener('vinscanner-discount-applied', read);
     return () => window.removeEventListener('vinscanner-discount-applied', read);
   }, []);
 
+  const showDiscounted = pricesRevealed && wheelPercent != null;
   const plans = [
-    { name: t.pricing.planSingle, count: t.pricing.report1, reportCount: 1, price: priceAfterDiscount(regionCfg.prices[0], wheelPercent), oldPrice: wheelPercent != null ? regionCfg.prices[0] : regionCfg.oldPrices[0], bestValue: false },
-    { name: t.pricing.planPopular, count: t.pricing.reports2, reportCount: 2, price: priceAfterDiscount(regionCfg.prices[1], wheelPercent), oldPrice: wheelPercent != null ? regionCfg.prices[1] : regionCfg.oldPrices[1], bestValue: false },
-    { name: t.pricing.planBestValue, count: t.pricing.reports3, reportCount: 3, price: priceAfterDiscount(regionCfg.prices[2], wheelPercent), oldPrice: wheelPercent != null ? regionCfg.prices[2] : regionCfg.oldPrices[2], bestValue: true },
+    { name: t.pricing.planSingle, count: t.pricing.report1, reportCount: 1, price: showDiscounted ? priceAfterDiscount(regionCfg.prices[0], wheelPercent) : regionCfg.prices[0], oldPrice: showDiscounted ? regionCfg.prices[0] : regionCfg.oldPrices[0], bestValue: false },
+    { name: t.pricing.planPopular, count: t.pricing.reports2, reportCount: 2, price: showDiscounted ? priceAfterDiscount(regionCfg.prices[1], wheelPercent) : regionCfg.prices[1], oldPrice: showDiscounted ? regionCfg.prices[1] : regionCfg.oldPrices[1], bestValue: false },
+    { name: t.pricing.planBestValue, count: t.pricing.reports3, reportCount: 3, price: showDiscounted ? priceAfterDiscount(regionCfg.prices[2], wheelPercent) : regionCfg.prices[2], oldPrice: showDiscounted ? regionCfg.prices[2] : regionCfg.oldPrices[2], bestValue: true },
   ];
 
   return (
@@ -77,7 +82,7 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect, region, 
                   </h3>
                   <div className="text-2xl sm:text-3xl font-black mb-3 sm:mb-4 tracking-tight">{plan.count}</div>
                   <div className="flex items-center justify-center gap-2 sm:gap-3">
-                    <span className="text-4xl sm:text-5xl font-black tracking-tighter">{formatPlanPrice(plan.price, wheelPercent != null)} {regionCfg.symbol}</span>
+                    <span className="text-4xl sm:text-5xl font-black tracking-tighter">{formatPlanPrice(plan.price, showDiscounted)} {regionCfg.symbol}</span>
                     {plan.oldPrice != null && (
                       <span className="text-xl sm:text-2xl text-slate-400 line-through decoration-2 decoration-rose-500 font-bold">{plan.oldPrice} {regionCfg.symbol}</span>
                     )}
@@ -91,6 +96,19 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect, region, 
                   className="flex flex-col items-center gap-3"
                   onClick={(e) => e.stopPropagation()}
                 >
+                  {wheelPercent != null && !pricesRevealed && (
+                    <button
+                      type="button"
+                      onClick={() => setPricesRevealed(true)}
+                      className={`w-full max-w-[260px] py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-black text-sm tracking-wide transition-all shadow-md active:scale-95 cursor-pointer ${
+                        isSelected
+                          ? 'bg-rose-500 text-white hover:bg-rose-400 shadow-rose-900/30'
+                          : 'bg-rose-600 text-white hover:bg-rose-500 shadow-rose-200'
+                      }`}
+                    >
+                      -{wheelPercent}%
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => { 
