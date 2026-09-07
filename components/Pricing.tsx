@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { RegionCode, RegionConfig } from '../constants/regionConfig';
+import { formatPlanPrice, priceAfterDiscount, readPendingDiscountPercent } from '../lib/pendingDiscount';
 
 interface PricingProps {
   t: any;
@@ -12,11 +13,19 @@ interface PricingProps {
 const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect, region, regionCfg }) => {
   const [refundModalOpen, setRefundModalOpen] = useState(false);
   const [selectedPlanIdx, setSelectedPlanIdx] = useState<number>(1);
+  const [wheelPercent, setWheelPercent] = useState<number | null>(null);
+
+  useEffect(() => {
+    const read = () => setWheelPercent(readPendingDiscountPercent());
+    read();
+    window.addEventListener('vinscanner-discount-applied', read);
+    return () => window.removeEventListener('vinscanner-discount-applied', read);
+  }, []);
 
   const plans = [
-    { name: t.pricing.planSingle, count: t.pricing.report1, reportCount: 1, price: regionCfg.prices[0], oldPrice: regionCfg.oldPrices[0], bestValue: false },
-    { name: t.pricing.planPopular, count: t.pricing.reports2, reportCount: 2, price: regionCfg.prices[1], oldPrice: regionCfg.oldPrices[1], bestValue: false },
-    { name: t.pricing.planBestValue, count: t.pricing.reports3, reportCount: 3, price: regionCfg.prices[2], oldPrice: regionCfg.oldPrices[2], bestValue: true },
+    { name: t.pricing.planSingle, count: t.pricing.report1, reportCount: 1, price: priceAfterDiscount(regionCfg.prices[0], wheelPercent), oldPrice: wheelPercent != null ? regionCfg.prices[0] : regionCfg.oldPrices[0], bestValue: false },
+    { name: t.pricing.planPopular, count: t.pricing.reports2, reportCount: 2, price: priceAfterDiscount(regionCfg.prices[1], wheelPercent), oldPrice: wheelPercent != null ? regionCfg.prices[1] : regionCfg.oldPrices[1], bestValue: false },
+    { name: t.pricing.planBestValue, count: t.pricing.reports3, reportCount: 3, price: priceAfterDiscount(regionCfg.prices[2], wheelPercent), oldPrice: wheelPercent != null ? regionCfg.prices[2] : regionCfg.oldPrices[2], bestValue: true },
   ];
 
   return (
@@ -68,7 +77,7 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect, region, 
                   </h3>
                   <div className="text-2xl sm:text-3xl font-black mb-3 sm:mb-4 tracking-tight">{plan.count}</div>
                   <div className="flex items-center justify-center gap-2 sm:gap-3">
-                    <span className="text-4xl sm:text-5xl font-black tracking-tighter">{plan.price} {regionCfg.symbol}</span>
+                    <span className="text-4xl sm:text-5xl font-black tracking-tighter">{formatPlanPrice(plan.price, wheelPercent != null)} {regionCfg.symbol}</span>
                     {plan.oldPrice != null && (
                       <span className="text-xl sm:text-2xl text-slate-400 line-through decoration-2 decoration-rose-500 font-bold">{plan.oldPrice} {regionCfg.symbol}</span>
                     )}

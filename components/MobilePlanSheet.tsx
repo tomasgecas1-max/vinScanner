@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import type { RegionConfig } from '../constants/regionConfig';
+import { formatPlanPrice, priceAfterDiscount, readPendingDiscountPercent } from '../lib/pendingDiscount';
 
 interface MobilePlanSheetProps {
   pendingVin: string;
@@ -12,12 +13,21 @@ interface MobilePlanSheetProps {
 const defaultRegionCfg: RegionConfig = { currency: 'eur', symbol: '€', prices: [7, 12, 17], oldPrices: [14, 24, 33] };
 
 const MobilePlanSheet: React.FC<MobilePlanSheetProps> = ({ pendingVin, t, onPlanSelect, onClose, regionCfg = defaultRegionCfg }) => {
-  const [selectedIdx, setSelectedIdx] = React.useState<number>(1);
-  const [refundModalOpen, setRefundModalOpen] = React.useState(false);
+  const [selectedIdx, setSelectedIdx] = useState<number>(1);
+  const [refundModalOpen, setRefundModalOpen] = useState(false);
+  const [wheelPercent, setWheelPercent] = useState<number | null>(null);
+
+  useEffect(() => {
+    const read = () => setWheelPercent(readPendingDiscountPercent());
+    read();
+    window.addEventListener('vinscanner-discount-applied', read);
+    return () => window.removeEventListener('vinscanner-discount-applied', read);
+  }, []);
+
   const plans = [
-    { name: t.pricing.planSingle, count: t.pricing.report1, price: regionCfg.prices[0], oldPrice: regionCfg.oldPrices[0], highlight: false },
-    { name: t.pricing.planPopular, count: t.pricing.reports2, price: regionCfg.prices[1], oldPrice: regionCfg.oldPrices[1], highlight: false },
-    { name: t.pricing.planBestValue, count: t.pricing.reports3, price: regionCfg.prices[2], oldPrice: regionCfg.oldPrices[2], highlight: true },
+    { name: t.pricing.planSingle, count: t.pricing.report1, price: priceAfterDiscount(regionCfg.prices[0], wheelPercent), oldPrice: wheelPercent != null ? regionCfg.prices[0] : regionCfg.oldPrices[0], highlight: false },
+    { name: t.pricing.planPopular, count: t.pricing.reports2, price: priceAfterDiscount(regionCfg.prices[1], wheelPercent), oldPrice: wheelPercent != null ? regionCfg.prices[1] : regionCfg.oldPrices[1], highlight: false },
+    { name: t.pricing.planBestValue, count: t.pricing.reports3, price: priceAfterDiscount(regionCfg.prices[2], wheelPercent), oldPrice: wheelPercent != null ? regionCfg.prices[2] : regionCfg.oldPrices[2], highlight: true },
   ];
 
   const handleConfirm = () => {
@@ -59,7 +69,7 @@ const MobilePlanSheet: React.FC<MobilePlanSheetProps> = ({ pendingVin, t, onPlan
                   ({plan.name.toLowerCase()})
                 </div>
                 <div className="flex items-center justify-center gap-1.5 flex-wrap">
-                  <span className="text-lg font-black tracking-tighter text-slate-900">{plan.price} {regionCfg.symbol}</span>
+                  <span className="text-lg font-black tracking-tighter text-slate-900">{formatPlanPrice(plan.price, wheelPercent != null)} {regionCfg.symbol}</span>
                   <span className="text-[10px] text-slate-400 line-through decoration-2 decoration-rose-500 font-bold">{plan.oldPrice} {regionCfg.symbol}</span>
                 </div>
                 <div className="text-[9px] text-slate-500 mt-1">
