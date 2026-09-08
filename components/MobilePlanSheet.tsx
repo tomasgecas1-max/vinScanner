@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import type { RegionConfig } from '../constants/regionConfig';
-import { formatPlanPrice, priceAfterDiscount, readPendingDiscount, setPendingDiscountActive } from '../lib/pendingDiscount';
+import { formatPlanPrice, priceAfterDiscount, readPendingDiscount, activatePlanDiscount } from '../lib/pendingDiscount';
 
 interface MobilePlanSheetProps {
   pendingVin: string;
@@ -16,13 +16,13 @@ const MobilePlanSheet: React.FC<MobilePlanSheetProps> = ({ pendingVin, t, onPlan
   const [selectedIdx, setSelectedIdx] = useState<number>(1);
   const [refundModalOpen, setRefundModalOpen] = useState(false);
   const [wheelPercent, setWheelPercent] = useState<number | null>(null);
-  const [pricesRevealed, setPricesRevealed] = useState(false);
+  const [activePlans, setActivePlans] = useState<[boolean, boolean, boolean]>([false, false, false]);
 
   useEffect(() => {
     const read = () => {
       const pending = readPendingDiscount();
       setWheelPercent(pending?.percent ?? null);
-      setPricesRevealed(pending?.active === true);
+      setActivePlans(pending?.activePlans ?? [false, false, false]);
     };
     read();
     window.addEventListener('vinscanner-discount-applied', read);
@@ -54,11 +54,16 @@ const MobilePlanSheet: React.FC<MobilePlanSheetProps> = ({ pendingVin, t, onPlan
         <div className="px-4 pb-6">
           <p className="text-slate-500 text-sm font-medium mb-4 font-mono truncate">{pendingVin}</p>
           <div className="grid grid-cols-3 gap-2.5 items-stretch">
-            {plans.map((plan, idx) => (
-              <button
+            {plans.map((plan, idx) => {
+              const planDiscounted = activePlans[idx];
+              return (
+              <div
                 key={idx}
+                role="button"
+                tabIndex={0}
                 onClick={() => setSelectedIdx(idx)}
-                className={`flex flex-col items-center justify-center min-h-[90px] min-w-0 p-2 rounded-xl border-2 transition-all duration-300 ease-out bg-white text-slate-900 border-slate-200 shadow-xl shadow-slate-200/50 ${
+                onKeyDown={(e) => e.key === 'Enter' && setSelectedIdx(idx)}
+                className={`flex flex-col items-center justify-center min-h-[90px] min-w-0 p-2 rounded-xl border-2 transition-all duration-300 ease-out bg-white text-slate-900 border-slate-200 shadow-xl shadow-slate-200/50 cursor-pointer ${
                   selectedIdx === idx
                     ? 'scale-[1.22] z-10 border-indigo-600 shadow-[0_30px_60px_-15px_rgba(79,70,229,0.25)]'
                     : 'scale-100'
@@ -80,25 +85,29 @@ const MobilePlanSheet: React.FC<MobilePlanSheetProps> = ({ pendingVin, t, onPlan
                 <div className="text-[9px] text-slate-500 mt-1">
                   {t.pricing.perReport} {(plan.price / (idx + 1)).toFixed(2)} {regionCfg.symbol}
                 </div>
-              </button>
-            ))}
+                {wheelPercent != null && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!planDiscounted) activatePlanDiscount(idx);
+                    }}
+                    className={`mt-1.5 w-full py-1 rounded-lg font-black text-[10px] tracking-wide bg-rose-600 text-white shadow-sm ${
+                      planDiscounted ? 'cursor-default' : 'hover:bg-rose-500 active:scale-95'
+                    }`}
+                  >
+                    {planDiscounted
+                      ? `${formatPlanPrice(priceAfterDiscount(plan.price, wheelPercent), true)} ${regionCfg.symbol}`
+                      : `-${wheelPercent}%`}
+                  </button>
+                )}
+              </div>
+              );
+            })}
           </div>
-          {wheelPercent != null && (
-            <button
-              type="button"
-              onClick={() => { if (!pricesRevealed) setPendingDiscountActive(true); }}
-              className={`mt-6 w-full py-3 rounded-2xl font-black text-sm tracking-wide bg-rose-600 text-white shadow-md ${
-                pricesRevealed ? 'cursor-default' : 'hover:bg-rose-500 active:scale-[0.98]'
-              }`}
-            >
-              {pricesRevealed
-                ? `${formatPlanPrice(priceAfterDiscount(plans[selectedIdx].price, wheelPercent), true)} ${regionCfg.symbol}`
-                : `-${wheelPercent}%`}
-            </button>
-          )}
           <button
             onClick={handleConfirm}
-            className={`${wheelPercent != null ? 'mt-3' : 'mt-6'} w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all active:scale-[0.98] bg-slate-900 text-white shadow-lg shadow-slate-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-800`}
+            className="mt-6 w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all active:scale-[0.98] bg-slate-900 text-white shadow-lg shadow-slate-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-800"
           >
             {t.pricing.order}
           </button>

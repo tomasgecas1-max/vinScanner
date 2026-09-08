@@ -19,7 +19,10 @@ const DiscountBanner: React.FC<DiscountBannerProps> = ({ t, onGetDiscountClick }
         const raw = typeof localStorage !== 'undefined' ? localStorage.getItem(PENDING_DISCOUNT_KEY) : null;
         if (raw) {
           const parsed = JSON.parse(raw);
-          if (parsed?.active === true && parsed?.code && typeof parsed.percent === 'number') {
+          const anyActive = Array.isArray(parsed.activePlans)
+            ? parsed.activePlans.some(Boolean)
+            : parsed?.active === true;
+          if (anyActive && parsed?.code && typeof parsed.percent === 'number') {
             setPendingDiscount({ code: parsed.code, percent: parsed.percent });
             return;
           }

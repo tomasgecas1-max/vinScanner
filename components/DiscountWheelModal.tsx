@@ -130,7 +130,7 @@ const DiscountWheelModal: React.FC<DiscountWheelModalProps> = ({ open, onClose, 
     recordSessionUsed();
     const won = results[0];
     if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(PENDING_DISCOUNT_KEY, JSON.stringify({ code: won.code, percent: won.percent, isWheelTotal: true, active: false }));
+      localStorage.setItem(PENDING_DISCOUNT_KEY, JSON.stringify({ code: won.code, percent: won.percent, isWheelTotal: true, activePlans: [false, false, false], active: false }));
     }
     window.dispatchEvent(new CustomEvent('vinscanner-discount-applied'));
     onApplyDiscount?.();
@@ -143,7 +143,7 @@ const DiscountWheelModal: React.FC<DiscountWheelModalProps> = ({ open, onClose, 
         recordSessionUsed();
         const won = results[0];
         if (typeof localStorage !== 'undefined') {
-          localStorage.setItem(PENDING_DISCOUNT_KEY, JSON.stringify({ code: won.code, percent: won.percent, isWheelTotal: true, active: false }));
+          localStorage.setItem(PENDING_DISCOUNT_KEY, JSON.stringify({ code: won.code, percent: won.percent, isWheelTotal: true, activePlans: [false, false, false], active: false }));
         }
         window.dispatchEvent(new CustomEvent('vinscanner-discount-applied'));
       }

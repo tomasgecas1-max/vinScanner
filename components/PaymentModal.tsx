@@ -143,6 +143,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       setStripeError(null);
       setCurrentOrderId(null);
       setCurrentPaymentIntentId(null);
+      setAppliedCode(null);
+      setAppliedWheelPercent(null);
     }
   }, [open]);
 
@@ -154,19 +156,25 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       if (raw) {
         const parsed = JSON.parse(raw);
         const code = parsed?.code?.toUpperCase?.();
-        if (parsed?.active === true && code && (DISCOUNT_CODES[code] || parsed?.isWheelTotal)) {
+        const activeForPlan = Array.isArray(parsed?.activePlans)
+          ? parsed.activePlans[planIndex] === true
+          : parsed?.active === true;
+        if (activeForPlan && code && (DISCOUNT_CODES[code] || parsed?.isWheelTotal)) {
           setAppliedCode(code);
           setAppliedWheelPercent(parsed?.isWheelTotal && typeof parsed?.percent === 'number' ? parsed.percent : null);
         } else {
+          setAppliedCode(null);
           setAppliedWheelPercent(null);
         }
       } else {
+        setAppliedCode(null);
         setAppliedWheelPercent(null);
       }
     } catch {
+      setAppliedCode(null);
       setAppliedWheelPercent(null);
     }
-  }, [open]);
+  }, [open, planIndex]);
 
   if (!open) return null;
 

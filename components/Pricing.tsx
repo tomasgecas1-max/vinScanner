@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import type { RegionCode, RegionConfig } from '../constants/regionConfig';
-import { formatPlanPrice, priceAfterDiscount, readPendingDiscount, setPendingDiscountActive } from '../lib/pendingDiscount';
+import { formatPlanPrice, priceAfterDiscount, readPendingDiscount, activatePlanDiscount } from '../lib/pendingDiscount';
 
 interface PricingProps {
   t: any;
@@ -14,13 +14,13 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect, region, 
   const [refundModalOpen, setRefundModalOpen] = useState(false);
   const [selectedPlanIdx, setSelectedPlanIdx] = useState<number>(1);
   const [wheelPercent, setWheelPercent] = useState<number | null>(null);
-  const [pricesRevealed, setPricesRevealed] = useState(false);
+  const [activePlans, setActivePlans] = useState<[boolean, boolean, boolean]>([false, false, false]);
 
   useEffect(() => {
     const read = () => {
       const pending = readPendingDiscount();
       setWheelPercent(pending?.percent ?? null);
-      setPricesRevealed(pending?.active === true);
+      setActivePlans(pending?.activePlans ?? [false, false, false]);
     };
     read();
     window.addEventListener('vinscanner-discount-applied', read);
@@ -63,6 +63,7 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect, region, 
         <div id="pricing-plans" className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8 items-stretch scroll-mt-20 sm:scroll-mt-24">
           {plans.map((plan, idx) => {
             const isSelected = selectedPlanIdx === idx;
+            const planDiscounted = activePlans[idx];
             return (
               <div
                 key={idx}
@@ -99,14 +100,14 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect, region, 
                   {wheelPercent != null && (
                     <button
                       type="button"
-                      onClick={() => { if (!pricesRevealed) setPendingDiscountActive(true); }}
+                      onClick={() => { if (!planDiscounted) activatePlanDiscount(idx); }}
                       className={`w-full max-w-[260px] py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-black text-sm tracking-wide transition-all shadow-md ${
                         isSelected
                           ? 'bg-rose-500 text-white shadow-rose-900/30'
                           : 'bg-rose-600 text-white shadow-rose-200'
-                      } ${pricesRevealed ? 'cursor-default' : 'hover:bg-rose-500 active:scale-95 cursor-pointer'}`}
+                      } ${planDiscounted ? 'cursor-default' : 'hover:bg-rose-500 active:scale-95 cursor-pointer'}`}
                     >
-                      {pricesRevealed
+                      {planDiscounted
                         ? `${formatPlanPrice(priceAfterDiscount(plan.price, wheelPercent), true)} ${regionCfg.symbol}`
                         : `-${wheelPercent}%`}
                     </button>
