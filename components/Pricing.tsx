@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import type { RegionCode, RegionConfig } from '../constants/regionConfig';
-import { formatPlanPrice, priceAfterDiscount, readPendingDiscount, activatePlanDiscount } from '../lib/pendingDiscount';
+import { discountAmount, readPendingDiscount, activatePlanDiscount } from '../lib/pendingDiscount';
 
 interface PricingProps {
   t: any;
@@ -100,7 +100,15 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect, region, 
                   {wheelPercent != null && (
                     <button
                       type="button"
-                      onClick={() => { if (!planDiscounted) activatePlanDiscount(idx); }}
+                      onClick={() => {
+                        if (planDiscounted) return;
+                        activatePlanDiscount(idx);
+                        setActivePlans((prev) => {
+                          const next: [boolean, boolean, boolean] = [prev[0], prev[1], prev[2]];
+                          next[idx] = true;
+                          return next;
+                        });
+                      }}
                       className={`w-full max-w-[260px] py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-black text-sm tracking-wide transition-all shadow-md ${
                         isSelected
                           ? 'bg-rose-500 text-white shadow-rose-900/30'
@@ -108,7 +116,7 @@ const Pricing: React.FC<PricingProps> = ({ t, pendingVin, onPlanSelect, region, 
                       } ${planDiscounted ? 'cursor-default' : 'hover:bg-rose-500 active:scale-95 cursor-pointer'}`}
                     >
                       {planDiscounted
-                        ? `${formatPlanPrice(priceAfterDiscount(plan.price, wheelPercent), true)} ${regionCfg.symbol}`
+                        ? `−${discountAmount(plan.price, wheelPercent).toFixed(2)} ${regionCfg.symbol}`
                         : `-${wheelPercent}%`}
                     </button>
                   )}

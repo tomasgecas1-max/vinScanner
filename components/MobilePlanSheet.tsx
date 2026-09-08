@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import type { RegionConfig } from '../constants/regionConfig';
-import { formatPlanPrice, priceAfterDiscount, readPendingDiscount, activatePlanDiscount } from '../lib/pendingDiscount';
+import { discountAmount, readPendingDiscount, activatePlanDiscount } from '../lib/pendingDiscount';
 
 interface MobilePlanSheetProps {
   pendingVin: string;
@@ -90,14 +90,20 @@ const MobilePlanSheet: React.FC<MobilePlanSheetProps> = ({ pendingVin, t, onPlan
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (!planDiscounted) activatePlanDiscount(idx);
+                      if (planDiscounted) return;
+                      activatePlanDiscount(idx);
+                      setActivePlans((prev) => {
+                        const next: [boolean, boolean, boolean] = [prev[0], prev[1], prev[2]];
+                        next[idx] = true;
+                        return next;
+                      });
                     }}
                     className={`mt-1.5 w-full py-1 rounded-lg font-black text-[10px] tracking-wide bg-rose-600 text-white shadow-sm ${
                       planDiscounted ? 'cursor-default' : 'hover:bg-rose-500 active:scale-95'
                     }`}
                   >
                     {planDiscounted
-                      ? `${formatPlanPrice(priceAfterDiscount(plan.price, wheelPercent), true)} ${regionCfg.symbol}`
+                      ? `−${discountAmount(plan.price, wheelPercent).toFixed(2)} ${regionCfg.symbol}`
                       : `-${wheelPercent}%`}
                   </button>
                 )}

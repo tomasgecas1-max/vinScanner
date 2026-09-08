@@ -49,10 +49,14 @@ export function activatePlanDiscount(planIndex: number): void {
 }
 
 /** Ta pati formulė kaip PaymentModal – kad kortelių kainos sutaptų su Stripe. */
+export function discountAmount(basePrice: number, percent: number | null): number {
+  if (!percent) return 0;
+  return Math.round(((basePrice * percent) / 100) * 100) / 100;
+}
+
 export function priceAfterDiscount(basePrice: number, percent: number | null): number {
   if (!percent) return basePrice;
-  const discountAmount = Math.round(((basePrice * percent) / 100) * 100) / 100;
-  return Math.max(0.01, Math.round((basePrice - discountAmount) * 100) / 100);
+  return Math.max(0.01, Math.round((basePrice - discountAmount(basePrice, percent)) * 100) / 100);
 }
 
 export function formatPlanPrice(price: number, hasDiscount: boolean): string {

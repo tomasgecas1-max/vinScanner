@@ -35,17 +35,21 @@ interface WheelSegment {
 }
 
 const WHEEL_SEGMENTS: WheelSegment[] = [
-  { percent: 6, code: 'C06D3P' },
+  { percent: 0, code: 'Z00A0A' },
   { percent: 12, code: 'F12G6J' },
-  { percent: 7, code: 'K07L2R' },
+  { percent: 0, code: 'Z00B0B' },
   { percent: 16, code: 'H16I8Q' },
   { percent: 8, code: 'D08E4T' },
   { percent: 18, code: 'I18J9U' },
-  { percent: 9, code: 'P09Q4W' },
+  { percent: 0, code: 'Z00C0C' },
   { percent: 14, code: 'G14H7N' },
   { percent: 10, code: 'E10F5H' },
   { percent: 20, code: 'J20K0S' },
 ];
+
+const WINNING_INDICES = WHEEL_SEGMENTS
+  .map((seg, i) => (seg.percent > 10 ? i : -1))
+  .filter((i): i is number => i >= 0);
 
 const SEGMENT_COUNT = WHEEL_SEGMENTS.length;
 const DEG_PER_SEGMENT = 360 / SEGMENT_COUNT;
@@ -79,7 +83,7 @@ const DiscountWheelModal: React.FC<DiscountWheelModalProps> = ({ open, onClose, 
   const animIdRef = useRef<number | null>(null);
 
   const runSpin = useCallback(() => {
-    const winIndex = Math.floor(Math.random() * SEGMENT_COUNT);
+    const winIndex = WINNING_INDICES[Math.floor(Math.random() * WINNING_INDICES.length)];
     const segment = WHEEL_SEGMENTS[winIndex];
     winningRef.current = { percent: segment.percent, code: segment.code };
 

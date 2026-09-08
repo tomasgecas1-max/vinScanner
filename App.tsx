@@ -123,23 +123,6 @@ const App: React.FC = () => {
 
   const prevUserRef = React.useRef<User | null | undefined>(undefined);
 
-  // Ruletė: vienas popup po 6 s nuo puslapio atidarymo; nerodyti jei jau išsukta šiandien
-  const WHEEL_LAST_DAY_KEY = 'vinscanner_wheel_last_day';
-  const WHEEL_DELAY_MS = 6000;
-  useEffect(() => {
-    if (isBot()) return;
-    const getTodayLocal = () => {
-      const d = new Date();
-      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-    };
-    const isWheelUsedToday = () =>
-      typeof localStorage !== 'undefined' && localStorage.getItem(WHEEL_LAST_DAY_KEY) === getTodayLocal();
-    const openTimer = setTimeout(() => {
-      if (!isWheelUsedToday()) setShowDiscountWheel(true);
-    }, WHEEL_DELAY_MS);
-    return () => clearTimeout(openTimer);
-  }, []);
-
   useEffect(() => {
     if (user) {
       setUserId(user.uid);
