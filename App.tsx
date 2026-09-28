@@ -55,6 +55,22 @@ function sendNotFoundRetryEmail(payload: {
   }).catch(() => {});
 }
 
+function notifyVinScan(payload: { vin: string; source: 'home' | 'paid'; email?: string; orderId?: string }) {
+  if (isBot()) return;
+  const vin = payload.vin.trim();
+  if (vin.length <= 5) return;
+  fetch('/api/notify-vin-scan', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      vin,
+      source: payload.source,
+      email: payload.email || '',
+      orderId: payload.orderId || '',
+    }),
+  }).catch(() => {});
+}
+
 const App: React.FC = () => {
   const { user } = useAuth();
   useGoogleAnalytics();
@@ -439,6 +455,12 @@ const App: React.FC = () => {
     if (vinTrimmed.length <= 5) return;
     setError(null);
     setPendingVin(vinTrimmed);
+    notifyVinScan({
+      vin: vinTrimmed,
+      source: 'home',
+      email: user?.email || purchaseInfo?.email || undefined,
+      orderId: purchaseInfo?.orderId ?? undefined,
+    });
 
     if (purchaseToken && purchaseInfo && purchaseInfo.reportsRemaining > 0 && !purchaseInfo.loading) {
       setLoading(true);
@@ -579,6 +601,12 @@ const App: React.FC = () => {
       setLoading(true);
       setReport(null);
       setError(null);
+      notifyVinScan({
+        vin: vinNorm,
+        source: 'paid',
+        email: customerEmail,
+        orderId,
+      });
     }
     if (orderId) {
       setCurrentReportOrderId(orderId);
