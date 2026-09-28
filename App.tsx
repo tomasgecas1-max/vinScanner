@@ -739,6 +739,20 @@ const App: React.FC = () => {
     }
   };
 
+  const checkAnotherVin = () => {
+    setShowInsufficientDataModal(false);
+    setErrorModalMessage(null);
+    setRefundConfirming(false);
+    setPendingVin(null);
+    setTimeout(() => {
+      const el = document.getElementById('vin-search') || document.getElementById('vin-search-input');
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const input = document.getElementById('vin-search-input') as HTMLInputElement | null;
+      input?.focus();
+      input?.select();
+    }, 120);
+  };
+
   const handleSearch = async (vin: string, customerEmail?: string, planIndex: number = 1, orderId?: string, paymentIntentId?: string, purchaseLang?: LangCode) => {
     const previousReport = report;
     const vinNorm = vin?.trim() ?? '';
@@ -1411,8 +1425,17 @@ const App: React.FC = () => {
                   {t.tokenMode.banner.replace('{n}', String(purchaseInfo.reportsRemaining)).replace('{total}', String(purchaseInfo.reportsTotal))}
                 </p>
               )}
+              {!refundConfirming && (
+                <button
+                  type="button"
+                  onClick={checkAnotherVin}
+                  className="w-full py-3 px-6 mb-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                >
+                  {t.tokenMode.checkAnotherVin || 'Tikrinti kitą VIN kodą'}
+                </button>
+              )}
               {canRefundPurchase && (
-                <div className="mb-4">
+                <div className="mb-3">
                   {refundConfirming ? (
                     <div className="space-y-3">
                       <p className="text-sm text-slate-600">
@@ -1446,12 +1469,15 @@ const App: React.FC = () => {
                   )}
                 </div>
               )}
-              <button
-                onClick={() => { setShowInsufficientDataModal(false); setRefundConfirming(false); }}
-                className="w-full py-3 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-              >
-                {t.pricing.close || 'Uždaryti'}
-              </button>
+              {!refundConfirming && (
+                <button
+                  type="button"
+                  onClick={() => { setShowInsufficientDataModal(false); setRefundConfirming(false); }}
+                  className="w-full py-3 px-6 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
+                >
+                  {t.pricing.close || 'Uždaryti'}
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -1477,8 +1503,17 @@ const App: React.FC = () => {
                   {t.tokenMode.banner.replace('{n}', String(purchaseInfo.reportsRemaining)).replace('{total}', String(purchaseInfo.reportsTotal))}
                 </p>
               )}
+              {!refundConfirming && (
+                <button
+                  type="button"
+                  onClick={checkAnotherVin}
+                  className="w-full py-3 px-6 mb-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                >
+                  {t.tokenMode.checkAnotherVin || 'Tikrinti kitą VIN kodą'}
+                </button>
+              )}
               {canRefundPurchase && (
-                <div className="mb-4">
+                <div className="mb-3">
                   {refundConfirming ? (
                     <div className="space-y-3">
                       <p className="text-sm text-slate-600">
@@ -1512,12 +1547,15 @@ const App: React.FC = () => {
                   )}
                 </div>
               )}
-              <button
-                onClick={() => { setErrorModalMessage(null); setRefundConfirming(false); }}
-                className="w-full py-3 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-              >
-                {t.pricing.close || 'Uždaryti'}
-              </button>
+              {!refundConfirming && (
+                <button
+                  type="button"
+                  onClick={() => { setErrorModalMessage(null); setRefundConfirming(false); }}
+                  className="w-full py-3 px-6 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
+                >
+                  {t.pricing.close || 'Uždaryti'}
+                </button>
+              )}
             </div>
           </div>
         </div>

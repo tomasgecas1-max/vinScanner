@@ -76,6 +76,7 @@ const Hero: React.FC<HeroProps> = ({ onVinSubmit, onSampleReportClick, onDiscoun
                     placeholder={t.hero.placeholder}
                     className="w-full h-14 sm:h-20 pl-6 sm:pl-8 pr-6 sm:pr-44 rounded-[1.5rem] border-2 border-slate-200/60 bg-white/80 backdrop-blur-xl text-base sm:text-lg font-semibold focus:outline-none focus:border-indigo-500 transition-all shadow-2xl shadow-slate-200/50"
                     maxLength={17}
+                    id="vin-search-input"
                   />
                   <button
                     disabled={loading}
