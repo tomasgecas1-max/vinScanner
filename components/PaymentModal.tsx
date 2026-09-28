@@ -29,6 +29,16 @@ const DISCOUNT_CODES: Record<string, { type: 'percent' | 'fixed'; value: number 
   ),
 };
 
+function readAppliedWheelDiscount(): { code: string | null; wheelPercent: number | null } {
+  const pending = readPendingDiscount();
+  if (!pending?.code) return { code: null, wheelPercent: null };
+  const code = pending.code.toUpperCase();
+  if (DISCOUNT_CODES[code] || pending.isWheelTotal) {
+    return { code, wheelPercent: pending.isWheelTotal ? pending.percent : null };
+  }
+  return { code: null, wheelPercent: null };
+}
+
 interface PaymentModalProps {
   open: boolean;
   onClose: () => void;
@@ -100,15 +110,19 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
   const [currentPaymentIntentId, setCurrentPaymentIntentId] = useState<string | null>(null);
 
-  // Kai Stripe įjungtas – iš karto kuriame PaymentIntent ir rodom Stripe formą kaip pirmą langą
+  // Nuolaidą skaitome iš karto, kad PaymentIntent būtų tik su galutine kaina (ne 12 €, paskui 9.84 €)
   useEffect(() => {
     if (!open || !stripePromise || !stripePk) return;
+    let cancelled = false;
+    const { code, wheelPercent } = readAppliedWheelDiscount();
+    setAppliedCode(code);
+    setAppliedWheelPercent(wheelPercent);
     setStripeError(null);
     setStripeLoading(true);
     const basePrice = planPrices[Math.min(planIndex, 2)] ?? planPrices[1];
-    const discountConfig = appliedWheelPercent != null
-      ? { type: 'percent' as const, value: appliedWheelPercent }
-      : (appliedCode ? DISCOUNT_CODES[appliedCode.toUpperCase()] : null);
+    const discountConfig = wheelPercent != null
+      ? { type: 'percent' as const, value: wheelPercent }
+      : (code ? DISCOUNT_CODES[code] : null);
     const discountAmount = discountConfig
       ? discountConfig.type === 'percent'
         ? Math.round((basePrice * discountConfig.value) / 100 * 100) / 100
@@ -125,6 +139,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     })
       .then((res) => res.json())
       .then((data) => {
+        if (cancelled) return;
         if (data.clientSecret) {
           setStripeClientSecret(data.clientSecret);
           setCurrentOrderId(data.orderId ?? null);
@@ -133,11 +148,17 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
           setStripeError(data.error ?? t.pricing.paymentApiUnavailable);
         }
       })
-      .catch(() => setStripeError(t.pricing.paymentApiUnavailable))
-      .finally(() => setStripeLoading(false));
-  }, [open, vin, planIndex, email, stripePk, appliedCode, appliedWheelPercent, t.pricing.paymentApiUnavailable, regionCfg, planPrices]);
+      .catch(() => {
+        if (!cancelled) setStripeError(t.pricing.paymentApiUnavailable);
+      })
+      .finally(() => {
+        if (!cancelled) setStripeLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, vin, planIndex, email, stripePk, t.pricing.paymentApiUnavailable, regionCfg.currency, planPrices]);
 
-  // Uždarius modalą išvalome clientSecret, kad kitą kartą būtų naujas PaymentIntent
   useEffect(() => {
     if (!open) {
       setStripeClientSecret(null);
@@ -148,22 +169,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       setAppliedWheelPercent(null);
     }
   }, [open]);
-
-  // Auto-apply pending discount from wheel (galioja tik tą pačią parą)
-  useEffect(() => {
-    if (!open) return;
-    const pending = readPendingDiscount();
-    if (pending && pending.code) {
-      const code = pending.code.toUpperCase();
-      if (DISCOUNT_CODES[code] || pending.isWheelTotal) {
-        setAppliedCode(code);
-        setAppliedWheelPercent(pending.isWheelTotal ? pending.percent : null);
-        return;
-      }
-    }
-    setAppliedCode(null);
-    setAppliedWheelPercent(null);
-  }, [open, planIndex]);
 
   if (!open) return null;
 
