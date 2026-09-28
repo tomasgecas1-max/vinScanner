@@ -128,10 +128,14 @@ const App: React.FC = () => {
     email: string | null;
     loading: boolean;
     error: boolean;
+    refunded?: boolean;
   } | null>(null);
   const [showInsufficientDataModal, setShowInsufficientDataModal] = useState(false);
   const [errorModalMessage, setErrorModalMessage] = useState<string | null>(null);
   const [confirmationEmailSent, setConfirmationEmailSent] = useState(false);
+  const [refundConfirming, setRefundConfirming] = useState(false);
+  const [refunding, setRefunding] = useState(false);
+  const [refundNotice, setRefundNotice] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
 
   const region = getRegionFromPathname();
   const regionCfg = REGION_CONFIG[region];
@@ -291,6 +295,7 @@ const App: React.FC = () => {
           email: emailStr,
           loading: false,
           error: false,
+          refunded: !!data.refunded,
         });
       })
       .catch(() => {
@@ -592,6 +597,61 @@ const App: React.FC = () => {
     setOrderEmail(null);
     setPendingVin(null);
     handleSearch(vin, customerEmail, planIndexForOrder, orderId, paymentIntentId);
+  };
+
+  const canRefundPurchase = !!(
+    purchaseToken &&
+    purchaseInfo &&
+    !purchaseInfo.loading &&
+    !purchaseInfo.refunded &&
+    purchaseInfo.reportsTotal > 0 &&
+    purchaseInfo.reportsRemaining === purchaseInfo.reportsTotal
+  );
+
+  const handleRefund = async () => {
+    if (!purchaseToken || !canRefundPurchase || refunding) return;
+    setRefunding(true);
+    setRefundNotice(null);
+    try {
+      const res = await fetch('/api/get-purchase', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: purchaseToken, action: 'refund' }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success) {
+        setShowInsufficientDataModal(false);
+        setErrorModalMessage(null);
+        setRefundConfirming(false);
+        setPurchaseToken(null);
+        setPurchaseInfo(null);
+        try {
+          const url = new URL(window.location.href);
+          url.searchParams.delete('token');
+          window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
+        } catch {}
+        setRefundNotice({
+          type: 'ok',
+          text: t.tokenMode.refundSuccess || 'Pinigai grąžinti. Jie pasirodys kortelėje per kelias dienas.',
+        });
+        return;
+      }
+      const used = data.error === 'report_used';
+      setRefundConfirming(false);
+      setRefundNotice({
+        type: 'err',
+        text: used
+          ? (t.tokenMode.refundUnavailableUsed || 'Grąžinti negalima, nes šiame užsakyme jau panaudota bent viena ataskaita.')
+          : (t.tokenMode.refundFailed || 'Nepavyko grąžinti. Parašykite info@vinscanner.eu ir nurodykite užsakymo numerį.'),
+      });
+    } catch {
+      setRefundNotice({
+        type: 'err',
+        text: t.tokenMode.refundFailed || 'Nepavyko grąžinti. Parašykite info@vinscanner.eu ir nurodykite užsakymo numerį.',
+      });
+    } finally {
+      setRefunding(false);
+    }
   };
 
   const handleSearch = async (vin: string, customerEmail?: string, planIndex: number = 1, orderId?: string, paymentIntentId?: string, purchaseLang?: LangCode) => {
@@ -1234,8 +1294,43 @@ const App: React.FC = () => {
                   {t.tokenMode.banner.replace('{n}', String(purchaseInfo.reportsRemaining)).replace('{total}', String(purchaseInfo.reportsTotal))}
                 </p>
               )}
+              {canRefundPurchase && (
+                <div className="mb-4">
+                  {refundConfirming ? (
+                    <div className="space-y-3">
+                      <p className="text-sm text-slate-600">
+                        {t.tokenMode.refundConfirm || 'Grąžinti visą mokėjimą į kortelę?'}
+                      </p>
+                      <button
+                        type="button"
+                        disabled={refunding}
+                        onClick={handleRefund}
+                        className="w-full py-3 px-6 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-bold rounded-xl transition-colors"
+                      >
+                        {refunding ? (t.tokenMode.refunding || 'Grąžinama…') : (t.tokenMode.refundYes || 'Taip, grąžinti')}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={refunding}
+                        onClick={() => setRefundConfirming(false)}
+                        className="w-full py-2 text-sm font-semibold text-slate-500 hover:text-slate-700"
+                      >
+                        {t.pricing.close || 'Uždaryti'}
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => { setRefundNotice(null); setRefundConfirming(true); }}
+                      className="w-full py-3 px-6 bg-white border-2 border-rose-200 text-rose-700 hover:bg-rose-50 font-bold rounded-xl transition-colors"
+                    >
+                      {t.tokenMode.refundButton || 'Grąžinti pinigus'}
+                    </button>
+                  )}
+                </div>
+              )}
               <button
-                onClick={() => setShowInsufficientDataModal(false)}
+                onClick={() => { setShowInsufficientDataModal(false); setRefundConfirming(false); }}
                 className="w-full py-3 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
               >
                 {t.pricing.close || 'Uždaryti'}
@@ -1265,13 +1360,74 @@ const App: React.FC = () => {
                   {t.tokenMode.banner.replace('{n}', String(purchaseInfo.reportsRemaining)).replace('{total}', String(purchaseInfo.reportsTotal))}
                 </p>
               )}
+              {canRefundPurchase && (
+                <div className="mb-4">
+                  {refundConfirming ? (
+                    <div className="space-y-3">
+                      <p className="text-sm text-slate-600">
+                        {t.tokenMode.refundConfirm || 'Grąžinti visą mokėjimą į kortelę?'}
+                      </p>
+                      <button
+                        type="button"
+                        disabled={refunding}
+                        onClick={handleRefund}
+                        className="w-full py-3 px-6 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-bold rounded-xl transition-colors"
+                      >
+                        {refunding ? (t.tokenMode.refunding || 'Grąžinama…') : (t.tokenMode.refundYes || 'Taip, grąžinti')}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={refunding}
+                        onClick={() => setRefundConfirming(false)}
+                        className="w-full py-2 text-sm font-semibold text-slate-500 hover:text-slate-700"
+                      >
+                        {t.pricing.close || 'Uždaryti'}
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => { setRefundNotice(null); setRefundConfirming(true); }}
+                      className="w-full py-3 px-6 bg-white border-2 border-rose-200 text-rose-700 hover:bg-rose-50 font-bold rounded-xl transition-colors"
+                    >
+                      {t.tokenMode.refundButton || 'Grąžinti pinigus'}
+                    </button>
+                  )}
+                </div>
+              )}
               <button
-                onClick={() => setErrorModalMessage(null)}
+                onClick={() => { setErrorModalMessage(null); setRefundConfirming(false); }}
                 className="w-full py-3 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
               >
                 {t.pricing.close || 'Uždaryti'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      
+      {refundNotice && (
+        <div className="fixed inset-0 z-[310] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-md bg-white p-8 rounded-3xl shadow-2xl animate-in zoom-in-95 duration-300 text-center">
+            <div className={`w-16 h-16 mx-auto mb-6 rounded-full flex items-center justify-center ${refundNotice.type === 'ok' ? 'bg-emerald-100' : 'bg-rose-100'}`}>
+              {refundNotice.type === 'ok' ? (
+                <svg className="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <svg className="w-8 h-8 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              )}
+            </div>
+            <p className="text-slate-700 mb-6 leading-relaxed">{refundNotice.text}</p>
+            <button
+              type="button"
+              onClick={() => setRefundNotice(null)}
+              className="w-full py-3 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors"
+            >
+              {t.pricing.close || 'Uždaryti'}
+            </button>
           </div>
         </div>
       )}

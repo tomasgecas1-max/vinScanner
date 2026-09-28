@@ -79,6 +79,13 @@ export interface Translations {
     loading: string;
     error: string;
     confirmationSentToEmail: string;
+    refundButton?: string;
+    refundConfirm?: string;
+    refundYes?: string;
+    refundSuccess?: string;
+    refundUnavailableUsed?: string;
+    refundFailed?: string;
+    refunding?: string;
   };
   hero: {
     title: string;
@@ -337,6 +344,13 @@ const translationsMap: Record<SupportedLang, Translations> = {
       loading: 'Kraunama…',
       error: 'Nepavyko užkrauti pirkimo. Patikrinkite nuorodą.',
       confirmationSentToEmail: 'Patvirtinimas ir nuoroda ataskaitai peržiūrėti išsiųsti į jūsų el. paštą.',
+      refundButton: 'Grąžinti pinigus',
+      refundConfirm: 'Grąžinti visą mokėjimą į kortelę? Jei bent viena ataskaita jau buvo parodyta, grąžinti negalima.',
+      refundYes: 'Taip, grąžinti',
+      refundSuccess: 'Pinigai grąžinti. Jie pasirodys kortelėje per kelias dienas.',
+      refundUnavailableUsed: 'Grąžinti negalima, nes šiame užsakyme jau panaudota bent viena ataskaita.',
+      refundFailed: 'Nepavyko grąžinti. Parašykite info@vinscanner.eu ir nurodykite užsakymo numerį.',
+      refunding: 'Grąžinama…',
     },
     hero: {
       title: 'Sužinokite automobilio istoriją',
@@ -666,6 +680,13 @@ const translationsMap: Record<SupportedLang, Translations> = {
       loading: 'Loading…',
       error: 'Failed to load purchase. Please check the link.',
       confirmationSentToEmail: 'Confirmation and link to view reports have been sent to your email.',
+      refundButton: 'Refund payment',
+      refundConfirm: 'Refund the full payment to your card? If at least one report was already shown, a refund is not possible.',
+      refundYes: 'Yes, refund',
+      refundSuccess: 'The payment was refunded. It may take a few days to appear on your card.',
+      refundUnavailableUsed: 'A refund is not possible because at least one report from this order was already used.',
+      refundFailed: 'Refund failed. Email info@vinscanner.eu with your order number.',
+      refunding: 'Refunding…',
     },
     hero: {
       title: 'Discover vehicle history',
@@ -995,6 +1016,13 @@ const translationsMap: Record<SupportedLang, Translations> = {
       loading: 'Laden…',
       error: 'Kauf konnte nicht geladen werden. Bitte prüfen Sie den Link.',
       confirmationSentToEmail: 'Bestätigung und Link zur Berichtsansicht wurden an Ihre E-Mail gesendet.',
+      refundButton: 'Zahlung erstatten',
+      refundConfirm: 'Vollständige Zahlung auf die Karte erstatten? Wenn mindestens ein Bericht bereits angezeigt wurde, ist eine Erstattung nicht möglich.',
+      refundYes: 'Ja, erstatten',
+      refundSuccess: 'Die Zahlung wurde erstattet. Es kann einige Tage dauern, bis sie auf der Karte erscheint.',
+      refundUnavailableUsed: 'Eine Erstattung ist nicht möglich, weil in dieser Bestellung bereits mindestens ein Bericht verwendet wurde.',
+      refundFailed: 'Erstattung fehlgeschlagen. Schreiben Sie an info@vinscanner.eu mit Ihrer Bestellnummer.',
+      refunding: 'Wird erstattet…',
     },
     hero: {
       title: 'Fahrzeughistorie abrufen',

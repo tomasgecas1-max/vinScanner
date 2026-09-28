@@ -47,10 +47,12 @@ export default async function handler(req, res) {
   }
 
   const d = snap.data();
+  if (d?.refunded) {
+    return res.status(400).json({ error: 'Purchase refunded' });
+  }
   const reportsTotal = d?.reportsTotal ?? 1;
   const reportsUsed = d?.reportsUsed ?? 0;
   const reportsRemaining = reportsTotal - reportsUsed;
-  const usedVins = Array.isArray(d?.usedVins) ? [...d.usedVins] : [];
 
   if (reportsRemaining <= 0) {
     return res.status(400).json({ error: 'No reports remaining' });

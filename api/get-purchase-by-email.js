@@ -47,6 +47,7 @@ export default async function handler(req, res) {
 
     snap.docs.forEach((doc) => {
       const d = doc.data();
+      if (d?.refunded) return;
       const reportsTotal = d?.reportsTotal ?? 1;
       const reportsUsed = d?.reportsUsed ?? 0;
       const reportsRemaining = Math.max(0, reportsTotal - reportsUsed);
