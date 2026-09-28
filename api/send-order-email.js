@@ -1,13 +1,20 @@
 /**
  * Vercel serverless – siunčia el. laišką klientui po sėkmingo mokėjimo.
  * Naudoja Hostinger SMTP (arba bet kurį SMTP).
- * POST: { to, vin, lang?, pdfBase64?, token?, reportsRemaining?, orderId?, reason? }
+ * POST: { to, vin, lang?, pdfBase64?, token?, reportsRemaining?, orderId?, reason?, source?, email? }
  * reason: 'not_found' – ataskaita nerasta, siunčiama nuoroda pakartoti (kreditas nenuimtas).
+ * reason: 'vin_scan' – pranešimas savininkui apie VIN skenavimo bandymą (to nebūtinas).
  * lang – kalba, kurią pasirinko vartotojas ataskaitos generavimo metu (el. laiškas bus ta kalba).
  */
 import nodemailer from 'nodemailer';
 import { captureError } from './_sentry.js';
-import { getEmailStrings } from './email-translations.js';
+import { getEmailStrings } from './_email-translations.js';
+import { sendOwnerEmail } from './_ownerMail.js';
+
+const VIN_SCAN_SOURCE_LABELS = {
+  home: 'Pagrindinis puslapis (Tikrinti)',
+  paid: 'Po mokėjimo / ataskaita',
+};
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -40,6 +47,33 @@ export default async function handler(req, res) {
   }
 
   const { to, vin, pdfBase64, token, reportsRemaining, orderId, lang, reason } = body;
+
+  if (reason === 'vin_scan') {
+    const vinScan = String(vin || '').trim().toUpperCase().slice(0, 50);
+    if (vinScan.length < 6) {
+      return res.status(400).json({ error: 'vin required' });
+    }
+    const source = VIN_SCAN_SOURCE_LABELS[body?.source] ? body.source : 'home';
+    const email = String(body?.email || '').trim().slice(0, 200);
+    const scanOrderId = String(orderId || '').trim().slice(0, 40);
+    try {
+      await sendOwnerEmail({
+        subject: `VIN skenavimas (${vinScan})`,
+        html: `
+          <p>Bandymas skenuoti VIN per vinscanner.eu.</p>
+          <p><strong>VIN:</strong> ${vinScan}</p>
+          <p><strong>Kur:</strong> ${VIN_SCAN_SOURCE_LABELS[source]}</p>
+          ${email ? `<p><strong>Kliento el. paštas:</strong> ${email}</p>` : ''}
+          ${scanOrderId ? `<p><strong>Užsakymas:</strong> ${scanOrderId}</p>` : ''}
+        `,
+      });
+      return res.status(200).json({ success: true });
+    } catch (e) {
+      captureError(e, { context: 'notify-vin-scan', vin: vinScan });
+      return res.status(500).json({ error: 'Notify failed' });
+    }
+  }
+
   if (!to || typeof to !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
     return res.status(400).json({ error: 'Valid email required' });
   }

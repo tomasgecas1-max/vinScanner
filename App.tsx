@@ -59,10 +59,11 @@ function notifyVinScan(payload: { vin: string; source: 'home' | 'paid'; email?: 
   if (isBot()) return;
   const vin = payload.vin.trim();
   if (vin.length <= 5) return;
-  fetch('/api/notify-vin-scan', {
+  fetch('/api/send-order-email', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
+      reason: 'vin_scan',
       vin,
       source: payload.source,
       email: payload.email || '',
