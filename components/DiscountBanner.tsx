@@ -15,7 +15,7 @@ const DiscountBanner: React.FC<DiscountBannerProps> = ({ t, onGetDiscountClick }
   useEffect(() => {
     const readPending = () => {
       const pending = readPendingDiscount();
-      if (pending && pending.activePlans.some(Boolean)) {
+      if (pending) {
         setPendingDiscount({ code: pending.code, percent: pending.percent });
         return;
       }

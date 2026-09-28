@@ -153,7 +153,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   useEffect(() => {
     if (!open) return;
     const pending = readPendingDiscount();
-    if (pending && pending.activePlans[planIndex] && pending.code) {
+    if (pending && pending.code) {
       const code = pending.code.toUpperCase();
       if (DISCOUNT_CODES[code] || pending.isWheelTotal) {
         setAppliedCode(code);
