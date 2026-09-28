@@ -62,7 +62,8 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid signature' });
   }
 
-  if (!event.type.startsWith('payment_intent.')) {
+  // created jau siunčiamas iš create-payment-intent, kad veiktų ir be Stripe webhook
+  if (!event.type.startsWith('payment_intent.') || event.type === 'payment_intent.created') {
     return res.status(200).json({ received: true });
   }
 

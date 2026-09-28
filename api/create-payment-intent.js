@@ -7,6 +7,9 @@
 import Stripe from 'stripe';
 import crypto from 'crypto';
 import { captureError } from './_sentry.js';
+import { sendOwnerEmail } from './_ownerMail.js';
+
+const PLAN_LABELS = ['1 ataskaita', '2 ataskaitos', '3 ataskaitos'];
 
 function generateOrderId() {
   const now = new Date();
@@ -58,17 +61,39 @@ export default async function handler(req, res) {
   const orderId = generateOrderId();
 
   try {
+    const vinStr = String(vin).trim().slice(0, 100);
+    const emailStr = String(email || '').slice(0, 500);
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountMinor,
       currency,
       automatic_payment_methods: { enabled: true },
       metadata: {
-        vin: String(vin).trim().slice(0, 100),
+        vin: vinStr,
         planIndex: String(planIndex ?? ''),
-        email: String(email || '').slice(0, 500),
+        email: emailStr,
         orderId,
       },
     });
+
+    const planLabel = PLAN_LABELS[Math.max(0, Math.min(2, Number(planIndex) || 0))];
+    const amountText = `${amountMajor.toFixed(2)} ${currency.toUpperCase()}`;
+    try {
+      await sendOwnerEmail({
+        subject: `Pradėtas mokėjimas ${amountText} [${orderId}] (${vinStr})`,
+        html: `
+          <p>Pradėtas mokėjimas (atidaryta mokėjimo forma) per vinscanner.eu.</p>
+          <p><strong>Būsena:</strong> ${paymentIntent.status || 'requires_payment_method'}</p>
+          <p><strong>Suma:</strong> ${amountText}</p>
+          <p><strong>Planas:</strong> ${planLabel}</p>
+          <p><strong>VIN:</strong> ${vinStr}</p>
+          <p><strong>Kliento el. paštas:</strong> ${emailStr || '–'}</p>
+          <p><strong>Užsakymas:</strong> ${orderId}</p>
+          <p><strong>Stripe:</strong> <a href="https://dashboard.stripe.com/payments/${paymentIntent.id}">${paymentIntent.id}</a></p>
+        `,
+      });
+    } catch (notifyErr) {
+      captureError(notifyErr, { context: 'create-payment-intent-notify', orderId, vin: vinStr });
+    }
 
     return res.status(200).json({
       clientSecret: paymentIntent.client_secret,
