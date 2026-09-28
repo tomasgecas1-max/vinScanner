@@ -31,6 +31,7 @@ import { useGoogleAnalytics, trackPurchase, trackVinSearch, setUserId, trackLogi
 import { useMetaTags } from './hooks/useMetaTags';
 import { captureError } from './services/sentry';
 import { getLangFromIp } from './services/geoLangService';
+import { persistPurchaseSession, readPurchaseToken, clearPurchaseSession } from './lib/purchaseSession';
 
 /** Laikinai įjungti geltoną raw API atvaizdavimą žemiau ataskaitos – nustatyti false, kai nebereikia */
 const SHOW_RAW_API_DEBUG = false;
@@ -185,9 +186,11 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const token = params.get('token')?.trim();
+    const tokenFromUrl = params.get('token')?.trim();
+    const token = (tokenFromUrl && tokenFromUrl.length >= 10 ? tokenFromUrl : readPurchaseToken());
     if (token && token.length >= 10 && !params.get('redirect_status')) {
       setPurchaseToken(token);
+      persistPurchaseSession(token);
     }
   }, []);
 
@@ -257,6 +260,7 @@ const App: React.FC = () => {
         .then((data) => {
           if (data?.token && (data.reportsRemaining ?? 0) > 0) {
             setPurchaseToken(data.token);
+            persistPurchaseSession(data.token);
             setPurchaseInfo({
               reportsRemaining: data.reportsRemaining ?? 0,
               reportsTotal: data.reportsTotal ?? 1,
@@ -283,6 +287,10 @@ const App: React.FC = () => {
     setPurchaseInfo((p) => ({ reportsRemaining: p?.reportsRemaining ?? 0, reportsTotal: p?.reportsTotal ?? 1, orderId: p?.orderId ?? null, email: p?.email ?? null, loading: true, error: false }));
     fetch(`/api/get-purchase?token=${encodeURIComponent(purchaseToken)}`)
       .then((res) => {
+        if (res.status === 404) {
+          clearPurchaseSession();
+          throw new Error('Failed');
+        }
         if (!res.ok) throw new Error('Failed');
         return res.json();
       })
@@ -468,10 +476,45 @@ const App: React.FC = () => {
       orderId: purchaseInfo?.orderId ?? undefined,
     });
 
-    if (purchaseToken && purchaseInfo && purchaseInfo.reportsRemaining > 0 && !purchaseInfo.loading) {
+    let token = purchaseToken || readPurchaseToken();
+    let info = purchaseInfo;
+    if (token && (!info || info.loading || (info.reportsRemaining ?? 0) <= 0)) {
+      try {
+        const res = await fetch(`/api/get-purchase?token=${encodeURIComponent(token)}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.refunded) {
+            token = null;
+            info = null;
+            clearPurchaseSession();
+            setPurchaseToken(null);
+            setPurchaseInfo(null);
+          } else {
+            const emailStr = data?.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(data.email)) ? String(data.email).trim() : null;
+            info = {
+              reportsRemaining: data.reportsRemaining ?? 0,
+              reportsTotal: data.reportsTotal ?? 1,
+              orderId: data.orderId ?? null,
+              email: emailStr,
+              loading: false,
+              error: false,
+              refunded: !!data.refunded,
+            };
+            setPurchaseToken(token);
+            setPurchaseInfo(info);
+            persistPurchaseSession(token);
+          }
+        }
+      } catch {
+        /* paliekame esamą info */
+      }
+    }
+
+    if (token && info && info.reportsRemaining > 0 && !info.loading) {
+      setPendingVin(null);
       setLoading(true);
       setReport(null);
-      const retryEmail = user?.email || purchaseInfo.email || undefined;
+      const retryEmail = user?.email || info.email || undefined;
       
       try {
         const reportResult = await handleSearchAndReturn(vinTrimmed);
@@ -481,9 +524,9 @@ const App: React.FC = () => {
             sendNotFoundRetryEmail({
               to: retryEmail,
               vin: vinTrimmed,
-              token: purchaseToken,
-              reportsRemaining: purchaseInfo.reportsRemaining,
-              orderId: purchaseInfo.orderId ?? undefined,
+              token,
+              reportsRemaining: info.reportsRemaining,
+              orderId: info.orderId ?? undefined,
               lang,
             });
           }
@@ -501,9 +544,9 @@ const App: React.FC = () => {
             sendNotFoundRetryEmail({
               to: retryEmail,
               vin: vinTrimmed,
-              token: purchaseToken,
-              reportsRemaining: purchaseInfo.reportsRemaining,
-              orderId: purchaseInfo.orderId ?? undefined,
+              token,
+              reportsRemaining: info.reportsRemaining,
+              orderId: info.orderId ?? undefined,
               lang,
             });
           }
@@ -516,7 +559,7 @@ const App: React.FC = () => {
         const useReportRes = await fetch('/api/use-report', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token: purchaseToken, vin: vinTrimmed }),
+          body: JSON.stringify({ token, vin: vinTrimmed }),
         });
         const useReportData = await useReportRes.json();
         
@@ -524,7 +567,7 @@ const App: React.FC = () => {
           throw new Error(useReportData.error || 'Failed');
         }
         
-        const newRemaining = purchaseInfo.reportsRemaining - 1;
+        const newRemaining = info.reportsRemaining - 1;
         setPurchaseInfo((prev) =>
           prev ? { ...prev, reportsRemaining: newRemaining } : null
         );
@@ -532,15 +575,16 @@ const App: React.FC = () => {
           fetch(`/api/get-purchase-by-email?email=${encodeURIComponent(user.email)}`)
             .then((r) => (r.ok ? r.json() : null))
             .then((data) => {
-              if (data?.token && data.token !== purchaseToken) {
+              if (data?.token && data.token !== token) {
                 setPurchaseToken(data.token);
+                persistPurchaseSession(data.token);
               }
             })
             .catch(() => {});
         }
         if (retryEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(retryEmail)) {
-          setPendingEmailReport({ email: retryEmail, vin: vinTrimmed, token: purchaseToken, reportsRemaining: newRemaining, orderId: purchaseInfo.orderId ?? undefined, lang });
-          if (purchaseInfo.orderId) setCurrentReportOrderId(purchaseInfo.orderId);
+          setPendingEmailReport({ email: retryEmail, vin: vinTrimmed, token, reportsRemaining: newRemaining, orderId: info.orderId ?? undefined, lang });
+          if (info.orderId) setCurrentReportOrderId(info.orderId);
         }
         
         setReport(reportResult);
@@ -625,11 +669,7 @@ const App: React.FC = () => {
         setRefundConfirming(false);
         setPurchaseToken(null);
         setPurchaseInfo(null);
-        try {
-          const url = new URL(window.location.href);
-          url.searchParams.delete('token');
-          window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
-        } catch {}
+        clearPurchaseSession();
         setRefundNotice({
           type: 'ok',
           text: t.tokenMode.refundSuccess || 'Pinigai grąžinti. Jie pasirodys kortelėje per kelias dienas.',
@@ -695,6 +735,7 @@ const App: React.FC = () => {
           purchaseOrderId = prData.orderId ?? orderId;
           
           setPurchaseToken(purchaseTokenValue);
+          persistPurchaseSession(purchaseTokenValue);
           const purchaseEmail = customerEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail) ? customerEmail : null;
           setPurchaseInfo({
             reportsRemaining: reportsRemainingValue,
@@ -731,6 +772,9 @@ const App: React.FC = () => {
         })
           .then((res) => { if (res.ok) setConfirmationEmailSent(true); })
           .catch(() => {});
+        setTimeout(() => {
+          document.getElementById('vin-search')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 150);
       }
       return;
     }
