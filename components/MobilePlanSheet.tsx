@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import type { RegionConfig } from '../constants/regionConfig';
-import { discountAmount, readPendingDiscount, activatePlanDiscount } from '../lib/pendingDiscount';
+import { discountAmount, readPendingDiscount, activatePlanDiscount, subscribePendingDiscount } from '../lib/pendingDiscount';
 
 interface MobilePlanSheetProps {
   pendingVin: string;
@@ -25,8 +25,7 @@ const MobilePlanSheet: React.FC<MobilePlanSheetProps> = ({ pendingVin, t, onPlan
       setActivePlans(pending?.activePlans ?? [false, false, false]);
     };
     read();
-    window.addEventListener('vinscanner-discount-applied', read);
-    return () => window.removeEventListener('vinscanner-discount-applied', read);
+    return subscribePendingDiscount(read);
   }, []);
 
   const plans = [

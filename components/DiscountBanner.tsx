@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-
-const PENDING_DISCOUNT_KEY = 'vinscanner_pending_discount';
+import { readPendingDiscount, subscribePendingDiscount } from '../lib/pendingDiscount';
 
 interface DiscountBannerProps {
   t: {
@@ -15,24 +14,15 @@ const DiscountBanner: React.FC<DiscountBannerProps> = ({ t, onGetDiscountClick }
 
   useEffect(() => {
     const readPending = () => {
-      try {
-        const raw = typeof localStorage !== 'undefined' ? localStorage.getItem(PENDING_DISCOUNT_KEY) : null;
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          const anyActive = Array.isArray(parsed.activePlans)
-            ? parsed.activePlans.some(Boolean)
-            : parsed?.active === true;
-          if (anyActive && parsed?.code && typeof parsed.percent === 'number') {
-            setPendingDiscount({ code: parsed.code, percent: parsed.percent });
-            return;
-          }
-        }
-      } catch {}
+      const pending = readPendingDiscount();
+      if (pending && pending.activePlans.some(Boolean)) {
+        setPendingDiscount({ code: pending.code, percent: pending.percent });
+        return;
+      }
       setPendingDiscount(null);
     };
     readPending();
-    window.addEventListener('vinscanner-discount-applied', readPending);
-    return () => window.removeEventListener('vinscanner-discount-applied', readPending);
+    return subscribePendingDiscount(readPending);
   }, []);
 
   const buttonLabel = t.discountWheel?.getExtraDiscountButton ?? 'Gauti papildomą nuolaidą!';

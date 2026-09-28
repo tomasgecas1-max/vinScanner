@@ -1,14 +1,8 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { trackEvent } from '../hooks/useGoogleAnalytics';
+import { hasSpunToday, saveWheelDiscount, readPendingDiscount } from '../lib/pendingDiscount';
 
-const PENDING_DISCOUNT_KEY = 'vinscanner_pending_discount';
-const WHEEL_LAST_DAY_KEY = 'vinscanner_wheel_last_day';
 const MAX_SPINS = 1;
-
-function getTodayLocal(): string {
-  const d = new Date();
-  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-}
 
 interface DiscountWheelModalProps {
   open: boolean;
@@ -72,10 +66,6 @@ const DiscountWheelModal: React.FC<DiscountWheelModalProps> = ({ open, onClose, 
   const allDone = spinCount >= MAX_SPINS;
 
   const recordSessionUsed = useCallback(() => {
-    const today = getTodayLocal();
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(WHEEL_LAST_DAY_KEY, today);
-    }
     fetch('/api/discount-wheel', { method: 'POST' }).catch(() => {});
   }, []);
 
@@ -133,10 +123,7 @@ const DiscountWheelModal: React.FC<DiscountWheelModalProps> = ({ open, onClose, 
     if (results.length === 0) return;
     recordSessionUsed();
     const won = results[0];
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(PENDING_DISCOUNT_KEY, JSON.stringify({ code: won.code, percent: won.percent, isWheelTotal: true, activePlans: [false, false, false], active: false }));
-    }
-    window.dispatchEvent(new CustomEvent('vinscanner-discount-applied'));
+    saveWheelDiscount(won);
     onApplyDiscount?.();
     onClose();
   };
@@ -146,10 +133,7 @@ const DiscountWheelModal: React.FC<DiscountWheelModalProps> = ({ open, onClose, 
       if (results.length > 0) {
         recordSessionUsed();
         const won = results[0];
-        if (typeof localStorage !== 'undefined') {
-          localStorage.setItem(PENDING_DISCOUNT_KEY, JSON.stringify({ code: won.code, percent: won.percent, isWheelTotal: true, activePlans: [false, false, false], active: false }));
-        }
-        window.dispatchEvent(new CustomEvent('vinscanner-discount-applied'));
+        saveWheelDiscount(won);
       }
       onClose();
     }
@@ -167,20 +151,12 @@ const DiscountWheelModal: React.FC<DiscountWheelModalProps> = ({ open, onClose, 
       return;
     }
     let cancelled = false;
-    const check = async () => {
-      const today = getTodayLocal();
-      const lastDay = typeof localStorage !== 'undefined' ? localStorage.getItem(WHEEL_LAST_DAY_KEY) : null;
-      if (lastDay === today) {
+    const check = () => {
+      readPendingDiscount();
+      if (hasSpunToday()) {
         if (!cancelled) setLimitReached(true);
         setLimitChecking(false);
         return;
-      }
-      try {
-        const res = await fetch('/api/discount-wheel');
-        const data = await res.json();
-        if (!cancelled && data?.allowed === false) setLimitReached(true);
-      } catch {
-        /* API neveikia – naudojamas tik localStorage */
       }
       if (!cancelled) setLimitChecking(false);
     };

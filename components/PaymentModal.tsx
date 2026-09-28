@@ -4,6 +4,7 @@ import { Elements } from '@stripe/react-stripe-js';
 import { StripePaymentForm } from './StripePaymentForm';
 import type { RegionCode } from '../constants/regionConfig';
 import type { RegionConfig } from '../constants/regionConfig';
+import { readPendingDiscount } from '../lib/pendingDiscount';
 
 const stripePk = import.meta.env.VITE_STRIPE_PUBLISHABLE as string | undefined;
 const stripePromise = stripePk ? loadStripe(stripePk) : null;
@@ -148,32 +149,20 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     }
   }, [open]);
 
-  // Auto-apply pending discount from wheel
+  // Auto-apply pending discount from wheel (galioja tik tą pačią parą)
   useEffect(() => {
     if (!open) return;
-    try {
-      const raw = localStorage.getItem('vinscanner_pending_discount');
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        const code = parsed?.code?.toUpperCase?.();
-        const activeForPlan = Array.isArray(parsed?.activePlans)
-          ? parsed.activePlans[planIndex] === true
-          : parsed?.active === true;
-        if (activeForPlan && code && (DISCOUNT_CODES[code] || parsed?.isWheelTotal)) {
-          setAppliedCode(code);
-          setAppliedWheelPercent(parsed?.isWheelTotal && typeof parsed?.percent === 'number' ? parsed.percent : null);
-        } else {
-          setAppliedCode(null);
-          setAppliedWheelPercent(null);
-        }
-      } else {
-        setAppliedCode(null);
-        setAppliedWheelPercent(null);
+    const pending = readPendingDiscount();
+    if (pending && pending.activePlans[planIndex] && pending.code) {
+      const code = pending.code.toUpperCase();
+      if (DISCOUNT_CODES[code] || pending.isWheelTotal) {
+        setAppliedCode(code);
+        setAppliedWheelPercent(pending.isWheelTotal ? pending.percent : null);
+        return;
       }
-    } catch {
-      setAppliedCode(null);
-      setAppliedWheelPercent(null);
     }
+    setAppliedCode(null);
+    setAppliedWheelPercent(null);
   }, [open, planIndex]);
 
   if (!open) return null;
