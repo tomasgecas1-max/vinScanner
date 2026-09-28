@@ -31,7 +31,7 @@ import { useGoogleAnalytics, trackPurchase, trackVinSearch, setUserId, trackLogi
 import { useMetaTags } from './hooks/useMetaTags';
 import { captureError } from './services/sentry';
 import { getLangFromIp } from './services/geoLangService';
-import { persistPurchaseSession, readPurchaseToken, clearPurchaseSession } from './lib/purchaseSession';
+import { persistPurchaseSession, readPurchaseToken, clearPurchaseSession, readLastPaymentIntent, writeLastPaymentIntent, PENDING_ORDER_KEY } from './lib/purchaseSession';
 
 /** Laikinai įjungti geltoną raw API atvaizdavimą žemiau ataskaitos – nustatyti false, kai nebereikia */
 const SHOW_RAW_API_DEBUG = false;
@@ -112,7 +112,7 @@ const App: React.FC = () => {
   const [planIndexForOrder, setPlanIndexForOrder] = useState<number>(1);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [orderEmail, setOrderEmail] = useState<string | null>(null);
-  const [redirectOrder, setRedirectOrder] = useState<{ vin: string; email?: string; planIndex?: number; lang?: LangCode } | null>(null);
+  const [redirectOrder, setRedirectOrder] = useState<{ vin: string; email?: string; planIndex?: number; lang?: LangCode; paymentIntentId?: string } | null>(null);
   const [pendingEmailReport, setPendingEmailReport] = useState<{ email: string; vin: string; token?: string; reportsRemaining?: number; orderId?: string; lang?: string } | null>(null);
   const [currentReportOrderId, setCurrentReportOrderId] = useState<string | null>(null);
   const [purchaseToken, setPurchaseToken] = useState<string | null>(null);
@@ -160,27 +160,34 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get('redirect_status') === 'succeeded' && params.get('payment_intent_client_secret')) {
+    const redirectOk = params.get('redirect_status') === 'succeeded';
+    const paymentIntentId = params.get('payment_intent')?.trim() || '';
+    if (redirectOk && (params.get('payment_intent_client_secret') || paymentIntentId)) {
+      if (paymentIntentId) writeLastPaymentIntent(paymentIntentId);
       try {
-        const raw = sessionStorage.getItem('vinscanner_pending_order');
+        const raw = sessionStorage.getItem(PENDING_ORDER_KEY) || localStorage.getItem(PENDING_ORDER_KEY);
         const data = raw ? JSON.parse(raw) : null;
-        sessionStorage.removeItem('vinscanner_pending_order');
-        const hasValidData = data?.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(data.email));
+        sessionStorage.removeItem(PENDING_ORDER_KEY);
+        localStorage.removeItem(PENDING_ORDER_KEY);
+        const email = data?.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(data.email)) ? String(data.email) : undefined;
         const vinStr = data?.vin && typeof data.vin === 'string' ? data.vin.trim() : '';
-        const isPlanOnly = vinStr === '' || vinStr === 'PENDING';
-        const hasVin = vinStr.length > 5;
-        if (hasValidData && (hasVin || isPlanOnly)) {
-          const purchaseLang = data.lang && typeof data.lang === 'string' ? (data.lang as LangCode) : undefined;
-          if (purchaseLang) setLang(purchaseLang);
+        const isPlanOnly = !vinStr || vinStr === 'PENDING' || vinStr.length <= 5;
+        const purchaseLang = data?.lang && typeof data.lang === 'string' ? (data.lang as LangCode) : undefined;
+        if (purchaseLang) setLang(purchaseLang);
+        if (email || paymentIntentId) {
           setRedirectOrder({
             vin: isPlanOnly ? '' : vinStr,
-            email: data.email || undefined,
-            planIndex: typeof data.planIndex === 'number' ? data.planIndex : 1,
+            email,
+            planIndex: typeof data?.planIndex === 'number' ? data.planIndex : 1,
             lang: purchaseLang,
+            paymentIntentId: paymentIntentId || undefined,
           });
         }
-      } catch (_) {}
-      window.history.replaceState({}, '', window.location.pathname || '/');
+      } catch (_) {
+        if (paymentIntentId) {
+          setRedirectOrder({ vin: '', paymentIntentId });
+        }
+      }
     }
   }, []);
 
@@ -188,7 +195,7 @@ const App: React.FC = () => {
     const params = new URLSearchParams(window.location.search);
     const tokenFromUrl = params.get('token')?.trim();
     const token = (tokenFromUrl && tokenFromUrl.length >= 10 ? tokenFromUrl : readPurchaseToken());
-    if (token && token.length >= 10 && !params.get('redirect_status')) {
+    if (token && token.length >= 10) {
       setPurchaseToken(token);
       persistPurchaseSession(token);
     }
@@ -510,6 +517,43 @@ const App: React.FC = () => {
       }
     }
 
+    if ((!token || !info || info.reportsRemaining <= 0) && readLastPaymentIntent()) {
+      try {
+        const pr = await fetch('/api/create-purchase', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: user?.email || '',
+            vin: vinTrimmed,
+            paymentIntentId: readLastPaymentIntent(),
+          }),
+        });
+        const prData = await pr.json();
+        if (pr.ok && prData?.token && !prData.refunded) {
+          token = prData.token;
+          persistPurchaseSession(token);
+          setPurchaseToken(token);
+          const got = await fetch(`/api/get-purchase?token=${encodeURIComponent(token)}`);
+          if (got.ok) {
+            const data = await got.json();
+            const emailStr = data?.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(data.email)) ? String(data.email).trim() : null;
+            info = {
+              reportsRemaining: data.reportsRemaining ?? 0,
+              reportsTotal: data.reportsTotal ?? 1,
+              orderId: data.orderId ?? null,
+              email: emailStr,
+              loading: false,
+              error: false,
+              refunded: !!data.refunded,
+            };
+            setPurchaseInfo(info);
+          }
+        }
+      } catch {
+        /* be pirkimo eisime į planų pasirinkimą */
+      }
+    }
+
     if (token && info && info.reportsRemaining > 0 && !info.loading) {
       setPendingVin(null);
       setLoading(true);
@@ -627,7 +671,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (!redirectOrder) return;
-    handleSearch(redirectOrder.vin, redirectOrder.email, redirectOrder.planIndex ?? 1, undefined, undefined, redirectOrder.lang);
+    handleSearch(redirectOrder.vin, redirectOrder.email, redirectOrder.planIndex ?? 1, undefined, redirectOrder.paymentIntentId, redirectOrder.lang);
     setRedirectOrder(null);
   }, [redirectOrder]);
 
@@ -640,6 +684,7 @@ const App: React.FC = () => {
     setVinForOrder(null);
     setOrderEmail(null);
     setPendingVin(null);
+    if (paymentIntentId) writeLastPaymentIntent(paymentIntentId);
     handleSearch(vin, customerEmail, planIndexForOrder, orderId, paymentIntentId);
   };
 
@@ -697,7 +742,7 @@ const App: React.FC = () => {
   const handleSearch = async (vin: string, customerEmail?: string, planIndex: number = 1, orderId?: string, paymentIntentId?: string, purchaseLang?: LangCode) => {
     const previousReport = report;
     const vinNorm = vin?.trim() ?? '';
-    const isPurchaseOnly = !vinNorm && !!customerEmail && planIndex >= 0;
+    const isPurchaseOnly = !vinNorm && (!!customerEmail || !!paymentIntentId);
     if (!isPurchaseOnly) {
       setLoading(true);
       setReport(null);
@@ -721,32 +766,60 @@ const App: React.FC = () => {
     let reportsRemainingValue = planIndex + 1;
     const emailLang = purchaseLang ?? lang;
     
-    if (customerEmail) {
+    if (customerEmail || paymentIntentId) {
       try {
         const pr = await fetch('/api/create-purchase', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: customerEmail, planIndex, vin: vinNorm || 'PENDING', paymentIntentId }),
+          body: JSON.stringify({ email: customerEmail || '', planIndex, vin: vinNorm || 'PENDING', paymentIntentId }),
         });
         const prData = await pr.json();
         if (pr.ok && prData?.token) {
           purchaseCreated = true;
           purchaseTokenValue = prData.token;
           purchaseOrderId = prData.orderId ?? orderId;
-          
           setPurchaseToken(purchaseTokenValue);
           persistPurchaseSession(purchaseTokenValue);
-          const purchaseEmail = customerEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail) ? customerEmail : null;
-          setPurchaseInfo({
-            reportsRemaining: reportsRemainingValue,
-            reportsTotal: planIndex + 1,
-            orderId: purchaseOrderId ?? null,
-            email: purchaseEmail,
-            loading: false,
-            error: false,
-          });
-          
+          if (paymentIntentId) writeLastPaymentIntent(paymentIntentId);
+          let purchaseEmail = customerEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail) ? customerEmail : null;
+          try {
+            const got = await fetch(`/api/get-purchase?token=${encodeURIComponent(purchaseTokenValue)}`);
+            if (got.ok) {
+              const data = await got.json();
+              reportsRemainingValue = data.reportsRemaining ?? reportsRemainingValue;
+              purchaseOrderId = data.orderId ?? purchaseOrderId;
+              if (data.email) purchaseEmail = String(data.email);
+              setPurchaseInfo({
+                reportsRemaining: reportsRemainingValue,
+                reportsTotal: data.reportsTotal ?? (planIndex + 1),
+                orderId: purchaseOrderId ?? null,
+                email: purchaseEmail,
+                loading: false,
+                error: false,
+                refunded: !!data.refunded,
+              });
+            } else {
+              setPurchaseInfo({
+                reportsRemaining: reportsRemainingValue,
+                reportsTotal: planIndex + 1,
+                orderId: purchaseOrderId ?? null,
+                email: purchaseEmail,
+                loading: false,
+                error: false,
+              });
+            }
+          } catch {
+            setPurchaseInfo({
+              reportsRemaining: reportsRemainingValue,
+              reportsTotal: planIndex + 1,
+              orderId: purchaseOrderId ?? null,
+              email: purchaseEmail,
+              loading: false,
+              error: false,
+            });
+          }
           if (purchaseOrderId) setCurrentReportOrderId(purchaseOrderId);
+          if (isPurchaseOnly) customerEmail = purchaseEmail || customerEmail;
         }
       } catch (e) {
         console.error('[App] create-purchase error:', e);

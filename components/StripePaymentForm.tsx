@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
-const PENDING_ORDER_KEY = 'vinscanner_pending_order';
+import { PENDING_ORDER_KEY } from '../lib/purchaseSession';
 
 interface StripePaymentFormProps {
   onSuccess: () => void;
@@ -41,12 +41,14 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
     setLoading(true);
     setError(null);
     try {
-      sessionStorage.setItem(PENDING_ORDER_KEY, JSON.stringify({
+      const payload = JSON.stringify({
         vin: (pendingVin && pendingVin.trim()) || 'PENDING',
         email: pendingEmail ?? '',
         planIndex: pendingPlanIndex ?? 0,
         lang: pendingLang ?? undefined,
-      }));
+      });
+      sessionStorage.setItem(PENDING_ORDER_KEY, payload);
+      localStorage.setItem(PENDING_ORDER_KEY, payload);
     } catch (_) {}
     const { error: confirmError } = await stripe.confirmPayment({
       elements,
